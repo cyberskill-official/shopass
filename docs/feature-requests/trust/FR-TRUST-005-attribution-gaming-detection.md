@@ -1,0 +1,323 @@
+---
+id: FR-TRUST-005
+title: "Phát hiện gaming affiliate attribution + delay payout affiliate để điều tra - giữ payout trong cửa sổ delay + chặn last-click bị thao túng; best practice ngành chống cookie-stuffing/self-referral"
+module: TRUST
+priority: MUST
+status: ready_to_implement
+verify: T
+phase: P3
+milestone: P3 - slice 1
+slice: 1
+owner: Stephen Cheng (Founder)
+created: 2026-06-28
+related_frs: [FR-AFFIL-001, FR-AFFIL-005, FR-TRUST-004, FR-BILL-002, NFR-TRUST-001, NFR-AFFIL-001]
+depends_on: [FR-AFFIL-001, FR-AFFIL-003, FR-BILL-002, FR-TRUST-004]
+blocks: [FR-AFFIL-005]
+source_pages:
+  - "docs/TÀI LIỆU NỀN TẢNG SẢN PHẨM SănDeal §5.3 (gaming affiliate attribution; delay payout affiliate để điều tra - best practice ngành)"
+  - "docs/... §4.2 (affiliate hợp lệ chỉ user-initiated; né Honey/cookie-stuffing), §5.3 (multi-account, fake farming)"
+source_decisions:
+  - "DEC-TRUST-21: payout affiliate/cashback KHÔNG trả ngay khi conversion 'confirmed'; phải qua cửa sổ DELAY (hold period) để điều tra trước khi giải ngân (best practice ngành §5.3)"
+  - "DEC-TRUST-22: phát hiện gaming attribution - last-click bị thao túng (click ngay trước order đã có sẵn trong giỏ lâu), self-referral (user tự mua qua link của chính mình), cookie-stuffing dấu hiệu (click không từ user-action)"
+  - "DEC-TRUST-23: tiêu thụ risk_score từ FR-TRUST-004; conversion thuộc chủ thể risk cao -> kéo dài delay hoặc giữ chờ điều tra; KHÔNG tự từ chối payout mù"
+  - "DEC-TRUST-24: trạng thái payout: eligible_at (thời điểm hết delay) + hold_reason; chỉ payout khi (a) qua delay, (b) không hold điều tra, (c) network đã confirm (FR-AFFIL-003)"
+  - "DEC-TRUST-25: mọi quyết định delay/hold ghi lý do (audit trail); không giữ tiền user vô cớ - phải có tín hiệu cụ thể"
+
+language: "PostgreSQL 16 + Go 1.22 (trust-svc / affil-svc); job định kỳ giải ngân khi hết delay"
+service: shopass/services/trust/
+new_files:
+  - services/trust/migrations/0003_payout_hold.sql
+  - services/trust/internal/payout/delay.go
+  - services/trust/internal/payout/attribution_guard.go
+  - services/trust/internal/payout/release.go
+  - services/trust/internal/payout/delay_test.go
+  - services/trust/internal/payout/attribution_guard_test.go
+  - services/trust/internal/payout/release_test.go
+modified_files:
+  - services/affil/internal/affil/repo.go   # conversion confirmed -> tạo payout_hold (không trả ngay)
+allowed_tools:
+  - file_read: services/trust/**, services/affil/**
+  - file_write: services/trust/**, services/affil/**
+  - bash: cd services/trust && go test ./...
+disallowed_tools:
+  - trả payout ngay khi conversion 'confirmed' bỏ qua cửa sổ delay (vi phạm DEC-TRUST-21)
+  - tự từ chối payout khi risk cao mà không điều tra (vi phạm DEC-TRUST-23 - giống auto-ban, hại user thật)
+  - giữ tiền user không có hold_reason cụ thể (vi phạm DEC-TRUST-25 - giữ tiền vô cớ)
+  - bỏ qua xác nhận network (postback FR-AFFIL-003) khi giải ngân (vi phạm DEC-TRUST-24 - trả tiền chưa xác nhận)
+
+effort_hours: 6
+sub_tasks:
+  - "1.0h: 0003_payout_hold.sql - bảng payout_hold (conversion_id, eligible_at, hold_reason, status) + index eligible_at"
+  - "1.5h: attribution_guard.go - phát hiện last-click thao túng / self-referral / cookie-stuffing dấu hiệu; gắn hold_reason"
+  - "1.0h: delay.go - tính eligible_at = confirmed_at + delay_window; kéo dài nếu risk_score cao (FR-TRUST-004)"
+  - "1.0h: release.go - job giải ngân: chọn hold hết delay + không hold điều tra + network confirmed -> payout"
+  - "0.5h: nối affil repo: conversion confirmed -> tạo payout_hold thay vì trả ngay"
+  - "1.0h: tests - delay đúng cửa sổ; gaming bị giữ; risk cao kéo dài; giải ngân chỉ khi đủ ba điều kiện"
+
+risk_if_skipped: "Affiliate/cashback (FR-AFFIL-005) là dòng tiền ra thật. Gaming attribution - thao túng last-click, self-referral, cookie-stuffing - rút hoa hồng/cashback không chính đáng, và nếu trả ngay thì tiền đã đi trước khi kịp phát hiện. Tài liệu nguồn nêu rõ best practice: delay payout để điều tra (§5.3). Đây cũng là tuyến phòng thủ trùng với cam kết né Honey (§4.2): cookie-stuffing là đúng cái Honey làm và bị phơi bày. Nhưng phải làm đúng: tự từ chối payout khi nghi ngờ sẽ quỵt tiền user thật (false positive) - hại niềm tin. Delay + điều tra + chỉ giữ khi có hold_reason cụ thể là cân bằng đúng: tiền gian lận bị chặn trước khi đi, tiền thật vẫn được trả sau cửa sổ. Bỏ FR này, payout không phòng vệ và dễ bị rút cạn; làm sai (auto-từ chối), quỵt user thật. Nối trực tiếp với risk_score của FR-TRUST-004 để dùng cùng tín hiệu."
+---
+
+## §1 - Mô tả (BCP-14 normative)
+
+Service TRUST **MUST** giữ payout affiliate/cashback qua một cửa sổ delay để điều tra, phát hiện gaming attribution (last-click thao túng, self-referral, dấu hiệu cookie-stuffing), và chỉ giải ngân khi đủ điều kiện - KHÔNG trả ngay, cũng KHÔNG tự từ chối mù. Hợp đồng:
+
+1. Khi `affiliate_conversion` chuyển `confirmed` (FR-AFFIL-001), payout **MUST NOT** được trả ngay; phải tạo `payout_hold` với `eligible_at = confirmed_at + delay_window` (DEC-TRUST-21).
+2. `attribution_guard.go` **MUST** phát hiện dấu hiệu gaming và gắn `hold_reason` (DEC-TRUST-22):
+   (a) last-click bị thao túng - click affiliate xảy ra ngay trước order trong khi sản phẩm đã ở giỏ từ lâu (click "chèn cuối" để cướp attribution);
+   (b) self-referral - user mua qua link affiliate của chính mình (hoặc cụm liên kết FR-TRUST-004);
+   (c) dấu hiệu cookie-stuffing - click không gắn với user-action hợp lệ (vi phạm mô hình user-initiated, NFR-AFFIL-001).
+3. `delay.go` **MUST** tính `eligible_at`; nếu chủ thể có `risk_score` cao (từ FR-TRUST-004), delay **MUST** được kéo dài hoặc chuyển trạng thái giữ-chờ-điều tra - KHÔNG tự từ chối payout (DEC-TRUST-23).
+4. `release.go` (job giải ngân) **MUST** chỉ trả payout khi ĐỦ BA điều kiện (DEC-TRUST-24): (a) đã qua `eligible_at`, (b) không còn `hold_reason` điều tra mở, (c) network đã confirm (postback FR-AFFIL-003).
+5. Mọi quyết định delay/hold **MUST** ghi `hold_reason` cụ thể (audit trail); **MUST NOT** giữ tiền user khi không có tín hiệu cụ thể (DEC-TRUST-25). Giữ tiền vô cớ là tổn hại.
+6. `payout_hold` **MUST** có trạng thái: `holding` (trong delay) -> `released` (đã trả) | `under_investigation` (giữ tiếp) -> `released` | `denied` (chỉ sau điều tra kết luận `confirmed_fraud`, không tự động).
+7. Self-referral check **MUST** dùng đồ thị quan hệ FR-TRUST-004: nếu người mua và chủ link thuộc cùng cụm liên kết -> gắn `hold_reason='self_referral'`.
+8. Engine **MUST** idempotent: một conversion chỉ sinh một `payout_hold` (UNIQUE `conversion_id`); chấm lại không nhân bản.
+9. Tiền (`payout_amount`) **MUST** lưu BIGINT VND nhất quán DEC-AFFIL-04/DEC-PRICE-05; không float.
+10. Khi điều tra kết luận `cleared` (FR-TRUST-004), `payout_hold` **MUST** được giải phóng ở chu kỳ release kế tiếp (tiền thật không bị quỵt).
+11. Job release **MUST** an toàn với chạy lặp (idempotent): trả một `payout_hold` đúng một lần (không double-pay), kể cả khi job chạy lại.
+12. **MUST** phát metric: `payout_hold_total{reason}`, `payout_released_total`, `payout_under_investigation_total`, và phân phối thời gian giữ (để cân delay vs trải nghiệm).
+
+---
+
+## §2 - Vì sao thiết kế này (rationale cho người đọc)
+
+**Vì sao delay payout (DEC-TRUST-21)?** Affiliate fraud có đặc tính: tiền đi rồi khó đòi lại. Trả ngay khi "confirmed" nghĩa là kẻ gian rút xong trước khi ai kịp nhìn. Cửa sổ delay (hold period) cho hệ thống và điều tra viên thời gian phát hiện gaming trước khi tiền rời tay - đây là best practice ngành (§5.3) và là tuyến phòng thủ rẻ nhất.
+
+**Vì sao bắt last-click thao túng (DEC-TRUST-22a)?** Mô hình affiliate là last-click: click cuối trước order ăn hoa hồng. Kẻ gian lợi dụng bằng cách chèn một click affiliate ngay trước khi order một món đã nằm sẵn trong giỏ từ lâu - "cướp" attribution mà không tạo giá trị thật. Phát hiện mẫu "click chèn cuối lên sản phẩm đã ở giỏ lâu" chặn trò này.
+
+**Vì sao self-referral check qua đồ thị (DEC-TRUST-22b, §1 #7)?** Tự mua qua link của chính mình (hoặc tài khoản cùng cụm) là cách rút hoa hồng phổ biến. Một mình khó thấy; nhìn ở đồ thị quan hệ (FR-TRUST-004), nếu người mua và chủ link cùng cụm liên kết thì lộ. Tái dùng đồ thị có sẵn thay vì dựng lại.
+
+**Vì sao chỉ delay/giữ, KHÔNG tự từ chối (DEC-TRUST-23)?** Tự từ chối payout khi nghi ngờ là quỵt tiền user thật nếu nghi sai - tổn hại niềm tin nặng, ngược định vị SănDeal. Risk cao thì kéo dài delay hoặc giữ chờ điều tra, nhưng quyết "từ chối" chỉ đến sau khi điều tra kết luận `confirmed_fraud`. Mặc định nghiêng về trả tiền thật, chỉ giữ khi có lý do.
+
+**Vì sao ba điều kiện để giải ngân (DEC-TRUST-24)?** Trả tiền đúng cần cả ba: hết delay (đã có thời gian điều tra), không hold mở (không đang nghi), và network đã confirm (tiền thật sự về từ sàn - không trả tiền chưa nhận). Thiếu bất kỳ điều nào, giữ lại. Đây là cổng đúng-đắn cho dòng tiền ra.
+
+**Vì sao ghi hold_reason cụ thể (DEC-TRUST-25)?** Giữ tiền user mà không nói lý do là tùy tiện và phá niềm tin. Mỗi delay/hold phải gắn tín hiệu cụ thể (last-click thao túng / self-referral / risk cao) để điều tra kiểm tra được và để giải thích với user nếu cần. Không có tín hiệu thì không giữ.
+
+---
+
+## §3 - Hợp đồng API / DDL
+
+### Migration
+
+```sql
+-- services/trust/migrations/0003_payout_hold.sql
+CREATE TABLE payout_hold (
+  conversion_id  BIGINT      PRIMARY KEY REFERENCES affiliate_conversion(id),
+  beneficiary    BIGINT      NOT NULL REFERENCES app_user(id),
+  payout_amount  BIGINT      NOT NULL CHECK (payout_amount >= 0),   -- VND, không thập phân
+  confirmed_at   TIMESTAMPTZ NOT NULL,
+  eligible_at    TIMESTAMPTZ NOT NULL,                              -- confirmed_at + delay_window
+  hold_reason    TEXT,                                             -- NULL nếu không có tín hiệu giữ
+  status         TEXT        NOT NULL DEFAULT 'holding'
+                 CHECK (status IN ('holding','under_investigation','released','denied')),
+  released_at    TIMESTAMPTZ,
+  CHECK (status <> 'released' OR released_at IS NOT NULL)
+);
+CREATE INDEX idx_hold_due ON payout_hold (eligible_at)
+  WHERE status = 'holding';
+```
+
+### attribution_guard.go (phát hiện gaming)
+
+```go
+// services/trust/internal/payout/attribution_guard.go
+// Inspect trả hold_reason (rỗng nếu sạch). KHÔNG quyết từ chối - chỉ gắn cờ.
+func (g *Guard) Inspect(ctx context.Context, conv Conversion) string {
+    // (a) last-click thao túng: click ngay trước order, sản phẩm đã ở giỏ lâu
+    if click, ok := g.lastClick(ctx, conv); ok {
+        if conv.OrderedAt.Sub(click.At) < g.cfg.SuspiciousClickGap &&
+           g.itemInCartSince(ctx, conv).Before(click.At.Add(-g.cfg.OldCartWindow)) {
+            return "last_click_manipulation"
+        }
+    }
+    // (b) self-referral: người mua & chủ link cùng cụm (FR-TRUST-004)
+    if g.fraud.SameCluster(ctx, conv.BuyerID, conv.ReferrerID) {
+        return "self_referral"
+    }
+    // (c) cookie-stuffing: click không gắn user-action hợp lệ (NFR-AFFIL-001)
+    if !conv.Click.UserInitiated {
+        return "cookie_stuffing_signal"
+    }
+    return ""
+}
+```
+
+### release.go (giải ngân khi đủ ba điều kiện)
+
+```go
+// services/trust/internal/payout/release.go
+const dueSQL = `
+SELECT conversion_id, beneficiary, payout_amount
+FROM payout_hold h
+WHERE h.status = 'holding'
+  AND h.eligible_at <= now()                       -- (a) hết delay
+  AND h.hold_reason IS NULL                         -- (b) không tín hiệu giữ
+  AND EXISTS (SELECT 1 FROM affiliate_conversion c  -- (c) network confirmed
+              WHERE c.id = h.conversion_id AND c.status = 'confirmed')
+FOR UPDATE SKIP LOCKED;`
+
+// ReleaseDue trả các hold đủ điều kiện đúng một lần (idempotent qua status flip + lock).
+func (r *Releaser) ReleaseDue(ctx context.Context) (int, error) { /* select dueSQL -> pay -> set released */ }
+```
+
+---
+
+## §4 - Acceptance criteria
+
+1. Conversion `confirmed` -> tạo `payout_hold` với `eligible_at = confirmed_at + delay_window`; KHÔNG trả ngay.
+2. Trước `eligible_at` -> `ReleaseDue` KHÔNG trả hold đó (còn trong delay).
+3. Sau `eligible_at`, không `hold_reason`, network confirmed -> `ReleaseDue` trả đúng một lần, status `released`.
+4. Last-click thao túng (click sát order + sản phẩm đã ở giỏ lâu) -> `hold_reason='last_click_manipulation'`, không giải ngân.
+5. Self-referral (người mua + chủ link cùng cụm FR-TRUST-004) -> `hold_reason='self_referral'`.
+6. Click không user-initiated -> `hold_reason='cookie_stuffing_signal'` (nối NFR-AFFIL-001).
+7. `risk_score` cao (FR-TRUST-004) -> delay kéo dài / chuyển `under_investigation`; KHÔNG tự `denied`.
+8. Điều tra kết luận `cleared` -> hold được giải phóng ở chu kỳ release kế tiếp (tiền thật không bị quỵt).
+9. `denied` chỉ xảy ra sau điều tra `confirmed_fraud`; không có nhánh tự động `denied`.
+10. Giải ngân cần ĐỦ ba điều kiện; thiếu bất kỳ (chưa hết delay / có hold_reason / chưa network-confirm) -> giữ.
+11. Idempotent: một conversion một `payout_hold`; `ReleaseDue` chạy lặp không double-pay (lock + status).
+12. `payout_amount` BIGINT VND; metric `payout_hold_total{reason}`/`payout_released_total` hoạt động; giữ tiền luôn kèm `hold_reason`.
+
+---
+
+## §5 - Kiểm thử (verification)
+
+```go
+// services/trust/internal/payout/delay_test.go
+func TestDelay_NotReleasedBeforeWindow(t *testing.T) {
+    r := setup(t)
+    h := seedHold(t, r, confirmedAt(time.Now()), delay(72*time.Hour))
+    n, _ := r.ReleaseDue(ctx)            // ngay bây giờ
+    require.Equal(t, 0, n)               // còn trong delay
+    require.Equal(t, "holding", statusOf(t, r, h))
+}
+
+func TestDelay_ReleasedAfterWindow_AllConditions(t *testing.T) {
+    r := setup(t)
+    h := seedHold(t, r, confirmedAt(time.Now().Add(-100*time.Hour)), delay(72*time.Hour))
+    networkConfirmed(t, r, h)            // (c)
+    n, _ := r.ReleaseDue(ctx)
+    require.Equal(t, 1, n)
+    require.Equal(t, "released", statusOf(t, r, h))
+}
+```
+
+```go
+// services/trust/internal/payout/attribution_guard_test.go
+func TestGuard_LastClickManipulation(t *testing.T) {
+    g := setupGuard(t)
+    conv := convWithCart(t, cartSince(-48*time.Hour), clickAt(-1*time.Minute), orderAt(0))
+    require.Equal(t, "last_click_manipulation", g.Inspect(ctx, conv))
+}
+
+func TestGuard_SelfReferral_SameCluster(t *testing.T) {
+    g := setupGuard(t)
+    conv := convBuyerAndReferrerLinked(t)   // cùng cụm FR-TRUST-004
+    require.Equal(t, "self_referral", g.Inspect(ctx, conv))
+}
+
+func TestGuard_CleanConversion_NoHold(t *testing.T) {
+    g := setupGuard(t)
+    require.Equal(t, "", g.Inspect(ctx, cleanUserInitiatedConv(t)))
+}
+```
+
+```go
+// services/trust/internal/payout/release_test.go
+func TestRelease_HighRisk_HoldsNotDenies(t *testing.T) {
+    r := setup(t)
+    h := seedHold(t, r, confirmedAt(time.Now().Add(-100*time.Hour)), delay(72*time.Hour))
+    setRiskHigh(t, r, h)                 // FR-TRUST-004
+    r.ReleaseDue(ctx)
+    require.Equal(t, "under_investigation", statusOf(t, r, h)) // KHÔNG denied tự động
+}
+
+func TestRelease_Idempotent_NoDoublePay(t *testing.T) {
+    r := setup(t); h := seedReleasable(t, r)
+    r.ReleaseDue(ctx); r.ReleaseDue(ctx)
+    require.Equal(t, 1, payCount(t, r, h)) // trả đúng một lần
+}
+```
+
+---
+
+## §6 - Khung triển khai
+
+Xem §3. Thứ tự: migration 0003 (`payout_hold`) -> nối affil repo (conversion `confirmed` -> tạo `payout_hold`, không trả ngay) -> `attribution_guard.go` (gắn `hold_reason` cho last-click/self-referral/cookie-stuffing) -> `delay.go` (tính `eligible_at`, kéo dài khi risk cao) -> `release.go` (job giải ngân khi đủ ba điều kiện, idempotent qua lock + status flip). Self-referral check tái dùng `SameCluster` của FR-TRUST-004. Job release chạy định kỳ; `denied` chỉ đến từ kết luận điều tra `confirmed_fraud`, không tự động. Cashback layering (FR-AFFIL-005) trả qua cùng cơ chế hold-then-release.
+
+---
+
+## §7 - Phụ thuộc
+
+- **FR-AFFIL-001** - `affiliate_conversion` (status confirmed) là nguồn tạo `payout_hold`; `affiliate_click` (user_initiated) cho cookie-stuffing check.
+- **FR-TRUST-004** - `risk_score` + `SameCluster` (đồ thị quan hệ) cho kéo dài delay + self-referral check.
+- **FR-AFFIL-005 (downstream)** - cashback layering trả qua cơ chế hold-then-release của FR này.
+- **FR-AFFIL-003** - postback network confirm là điều kiện (c) để giải ngân.
+- **FR-BILL-002** - cổng thanh toán thực hiện chi trả khi `release.go` quyết payout.
+- NFR-AFFIL-001 - cookie-stuffing/user-initiated; FR này thực thi tuyến phòng thủ payout cho cam kết đó.
+
+---
+
+## §8 - Payload ví dụ
+
+### payout_hold tạo khi conversion confirmed (giữ, không trả ngay)
+
+```json
+{
+  "conversion_id": 77120, "beneficiary": 4412, "payout_amount": 31000,
+  "confirmed_at": "2026-09-01T10:00:00Z",
+  "eligible_at": "2026-09-04T10:00:00Z",   // +72h delay
+  "hold_reason": null, "status": "holding"
+}
+```
+
+### Conversion bị gắn cờ gaming (giữ tiếp, có lý do)
+
+```json
+{
+  "conversion_id": 77130, "hold_reason": "last_click_manipulation",
+  "status": "holding",
+  "note": "click affiliate 40s trước order; sản phẩm đã ở giỏ 2 ngày -> nghi cướp attribution"
+}
+// KHÔNG tự denied; chờ điều tra. Nếu cleared -> released chu kỳ kế.
+```
+
+---
+
+## §9 - Câu hỏi mở
+
+Đã chốt. Hoãn:
+- Độ dài `delay_window` tối ưu theo sàn/network - hiệu chỉnh theo dữ liệu thật (cân chống gian lận vs trải nghiệm chờ); FR đặt cơ chế cấu hình.
+- Chargeback/đối soát ngược khi network rút lại commission sau khi đã release - cần luồng claw-back, xét khi gặp ở production.
+- Tự động clear ca rủi ro thấp rõ ràng (rút ngắn delay) - chỉ sau khi đo false positive đủ thấp.
+- Thông báo cho user vì sao payout bị giữ (minh bạch hold_reason ở mức phù hợp) - thiết kế UX ở FR web/mobile, FR này cung cấp dữ liệu.
+
+---
+
+## §10 - Failure modes inventory
+
+| Lỗi | Phát hiện | Hệ quả | Khắc phục |
+|---|---|---|---|
+| Trả payout ngay khi confirmed | delay_test | tiền gian lận đi trước khi phát hiện | Cửa sổ delay bắt buộc (DEC-TRUST-21) |
+| Last-click bị chèn cướp attribution | guard test | hoa hồng oan | Phát hiện click sát order + giỏ cũ (DEC-TRUST-22a) |
+| Self-referral rút hoa hồng | guard test (same cluster) | tự cày tiền | Đồ thị quan hệ FR-TRUST-004 (§1 #7) |
+| Cookie-stuffing (click không user-action) | guard test | vi phạm né-Honey | Cờ cookie_stuffing_signal (NFR-AFFIL-001) |
+| Tự từ chối payout khi nghi | release_test (hold not deny) | quỵt user thật | Chỉ delay/giữ; denied chỉ sau điều tra (DEC-TRUST-23) |
+| Giữ tiền vô cớ | review hold_reason | tùy tiện, mất niềm tin | Giữ luôn kèm hold_reason cụ thể (DEC-TRUST-25) |
+| Trả tiền chưa network-confirm | release SQL điều kiện (c) | trả tiền chưa nhận | Đủ ba điều kiện mới release (DEC-TRUST-24) |
+| Double-pay khi job chạy lại | idempotent test | chi trùng | Lock + status flip một lần (§1 #11) |
+| Tiền thật bị quỵt khi cleared | release sau cleared test | hại user thật bị nghi oan | Giải phóng hold ở chu kỳ kế (§1 #10) |
+
+---
+
+## §11 - Ghi chú
+
+- Delay payout là tuyến phòng thủ rẻ nhất cho dòng tiền affiliate: cho thời gian phát hiện gaming trước khi tiền rời tay (best practice §5.3).
+- Nguyên tắc đối xứng với FR-TRUST-004: chỉ delay/giữ + điều tra, KHÔNG tự từ chối - mặc định nghiêng về trả tiền thật, chỉ giữ khi có hold_reason cụ thể.
+- Ba dấu hiệu gaming (last-click thao túng, self-referral, cookie-stuffing) cùng nhắm đúng các trò rút hoa hồng phổ biến; self-referral tái dùng đồ thị FR-TRUST-004.
+- Ba điều kiện giải ngân (hết delay + không hold + network-confirm) là cổng đúng-đắn cho tiền ra: không sớm, không khi đang nghi, không khi chưa nhận tiền thật.
+- Job release idempotent (lock + status) đảm bảo mỗi hold trả đúng một lần kể cả khi chạy lặp - an toàn cho tiền.
+- Cookie-stuffing check nối thẳng cam kết né-Honey (§4.2): đây đúng là trò Honey bị phơi bày, và SănDeal chặn nó ở cả tầng click (NFR-AFFIL-001) lẫn tầng payout (FR này).
+
+---
+
+*Hết FR-TRUST-005. Status: ready_to_implement (mục tiêu audit 10/10).*

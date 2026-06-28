@@ -1,0 +1,50 @@
+---
+fr_id: FR-TRUST-004
+audited: 2026-06-28
+verdict: PASS
+score: 10/10
+template: engineering-spec@1
+authoring_compliance: "khớp house style FR CyberOS (§1 BCP-14 normative -> §11 ghi chú + frontmatter đầy đủ)"
+---
+
+## §1 - Tóm tắt verdict
+
+FR-TRUST-004 đặc tả anti-fraud engine ba lớp tín hiệu (velocity + đồ thị quan hệ + luật ngưỡng) ở mức triển khai. 12 mệnh đề §1 normative, mỗi mệnh đề có AC và test trong §5. Nguyên tắc trung tâm - chấm điểm + gắn cờ giải thích được để điều tra, KHÔNG auto-ban - được giữ nhất quán qua mọi mệnh đề; risk cao chỉ HOLD reward (không tịch thu). DDL thật (`fraud_signal` + `account_link_edge` với recursive CTE đồ thị). reasons[] làm quyết định kiểm tra được. Đạt 10/10.
+
+## §2 - Findings (đã giải quyết)
+
+### ISS-001 - Auto-ban theo điểm số khóa nhầm user thật
+Gian lận và hành vi thật giống nhau bề mặt (gia đình chung referral, máy net). Giải: §1 #2/#10 + DEC-TRUST-16 - chỉ gắn cờ + HOLD, con người quyết; user lẻ bình thường risk thấp không bị cờ (AC #2/#11 + test HoldsNotSeizes).
+
+### ISS-002 - Một lớp tín hiệu dễ bị lách
+Velocity bắt burst nhưng kẻ gian rải chậm. Giải: §1 #3/#4/#5 + DEC-TRUST-17 - ba lớp bổ sung (velocity + đồ thị bắt cụm rải chậm + luật cấu hình); AC #3/#4/#5/#6.
+
+### ISS-003 - Quyết định hộp đen không điều tra được
+Điểm số trần không nói vì sao. Giải: §1 #1 + DEC-TRUST-19 - lưu `reasons[]` (signal + detail + contribution) cho mỗi gắn cờ; AC #9.
+
+### ISS-004 - Lệ thuộc fingerprint sai thứ tự
+Tự làm fingerprint thô chồng chéo FR-TRUST-006. Giải: §1 #7 + DEC-TRUST-18 - engine tiêu thụ cạnh `device` từ FR-TRUST-006 khi có, không tự thu thập thô; ranh giới phụ thuộc rõ.
+
+## §3 - Traceability §1 -> AC -> artefact
+
+| §1 | AC | Artefact |
+|---|---|---|
+| #1 risk_score + reasons | #1,#9 | `score.go` + `fraud_signal.reasons` |
+| #2 không auto-ban | #2 | review + `TestScore_HighRisk_HoldsNotSeizes` |
+| #3 velocity | #3,#4 | `velocity.go` + velocity_test |
+| #4 đồ thị quan hệ | #5,#6 | `graph.go` (recursive CTE) + graph_test |
+| #5 luật ngưỡng cấu hình | #7 | `rules.go` + config |
+| #6 HOLD reward | #8 | `score.go::holdRewards` |
+| #7 tiêu thụ device FR-TRUST-006 | - | `account_link_edge` link_type device |
+| #8 vòng đời status | #1 | `fraud_signal.status` CHECK |
+| #9 idempotent | #10 | UNIQUE(subject,kind) + upsert |
+| #10 công bằng cơ bản | #11 | `TestVelocity_NormalPace_Clean` |
+| #11 không PII | #12 | FK nội bộ, schema review |
+
+## §4 - Kết luận
+
+Toàn bộ mệnh đề normative có code/SQL/test/AC backing. Nguyên tắc không-auto-ban giữ nhất quán; ba lớp tín hiệu bổ sung nhau; reasons[] làm quyết định kiểm tra được. Không có mệnh đề "mồ côi". Score = 10/10. Verdict: PASS. Sẵn sàng build (status `ready_to_implement`).
+
+---
+
+*Hết audit FR-TRUST-004.*

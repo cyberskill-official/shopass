@@ -1,0 +1,327 @@
+---
+id: FR-TRUST-004
+title: "Anti-fraud engine - phát hiện referral abuse + fake-account farming xu + velocity checks + đồ thị quan hệ; chấm điểm rủi ro và gắn cờ để điều tra, KHÔNG tự khóa mù"
+module: TRUST
+priority: MUST
+status: ready_to_implement
+verify: T
+phase: P3
+milestone: P3 · slice 1
+slice: 1
+owner: Stephen Cheng (Founder)
+created: 2026-06-28
+related_frs: [FR-BILL-004, FR-AFFIL-001, FR-TRUST-005, FR-TRUST-006, NFR-TRUST-001]
+depends_on: [FR-BILL-004, FR-AFFIL-001]
+blocks: [FR-TRUST-005, FR-TRUST-006]
+
+source_pages:
+  - "docs/TÀI LIỆU NỀN TẢNG SẢN PHẨM SănDeal §5.3 (gian lận người dùng: referral abuse, fake account farming xu, multi-account; phát hiện qua velocity checks, đồ thị quan hệ)"
+  - "docs/... §9 (risk register: gian lận user - Medium - fingerprint, velocity, delay payout)"
+source_decisions:
+  - "DEC-TRUST-16: engine CHẤM ĐIỂM rủi ro (risk_score 0-100) + gắn cờ (fraud_flag) để con người/luồng điều tra quyết, KHÔNG tự khóa tài khoản mù (false positive khóa nhầm user thật là tổn hại)"
+  - "DEC-TRUST-17: ba lớp tín hiệu - (a) velocity (đếm sự kiện trong cửa sổ thời gian), (b) đồ thị quan hệ (cụm tài khoản liên kết qua referral/thiết bị/thanh toán), (c) luật ngưỡng cấu hình được"
+  - "DEC-TRUST-18: signal làm việc trên dữ liệu đã có (referral_code FR-BILL-004, affiliate_click FR-AFFIL-001); device fingerprint là FR-TRUST-006 (tách riêng), engine tiêu thụ khi có"
+  - "DEC-TRUST-19: mọi quyết định gắn cờ phải GIẢI THÍCH ĐƯỢC (lưu reasons[]) để điều tra viên xem vì sao bị cờ; không hộp đen"
+  - "DEC-TRUST-20: tiền/điểm liên quan (referral reward) ở trạng thái HOLD khi risk_score vượt ngưỡng -> nối delay payout FR-TRUST-005; engine không tự tịch thu"
+
+language: "PostgreSQL 16 + Go 1.22 (trust-svc); đồ thị quan hệ qua recursive CTE hoặc bảng cạnh"
+service: shopass/services/trust/
+new_files:
+  - services/trust/migrations/0001_fraud_signal.sql
+  - services/trust/migrations/0002_account_link_edge.sql
+  - services/trust/internal/fraud/velocity.go
+  - services/trust/internal/fraud/graph.go
+  - services/trust/internal/fraud/rules.go
+  - services/trust/internal/fraud/score.go
+  - services/trust/internal/fraud/score_test.go
+  - services/trust/internal/fraud/velocity_test.go
+  - services/trust/internal/fraud/graph_test.go
+modified_files: []
+allowed_tools:
+  - file_read: services/trust/**
+  - file_write: services/trust/**
+  - bash: cd services/trust && go test ./...
+disallowed_tools:
+  - tự khóa/tịch thu tài khoản khi risk_score cao mà không có luồng điều tra (vi phạm DEC-TRUST-16 - khóa nhầm user thật)
+  - gắn cờ mà không lưu reasons[] giải thích (vi phạm DEC-TRUST-19 - hộp đen)
+  - hard-code ngưỡng trong logic thay vì cấu hình (vi phạm DEC-TRUST-17 - không tinh chỉnh được)
+  - dùng device fingerprint thô trước khi FR-TRUST-006 chuẩn hóa (chồng chéo, lệ thuộc sai thứ tự)
+
+effort_hours: 10
+sub_tasks:
+  - "1.0h: 0001_fraud_signal.sql - bảng fraud_signal (subject_user_id, kind, risk_score, reasons jsonb, status) + index"
+  - "1.0h: 0002_account_link_edge.sql - bảng cạnh account_link_edge (a_user, b_user, link_type, weight) cho đồ thị quan hệ"
+  - "2.0h: velocity.go - đếm sự kiện trong cửa sổ trượt (referral redeem, signup cùng nguồn, conversion) so ngưỡng"
+  - "2.0h: graph.go - dựng/duyệt cụm tài khoản liên kết (recursive CTE), kích thước cụm + mật độ liên kết -> tín hiệu"
+  - "1.5h: rules.go + score.go - tổ hợp tín hiệu thành risk_score 0-100 + reasons[]; ngưỡng cấu hình; HOLD reward khi vượt"
+  - "1.0h: velocity_test.go - burst signup/redeem vượt ngưỡng -> điểm cao; nhịp bình thường -> thấp"
+  - "1.0h: graph_test.go - cụm dày tài khoản liên kết -> cờ; user lẻ -> không"
+  - "0.5h: score_test.go - tổ hợp tín hiệu đúng; reasons[] giải thích được; HOLD kích hoạt đúng ngưỡng"
+
+risk_if_skipped: "Khi SănDeal mở referral reward (FR-BILL-004) + cashback affiliate (FR-AFFIL-005), nó thành mục tiêu gian lận: farm tài khoản ảo để cày xu/điểm, lạm dụng referral, multi-account (§5.3). Không có engine phát hiện, chi phí reward bị rút cạn bởi tài khoản giả - phá unit economics (§4.1) vốn mỏng. Tài liệu nguồn nêu rõ cơ chế: velocity checks + đồ thị quan hệ + delay payout. Nhưng phải làm đúng: tự khóa mù theo điểm số sẽ khóa nhầm user thật (false positive) - tổn hại niềm tin ngược với định vị của SănDeal. Engine này chấm điểm + gắn cờ giải thích được để điều tra, và HOLD reward (không tịch thu) cho tới khi rõ - cân giữa chặn gian lận và không hại user thật. Bỏ FR này, hệ thống reward không phòng vệ; làm sai (auto-ban), mất user thật. Đây là nền cho FR-TRUST-005 (delay payout) và FR-TRUST-006 (fingerprint)."
+---
+
+## §1 - Mô tả (BCP-14 normative)
+
+Service TRUST **MUST** cung cấp một engine chống gian lận chấm điểm rủi ro từ ba lớp tín hiệu (velocity, đồ thị quan hệ, luật ngưỡng), gắn cờ giải thích được để điều tra, và HOLD reward khi rủi ro cao - KHÔNG tự khóa/tịch thu mù. Hợp đồng:
+
+1. Engine **MUST** sản sinh `risk_score` (0-100) cho mỗi chủ thể (user/referral event/conversion) và **MUST** lưu `fraud_signal` kèm `reasons[]` giải thích vì sao điểm đó (DEC-TRUST-19). Không quyết định hộp đen.
+2. Engine **MUST NOT** tự khóa hay tịch thu tài khoản/điểm khi `risk_score` cao; nó CHỈ gắn cờ + HOLD reward để con người hoặc luồng điều tra (FR-TRUST-005) quyết (DEC-TRUST-16). False positive khóa nhầm user thật là tổn hại nghiêm trọng.
+3. **MUST** có lớp velocity (`velocity.go`): đếm sự kiện trong cửa sổ thời gian trượt (số signup từ cùng nguồn referral, số redeem reward, số conversion) và so ngưỡng cấu hình; burst bất thường → tín hiệu (DEC-TRUST-17a).
+4. **MUST** có lớp đồ thị quan hệ (`graph.go`): dựng cạnh `account_link_edge` giữa tài khoản liên kết qua referral chung / thanh toán chung / (sau này) thiết bị chung (FR-TRUST-006); cụm dày/lớn bất thường → tín hiệu (DEC-TRUST-17b).
+5. **MUST** có lớp luật ngưỡng (`rules.go`) CẤU HÌNH được - không hard-code; ngưỡng và trọng số tín hiệu nằm ở cấu hình để tinh chỉnh theo dữ liệu thật (DEC-TRUST-17c).
+6. `score.go` **MUST** tổ hợp ba lớp thành `risk_score` minh bạch (mỗi tín hiệu đóng góp ghi trong `reasons[]`); khi `risk_score` vượt ngưỡng HOLD, reward liên quan (referral reward FR-BILL-004) **MUST** chuyển trạng thái HOLD (nối FR-TRUST-005), KHÔNG tự tịch thu (DEC-TRUST-20).
+7. Engine **MUST** làm việc trên dữ liệu đã có: `referral_code`/attribution (FR-BILL-004), `affiliate_click`/`affiliate_conversion` (FR-AFFIL-001); device fingerprint là FR-TRUST-006 (tách riêng) và engine tiêu thụ khi có, không tự thu thập thô (DEC-TRUST-18).
+8. `fraud_signal` **MUST** có vòng đời trạng thái: `open` (mới gắn cờ) → `investigating` → `confirmed_fraud` | `cleared`; quyết định cuối do điều tra, không do engine tự chuyển sang `confirmed_fraud`.
+9. Engine **MUST** idempotent khi chấm lại cùng chủ thể với cùng dữ liệu (không nhân bản `fraud_signal`); cập nhật điểm khi có tín hiệu mới.
+10. **MUST** đảm bảo công bằng cơ bản: một user lẻ hành vi bình thường (không cụm, không burst) **MUST** có `risk_score` thấp và KHÔNG bị cờ - tránh quấy nhiễu user thật.
+11. Mọi tín hiệu/điểm **MUST** không nhúng PII sàn thật; chủ thể tham chiếu qua FK nội bộ (`app_user.id`) nhất quán chính sách tối thiểu hóa (FR-TRUST-002).
+12. Engine **MUST** phát metric: `fraud_signal_open_total{kind}`, `reward_hold_total`, `risk_score` histogram - để giám sát tỷ lệ gắn cờ và hiệu chỉnh ngưỡng.
+
+---
+
+## §2 - Vì sao thiết kế này (rationale cho người đọc)
+
+**Vì sao chấm điểm + gắn cờ thay vì auto-ban (DEC-TRUST-16)?** Gian lận và hành vi thật đôi khi giống nhau bề mặt (nhiều người nhà cùng dùng một referral, một quán net nhiều máy). Auto-ban theo điểm sẽ khóa nhầm user thật - tổn hại niềm tin, ngược hẳn định vị của SănDeal. Chấm điểm + gắn cờ để điều tra giữ con người trong vòng quyết định ở các ranh giới mờ, và chỉ HOLD (không tịch thu) cho tới khi rõ.
+
+**Vì sao ba lớp tín hiệu (DEC-TRUST-17)?** Một lớp đơn dễ bị lách. Velocity bắt burst (cày nhanh), nhưng kẻ gian có thể rải chậm. Đồ thị quan hệ bắt cụm tài khoản liên kết dù rải chậm. Luật ngưỡng cho phép thêm heuristic cụ thể. Ba lớp bổ sung nhau: cùng nhau khó lách hơn nhiều so với từng cái.
+
+**Vì sao đồ thị quan hệ (DEC-TRUST-17b)?** Farm tài khoản ảo không lẻ - chúng liên kết qua referral chung, thanh toán chung, (sau này) thiết bị chung. Một tài khoản đơn trông vô hại; nhìn ở mức cụm, mật độ liên kết bất thường lộ ra. Dựng đồ thị cạnh rồi đo kích thước/mật độ cụm là cách thấy cái mà nhìn từng tài khoản không thấy.
+
+**Vì sao ngưỡng cấu hình được (DEC-TRUST-17c)?** Ngưỡng đúng phụ thuộc dữ liệu thật và đổi theo thời gian (mùa sale, chiến dịch referral). Hard-code làm không tinh chỉnh được mà không deploy. Đặt ngưỡng/trọng số ở cấu hình để chỉnh nhanh theo tỷ lệ false positive/negative quan sát qua metric.
+
+**Vì sao reasons[] giải thích được (DEC-TRUST-19)?** Điều tra viên cần biết VÌ SAO một chủ thể bị cờ để quyết đúng. Hộp đen ("điểm 87, tin máy đi") không điều tra được và dễ sai. Lưu đóng góp từng tín hiệu (velocity X vượt ngưỡng, thuộc cụm Y kích thước Z) làm quyết định kiểm tra được và công bằng.
+
+**Vì sao tách device fingerprint sang FR-TRUST-006 (DEC-TRUST-18)?** Fingerprint là vấn đề riêng (thu thập + chuẩn hóa + quyền riêng tư) đủ lớn để tách FR. Engine này tiêu thụ tín hiệu fingerprint như một loại cạnh đồ thị khi FR-TRUST-006 sẵn sàng, nhưng không tự làm fingerprint thô - giữ ranh giới rõ và thứ tự phụ thuộc đúng.
+
+---
+
+## §3 - Hợp đồng API / DDL
+
+### Migrations
+
+```sql
+-- services/trust/migrations/0001_fraud_signal.sql
+CREATE TABLE fraud_signal (
+  id              BIGSERIAL PRIMARY KEY,
+  subject_user_id BIGINT      NOT NULL REFERENCES app_user(id),
+  kind            TEXT        NOT NULL,        -- 'velocity' | 'graph' | 'rule'
+  risk_score      SMALLINT    NOT NULL CHECK (risk_score BETWEEN 0 AND 100),
+  reasons         JSONB       NOT NULL,        -- [{signal, detail, contribution}] - giải thích
+  status          TEXT        NOT NULL DEFAULT 'open'
+                  CHECK (status IN ('open','investigating','confirmed_fraud','cleared')),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (subject_user_id, kind)               -- idempotent: cập nhật, không nhân bản
+);
+CREATE INDEX idx_fraud_open ON fraud_signal (status, risk_score DESC) WHERE status = 'open';
+
+-- services/trust/migrations/0002_account_link_edge.sql
+CREATE TABLE account_link_edge (
+  a_user    BIGINT NOT NULL REFERENCES app_user(id),
+  b_user    BIGINT NOT NULL REFERENCES app_user(id),
+  link_type TEXT   NOT NULL,                   -- 'referral' | 'payment' | 'device'(FR-TRUST-006)
+  weight    REAL   NOT NULL DEFAULT 1.0,
+  PRIMARY KEY (a_user, b_user, link_type),
+  CHECK (a_user < b_user)                      -- cạnh vô hướng chuẩn hóa (tránh trùng đảo chiều)
+);
+CREATE INDEX idx_edge_b ON account_link_edge (b_user, link_type);
+```
+
+### score.go (tổ hợp tín hiệu -> risk_score + reasons)
+
+```go
+// services/trust/internal/fraud/score.go
+type Reason struct {
+    Signal       string `json:"signal"`
+    Detail       string `json:"detail"`
+    Contribution int    `json:"contribution"` // điểm cộng vào risk_score
+}
+
+type Assessment struct {
+    UserID    int64
+    RiskScore int       // 0-100
+    Reasons   []Reason
+}
+
+// Assess tổ hợp ba lớp; KHÔNG khóa, chỉ chấm điểm + giải thích.
+func (e *Engine) Assess(ctx context.Context, userID int64) (Assessment, error) {
+    var reasons []Reason
+    score := 0
+    if v := e.velocity(ctx, userID); v.Triggered { score += v.Weight; reasons = append(reasons, v.Reason) }
+    if g := e.graphCluster(ctx, userID); g.Triggered { score += g.Weight; reasons = append(reasons, g.Reason) }
+    if r := e.rules(ctx, userID); r.Triggered { score += r.Weight; reasons = append(reasons, r.Reason) }
+    if score > 100 { score = 100 }
+
+    a := Assessment{UserID: userID, RiskScore: score, Reasons: reasons}
+    if score >= e.cfg.HoldThreshold {
+        e.holdRewards(ctx, userID)   // HOLD (FR-TRUST-005), KHÔNG tịch thu
+    }
+    return a, e.upsertSignal(ctx, a) // idempotent upsert
+}
+```
+
+### graph.go (cụm tài khoản liên kết)
+
+```go
+// services/trust/internal/fraud/graph.go
+// clusterSize đếm tài khoản trong cùng cụm liên kết (BFS qua account_link_edge).
+const clusterSQL = `
+WITH RECURSIVE reach(uid) AS (
+  SELECT $1
+  UNION
+  SELECT CASE WHEN e.a_user = r.uid THEN e.b_user ELSE e.a_user END
+  FROM account_link_edge e JOIN reach r ON r.uid IN (e.a_user, e.b_user)
+)
+SELECT count(*) FROM reach;`
+```
+
+---
+
+## §4 - Acceptance criteria
+
+1. `Assess(userID)` trả `risk_score` 0-100 + `reasons[]` không rỗng khi có tín hiệu; lưu `fraud_signal`.
+2. `risk_score` cao **KHÔNG** tự khóa/tịch thu; chỉ gắn cờ + HOLD reward (kiểm: không có code đặt user status='banned' trong engine).
+3. Velocity: burst signup từ cùng nguồn referral vượt ngưỡng trong cửa sổ → tín hiệu velocity, điểm tăng.
+4. Velocity: nhịp signup/redeem bình thường → không tín hiệu, điểm thấp.
+5. Đồ thị: cụm dày tài khoản liên kết (referral + payment chung) → tín hiệu graph; kích thước cụm trong `reasons[]`.
+6. Đồ thị: user lẻ không liên kết → cluster size 1 → không tín hiệu.
+7. Ngưỡng cấu hình: đổi `HoldThreshold` trong config → hành vi HOLD đổi tương ứng, không sửa code.
+8. `risk_score >= HoldThreshold` → reward referral (FR-BILL-004) chuyển HOLD; KHÔNG có nhánh tịch thu.
+9. `reasons[]` giải thích được: mỗi tín hiệu có `signal` + `detail` + `contribution`.
+10. Idempotent: `Assess` lại cùng user cùng dữ liệu → không nhân bản `fraud_signal` (UNIQUE), cập nhật điểm.
+11. User thật (không cụm, không burst) → `risk_score` thấp, không cờ (công bằng cơ bản).
+12. Không PII sàn trong `fraud_signal`/`account_link_edge`; metric `fraud_signal_open_total`/`reward_hold_total` hoạt động.
+
+---
+
+## §5 - Kiểm thử (verification)
+
+```go
+// services/trust/internal/fraud/velocity_test.go
+func TestVelocity_BurstSignup_Flags(t *testing.T) {
+    e, src := setupEngine(t)
+    for i := 0; i < 50; i++ { seedSignup(t, e, fromReferral(src)) } // 50 signup/giờ cùng nguồn
+    a, _ := e.Assess(ctx, anyUserIn(src))
+    require.Greater(t, a.RiskScore, 0)
+    require.Contains(t, reasonSignals(a), "velocity")
+}
+
+func TestVelocity_NormalPace_Clean(t *testing.T) {
+    e, _ := setupEngine(t)
+    u := seedNormalUser(t, e) // vài hành vi rải đều
+    a, _ := e.Assess(ctx, u)
+    require.Equal(t, 0, a.RiskScore)
+}
+```
+
+```go
+// services/trust/internal/fraud/graph_test.go
+func TestGraph_DenseCluster_Flags(t *testing.T) {
+    e := setupEngine(t)
+    cluster := seedLinkedAccounts(t, e, 20) // 20 tài khoản liên kết referral+payment
+    a, _ := e.Assess(ctx, cluster[0])
+    require.Contains(t, reasonSignals(a), "graph")
+    require.GreaterOrEqual(t, clusterSizeInReasons(a), 20)
+}
+
+func TestGraph_SoloUser_NoFlag(t *testing.T) {
+    e := setupEngine(t)
+    u := seedSoloUser(t, e)
+    a, _ := e.Assess(ctx, u)
+    require.NotContains(t, reasonSignals(a), "graph")
+}
+```
+
+```go
+// services/trust/internal/fraud/score_test.go
+func TestScore_HighRisk_HoldsNotSeizes(t *testing.T) {
+    e := setupEngineWithThreshold(t, 60)
+    u := seedFraudLikeUser(t, e) // burst + cụm dày
+    a, _ := e.Assess(ctx, u)
+    require.GreaterOrEqual(t, a.RiskScore, 60)
+    require.True(t, rewardOnHold(t, e, u))      // HOLD
+    require.False(t, accountBanned(t, e, u))    // KHÔNG tự khóa
+}
+```
+
+---
+
+## §6 - Khung triển khai
+
+Xem §3. Thứ tự: migration 0001 (`fraud_signal`) + 0002 (`account_link_edge`) → `velocity.go` (đếm cửa sổ trượt) → `graph.go` (cụm liên kết qua recursive CTE) → `rules.go` (luật ngưỡng cấu hình) → `score.go` (tổ hợp ba lớp + reasons[] + HOLD reward) → tests. Engine đọc dữ liệu từ FR-BILL-004 (referral) + FR-AFFIL-001 (affiliate); cạnh `device` được FR-TRUST-006 ghi vào `account_link_edge` khi sẵn sàng. HOLD reward gọi sang FR-TRUST-005 (delay payout). Quyết định cuối (`confirmed_fraud`/`cleared`) do luồng điều tra, không do engine.
+
+---
+
+## §7 - Phụ thuộc
+
+- **FR-BILL-004** - `referral_code` + attribution là nguồn tín hiệu referral abuse + cạnh `referral` của đồ thị.
+- **FR-AFFIL-001** - `affiliate_click`/`affiliate_conversion` là nguồn tín hiệu velocity conversion + nối FR-TRUST-005.
+- **FR-TRUST-005 (downstream)** - delay payout affiliate; HOLD reward khi `risk_score` cao gọi sang luồng này.
+- **FR-TRUST-006 (downstream)** - device fingerprint ghi cạnh `device` vào `account_link_edge`; engine tiêu thụ.
+- **FR-TRUST-002** - chính sách tối thiểu hóa; tín hiệu/đồ thị không nhúng PII sàn, dùng FK nội bộ.
+- Hạ tầng: PostgreSQL recursive CTE cho đồ thị; nếu cụm lớn, cân nhắc bảng/đồ thị chuyên dụng sau (xem §9).
+
+---
+
+## §8 - Payload ví dụ
+
+### fraud_signal được tạo (giải thích được)
+
+```json
+{
+  "subject_user_id": 88231, "kind": "graph", "risk_score": 74, "status": "open",
+  "reasons": [
+    { "signal": "velocity", "detail": "37 redeem reward trong 1 giờ (ngưỡng 10)", "contribution": 34 },
+    { "signal": "graph", "detail": "thuộc cụm 22 tài khoản liên kết referral+payment", "contribution": 40 }
+  ]
+}
+```
+
+### Hệ quả: reward referral chuyển HOLD (không tịch thu)
+
+```
+referral_reward(user=88231) status: pending -> HOLD
+  lý do: fraud_signal#5012 risk_score=74 >= HoldThreshold(60)
+  chờ điều tra (FR-TRUST-005). KHÔNG tịch thu, KHÔNG khóa tài khoản.
+```
+
+---
+
+## §9 - Câu hỏi mở
+
+Đã chốt. Hoãn:
+- Đồ thị quy mô lớn (hàng triệu cạnh) bằng store đồ thị chuyên dụng thay recursive CTE - chuyển khi mật độ vượt khả năng Postgres; FR này dùng CTE cho quy mô khởi đầu.
+- Mô hình ML chấm điểm gian lận (thay luật ngưỡng) - khi đủ nhãn `confirmed_fraud`/`cleared` từ điều tra; FR này đặt nền tín hiệu + nhãn.
+- Tự động hóa một phần quyết định cho ca rõ ràng (điểm cực cao + cụm rất dày) - chỉ sau khi đo false positive đủ thấp; mặc định vẫn con người quyết.
+- Ngưỡng/ trọng số tối ưu cụ thể - hiệu chỉnh theo metric thật sau khi chạy; FR đặt cơ chế cấu hình.
+
+---
+
+## §10 - Failure modes inventory
+
+| Lỗi | Phát hiện | Hệ quả | Khắc phục |
+|---|---|---|---|
+| Auto-ban theo điểm số | review + score_test | khóa nhầm user thật, mất niềm tin | Chỉ gắn cờ + HOLD, con người quyết (DEC-TRUST-16) |
+| Quyết định hộp đen | review reasons[] | không điều tra được | Lưu reasons[] giải thích từng tín hiệu (DEC-TRUST-19) |
+| Lách bằng rải chậm (né velocity) | graph test | farm qua mặt velocity | Đồ thị quan hệ bắt cụm dù rải chậm (DEC-TRUST-17b) |
+| Ngưỡng hard-code | review config | không tinh chỉnh được | Ngưỡng/trọng số ở cấu hình (DEC-TRUST-17c) |
+| False positive cao quấy nhiễu user thật | metric + AC #11 | mất user thật | Điều tra trước khi hành động + chỉnh ngưỡng |
+| Nhân bản fraud_signal khi chấm lại | UNIQUE + test idempotent | rác dữ liệu | UNIQUE(subject,kind) + upsert (§1 #9) |
+| PII sàn lọt vào tín hiệu/đồ thị | review schema | vi phạm tối thiểu hóa | FK nội bộ, không PII sàn (FR-TRUST-002) |
+| Tịch thu reward tự động | score_test (HOLD not seize) | hại user thật bị nghi oan | HOLD, chuyển FR-TRUST-005 (DEC-TRUST-20) |
+
+---
+
+## §11 - Ghi chú
+
+- Nguyên tắc trung tâm: chấm điểm + gắn cờ để điều tra, KHÔNG auto-ban. Ranh giới gian lận/thật mờ, nên giữ con người trong vòng quyết định và chỉ HOLD (không tịch thu) tới khi rõ.
+- Ba lớp tín hiệu (velocity + đồ thị + luật) bổ sung nhau: velocity bắt burst, đồ thị bắt cụm rải chậm, luật thêm heuristic - cùng nhau khó lách.
+- Đồ thị quan hệ thấy cái mà nhìn từng tài khoản không thấy: một tài khoản vô hại, một cụm 22 tài khoản liên kết thì không.
+- reasons[] giải thích được làm mỗi quyết định kiểm tra được và công bằng - ngược với hộp đen "tin máy đi".
+- Engine tiêu thụ dữ liệu đã có (referral FR-BILL-004, affiliate FR-AFFIL-001) và cạnh device từ FR-TRUST-006 khi sẵn sàng; nó không tự thu thập fingerprint thô.
+- HOLD reward nối sang FR-TRUST-005 (delay payout) là cách chặn rút tiền gian lận mà không tịch thu oan - đúng best practice ngành (§5.3).
+
+---
+
+*Hết FR-TRUST-004. Status: ready_to_implement (mục tiêu audit 10/10).*

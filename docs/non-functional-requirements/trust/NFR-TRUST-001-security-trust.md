@@ -1,0 +1,60 @@
+---
+id: NFR-TRUST-001
+title: "Bảo mật & niềm tin - KHÔNG lưu cleartext credential; token phiên KHÔNG rời client; argon2id cho mật khẩu; secrets trong Vault/AWS Secrets Manager; ~45% người tiêu dùng VN lo ngại lừa đảo/lộ dữ liệu (Ken Research) nên niềm tin là yếu tố sống còn"
+module: TRUST
+category: security
+priority: MUST
+verification: T
+phase: P1
+slo: "0 cleartext credential ở mọi tầng; 0 token phiên sàn rời client hoặc tồn tại ở backend; 100% mật khẩu lưu argon2id; 100% secrets ứng dụng trong Vault/AWS Secrets Manager; bộ hook security audit (egress + SBOM + reproducible) tái chạy được PASS trên mọi bản ship"
+owner: Stephen Cheng (Founder)
+created: 2026-06-28
+related_frs: [FR-EXT-003, FR-COMPLY-005, FR-TRUST-001, FR-TRUST-002, FR-TRUST-003, FR-AUTH-001, FR-INFRA-003]
+source: "docs/... §3.8 (bảo mật: KHÔNG lưu cleartext credential; token phiên không rời client; secrets trong vault HashiCorp Vault/AWS Secrets Manager; argon2id cho mật khẩu), §5.4 (trust & security: open-source extension, security audit độc lập, chính sách dữ liệu minh bạch không gửi cookie/mật khẩu, tối thiểu hóa local-first, disclosure Chrome Web Store; ~45% người tiêu dùng VN lo ngại lừa đảo/lộ dữ liệu - Ken Research)"
+---
+
+## §1 - Statement (BCP-14 normative)
+
+1. KHÔNG có credential dạng cleartext ở bất kỳ tầng nào (DB, log, biến môi trường commit, cache): mật khẩu **MUST** chỉ tồn tại dạng argon2id PHC (FR-AUTH-001); secret ứng dụng **MUST** chỉ ở Vault/AWS Secrets Manager (FR-INFRA-003). Đếm cleartext finding **MUST** = 0.
+2. Token phiên sàn (cookie/session token Shopee/TikTok/Lazada) **MUST** KHÔNG rời client và **MUST** KHÔNG tồn tại ở backend (không cột, không log, không biến). Egress test (FR-TRUST-003) quan sát tại biên mạng **MUST** ghi nhận 0 token/cookie rời máy trong luồng đọc giỏ có phiên đăng nhập.
+3. Mật khẩu **MUST** băm bằng argon2id với tham số đủ mạnh; thuật toán yếu (md5/sha1/sha256 trần) là vi phạm. 100% bản ghi mật khẩu ở dạng argon2id.
+4. Toàn bộ extension **MUST** xử lý dữ liệu tối thiểu hóa + local-first (FR-EXT-003, FR-TRUST-002): chỉ tập tối thiểu `{platform, productId, price, qty}` (+ voucher hiển thị) rời máy; mọi outbound tới host lạ hoặc mang PII/credential **MUST** bị chặn (egress assert FR-TRUST-003).
+5. Mọi bản extension ship lên Chrome Web Store **MUST** (a) có mã nguồn công khai + build tái lập khớp hash (FR-TRUST-001), (b) kèm disclosure dữ liệu khớp pipeline thực (FR-TRUST-002), (c) qua bộ hook security audit tái chạy được PASS (FR-TRUST-003). Thiếu bất kỳ điều nào **MUST** chặn ship (CI publish gate).
+6. Cưỡng chế **MUST** là tự động và tái chạy được, KHÔNG dựa kỷ luật thủ công: kiểm tĩnh (FR-COMPLY-005 CI gate) + kiểm động (egress FR-TRUST-003) + reproducible verify (FR-TRUST-001). Một bản ship không qua đủ ba lớp **MUST** bị từ chối.
+7. Mọi dữ liệu chống gian lận (FR-TRUST-004/005/006) **MUST** không nhúng PII sàn thật; device fingerprint **MUST** là hash một chiều (không thuộc tính thô), mục đích đơn nhất chống gian lận có cơ sở PDPL.
+
+## §2 - Vì sao ràng buộc này
+
+Extension SănDeal đọc cookie phiên sàn của chính người dùng - hành vi nhạy cảm dễ bị nghi scam/malware, đúng lúc Chrome vừa thực thi chính sách gỡ extension kiểu Honey (10/06/2025, §4.2/§5.2). ~45% người tiêu dùng VN lo ngại lừa đảo/lộ dữ liệu (Ken Research, §5.4), nên niềm tin không phải tính năng phụ mà là điều kiện sống còn của sản phẩm. Hai bất biến bảo mật - no-cleartext và token-not-on-server - là lời hứa trung tâm; nhưng lời hứa chỉ đáng tin khi kiểm chứng được. Vì vậy ngưỡng ở đây không phải cam kết "trên giấy" mà là các con số 0 được cưỡng chế bằng máy (kiểm tĩnh + egress động + reproducible build) và tái chạy được bởi bên thứ ba. Vi phạm bất kỳ bất biến nào vừa phá niềm tin (mất user, kiểu Honey mất ~3 triệu trong 20 triệu trong 2 tuần) vừa kéo theo rủi ro PDPL hạng High (§9). Đây là ràng buộc nền tảng quyết định cả sự tồn tại của sản phẩm lẫn tuân thủ pháp lý.
+
+## §3 - Đo lường (measurement)
+
+- Counter `cleartext_finding_total` (từ CI gate FR-COMPLY-005) - **MUST** = 0 ở nhánh chính.
+- Counter `egress_credential_leak_total` (từ egress test FR-TRUST-003) - số request mang cookie/token/PII rời máy; **MUST** = 0.
+- Gauge `password_hash_non_argon2id_total` - số bản ghi mật khẩu không phải argon2id; **MUST** = 0.
+- Gauge `secrets_outside_vault_total` - số secret đọc ngoài Vault (file .env commit, hardcode); **MUST** = 0.
+- Boolean per-release: `reproducible_build_match` (FR-TRUST-001) + `security_audit_pass` (FR-TRUST-003) - **MUST** true để publish.
+- Counter `outbound_to_unknown_host_total` (egress) - **MUST** = 0 (chỉ `api.sandeal.vn`).
+- Đối với chống gian lận: `fraud_signal_pii_finding_total` - **MUST** = 0 (không PII sàn trong tín hiệu/đồ thị/fingerprint).
+
+## §4 - Verification
+
+- Kiểm tĩnh (T): `no_cleartext_gate.sh` (FR-COMPLY-005) quét cây mã + migration; fixture vi phạm bị bắt, mã sạch PASS; chạy trong CI mọi PR.
+- Kiểm động egress (T): egress test (FR-TRUST-003) đặt cookie phiên vào context, chạy luồng đọc giỏ qua Playwright, assert 0 cookie/token/PII rời máy + 0 outbound host lạ; negative control (chèn rò có chủ đích) phải FAIL test.
+- Reproducible (T): `verify-reproducible.sh` (FR-TRUST-001) build lại commit + so SHA-256 với bản ship; lệch hash chặn publish.
+- Audit đầu cuối (T): `run-security-audit.sh` (FR-TRUST-003) chạy đủ bốn hook (egress + SBOM + reproducible + payload_guard); PASS chỉ khi cả bốn PASS; bên thứ ba chạy lại theo THIRD-PARTY-AUDIT-GUIDE.md ra cùng kết luận.
+- Argon2id (T): test khẳng định hàm băm mật khẩu là argon2id với tham số cấu hình; không có nhánh băm yếu (FR-AUTH-001).
+- Disclosure parity (T): `policy-allowlist-parity` + `disclosure-consistency` (FR-TRUST-001/002) khẳng định disclosure khớp allowlist thực; lệch -> đỏ.
+
+## §5 - Xử lý khi vi phạm
+
+- `egress_credential_leak_total` > 0 hoặc `cleartext_finding_total` > 0 -> sev-1; CHẶN ship/merge ngay; truy nguồn rò (đường fetch/dependency/cột mới); coi như sự cố niềm tin.
+- Token phiên sàn phát hiện ở backend (cột/log/biến) -> sev-1; xóa ngay + xoay + thông báo nội bộ; rà soát đường nào để lọt; PDPL hạng High.
+- `reproducible_build_match` false hoặc `security_audit_pass` false -> sev-2; chặn publish; điều tra vì sao bản ship khác source / hook nào đỏ trước khi ship lại.
+- `secrets_outside_vault_total` > 0 hoặc `password_hash_non_argon2id_total` > 0 -> sev-2; di chuyển secret vào Vault / rehash; chặn release tới khi về 0.
+- `outbound_to_unknown_host_total` > 0 -> sev-2; chặn host lạ; xác minh không có kênh rò bên; cập nhật whitelist endpoint nếu là đích hợp lệ mới (qua review).
+- `fraud_signal_pii_finding_total` > 0 -> sev-2; loại PII khỏi tín hiệu/đồ thị/fingerprint; rà thuộc tính fingerprint có nhận dạng được không (FR-TRUST-006).
+
+---
+
+*Hết NFR-TRUST-001.*

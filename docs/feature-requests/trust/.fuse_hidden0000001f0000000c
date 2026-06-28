@@ -1,0 +1,291 @@
+---
+id: FR-TRUST-006
+title: "Device fingerprint + phát hiện multi-account - hash thiết bị bảo toàn riêng tư (không PII), ghi cạnh device vào đồ thị quan hệ, gắn cờ cụm nhiều tài khoản chung thiết bị"
+module: TRUST
+priority: SHOULD
+status: ready_to_implement
+verify: T
+phase: P3
+milestone: P3 · slice 1
+slice: 1
+owner: Stephen Cheng (Founder)
+created: 2026-06-28
+related_frs: [FR-TRUST-004, FR-TRUST-005, FR-COMPLY-001, FR-TRUST-002, NFR-TRUST-001]
+depends_on: [FR-TRUST-004]
+blocks: []
+
+source_pages:
+  - "docs/TÀI LIỆU NỀN TẢNG SẢN PHẨM SănDeal §5.3 (gian lận người dùng: multi-account; phát hiện qua device fingerprint, đồ thị quan hệ)"
+  - "docs/... §9 (risk register: gian lận user - fingerprint, velocity, delay payout), §5.4 (tối thiểu hóa dữ liệu, niềm tin)"
+source_decisions:
+  - "DEC-TRUST-26: fingerprint là HASH bảo toàn riêng tư (one-way), KHÔNG lưu thuộc tính thô nhận dạng được; mục đích DUY NHẤT là phát hiện gian lận, có cơ sở pháp lý PDPL (FR-COMPLY-001)"
+  - "DEC-TRUST-27: fingerprint chỉ ghi CẠNH 'device' vào account_link_edge (FR-TRUST-004); engine anti-fraud tiêu thụ; KHÔNG dùng để theo dõi/quảng cáo/định danh cá nhân"
+  - "DEC-TRUST-28: nhiều tài khoản chung một device_hash là TÍN HIỆU (không phải bằng chứng); con người/luồng điều tra quyết - nhất quán DEC-TRUST-16 (không auto-ban)"
+  - "DEC-TRUST-29: ngưỡng cảnh báo (số account/device) cấu hình được; chấp nhận chia sẻ thiết bị hợp lý (gia đình, máy chung) -> ngưỡng + điều tra, không khóa máy mù"
+  - "DEC-TRUST-30: device_hash gắn salt phía server + xoay được; minh bạch trong chính sách dữ liệu (FR-TRUST-002); user được biết fingerprint dùng cho mục đích chống gian lận"
+
+language: "TypeScript (client thu thuộc tính -> hash) + Go 1.22 (trust-svc lưu + liên kết); PostgreSQL 16"
+service: shopass/services/trust/ + shopass/extension/ (+ web)
+new_files:
+  - services/trust/migrations/0004_device_fingerprint.sql
+  - services/trust/internal/fraud/device.go
+  - services/trust/internal/fraud/device_test.go
+  - extension/src/fingerprint/collect.ts
+  - extension/src/fingerprint/hash.ts
+  - extension/test/fingerprint-no-pii.test.ts
+modified_files:
+  - services/trust/internal/fraud/graph.go   # nhận cạnh 'device' từ device_fingerprint
+allowed_tools:
+  - file_read: services/trust/**, extension/**
+  - file_write: services/trust/**, extension/**
+  - bash: cd services/trust && go test ./... ; cd extension && npm test
+disallowed_tools:
+  - lưu thuộc tính thiết bị thô (user-agent đầy đủ, font list, canvas raw) nhận dạng được thay vì hash (vi phạm DEC-TRUST-26)
+  - dùng fingerprint cho theo dõi/quảng cáo/định danh cá nhân ngoài chống gian lận (vi phạm DEC-TRUST-27, PDPL mục đích)
+  - auto-khóa tài khoản/thiết bị khi nhiều account chung device (vi phạm DEC-TRUST-28 - chia sẻ thiết bị hợp lý tồn tại)
+  - bỏ minh bạch fingerprint trong chính sách dữ liệu (vi phạm DEC-TRUST-30)
+
+effort_hours: 6
+sub_tasks:
+  - "1.0h: collect.ts - thu tập thuộc tính ổn định-vừa-phải (không PII), chuẩn bị cho hash; tài liệu rõ thu gì"
+  - "1.0h: hash.ts - one-way hash + salt server; KHÔNG gửi thuộc tính thô về server"
+  - "1.0h: 0004_device_fingerprint.sql - bảng device_fingerprint (device_hash, user_id, first_seen, last_seen) + index"
+  - "1.0h: device.go - nhận device_hash + user_id; khi >1 user/hash -> ghi cạnh 'device' vào account_link_edge (FR-TRUST-004)"
+  - "0.5h: nối graph.go tiêu thụ cạnh device; ngưỡng account/device cấu hình"
+  - "0.5h: fingerprint-no-pii.test.ts - payload gửi server chỉ chứa hash, KHÔNG thuộc tính thô/PII"
+  - "1.0h: device_test.go - nhiều account chung hash -> cạnh + tín hiệu; một account/hash -> không; ngưỡng cấu hình"
+
+risk_if_skipped: "Multi-account là vector gian lận cốt lõi (§5.3): một người tạo nhiều tài khoản để cày xu/referral/cashback. Velocity (FR-TRUST-004) và đồ thị referral/payment bắt được phần nào, nhưng device fingerprint thêm một cạnh liên kết mạnh: nhiều tài khoản từ cùng một thiết bị. Đây là SHOULD (không chặn release P3) vì FR-TRUST-004 đã có đồ thị từ referral/payment - fingerprint làm dày thêm, không phải điều kiện tối thiểu. Nhưng làm sai thì nguy hiểm cho niềm tin: fingerprint thô là công cụ theo dõi xâm phạm riêng tư, đúng cái SănDeal cam kết không làm (§5.4). Phải làm đúng: hash một chiều (không thuộc tính thô), mục đích duy nhất chống gian lận có cơ sở PDPL, minh bạch trong chính sách, và chỉ là TÍN HIỆU (chia sẻ thiết bị gia đình/máy chung là hợp lý - không auto-khóa). Bỏ FR này, đồ thị thiếu một cạnh hữu ích nhưng vẫn vận hành; làm ẩu, biến công cụ chống gian lận thành công cụ theo dõi phá niềm tin."
+---
+
+## §1 - Mô tả (BCP-14 normative)
+
+Service TRUST **MUST** thu thập device fingerprint dưới dạng hash bảo toàn riêng tư (không lưu thuộc tính thô, không PII), ghi cạnh `device` vào đồ thị quan hệ FR-TRUST-004, và gắn cờ cụm nhiều tài khoản chung thiết bị như TÍN HIỆU để điều tra - KHÔNG auto-khóa. Hợp đồng:
+
+1. Client (`collect.ts` + `hash.ts`) **MUST** tính `device_hash` bằng one-way hash từ tập thuộc tính ổn định-vừa-phải; **MUST NOT** gửi thuộc tính thô (user-agent đầy đủ, danh sách font, canvas raw) về server - chỉ gửi hash (DEC-TRUST-26).
+2. `device_hash` **MUST** gắn salt phía server và xoay được (DEC-TRUST-30); thuộc tính thô không rời máy nguyên dạng (nhất quán local-first FR-TRUST-002).
+3. Fingerprint **MUST** chỉ phục vụ MỤC ĐÍCH chống gian lận, có cơ sở pháp lý PDPL (FR-COMPLY-001); **MUST NOT** dùng cho theo dõi hành vi, quảng cáo, hay định danh cá nhân ngoài chống gian lận (DEC-TRUST-27).
+4. `device.go` **MUST** lưu `device_fingerprint (device_hash, user_id, first_seen, last_seen)`; khi một `device_hash` gắn với NHIỀU `user_id`, **MUST** ghi cạnh `link_type='device'` vào `account_link_edge` (FR-TRUST-004) giữa các user đó (DEC-TRUST-27).
+5. Engine anti-fraud (FR-TRUST-004) **MUST** tiêu thụ cạnh `device` như một loại liên kết trong đồ thị quan hệ; nhiều account chung thiết bị làm dày cụm → tăng tín hiệu graph.
+6. Nhiều tài khoản chung một `device_hash` **MUST** được coi là TÍN HIỆU (không phải bằng chứng) (DEC-TRUST-28); quyết định cuối do điều tra (nhất quán DEC-TRUST-16, không auto-ban/auto-khóa thiết bị).
+7. Ngưỡng cảnh báo (số account/device kích hoạt tín hiệu) **MUST** cấu hình được; **MUST** chấp nhận chia sẻ thiết bị hợp lý (gia đình, máy net chung) - ngưỡng + điều tra thay vì khóa máy mù (DEC-TRUST-29).
+8. Fingerprint **MUST** được minh bạch trong chính sách dữ liệu (FR-TRUST-002): user được biết fingerprint dùng cho mục đích chống gian lận, thu cái gì (ở mức hash), và vì sao (DEC-TRUST-30).
+9. `device_fingerprint` **MUST NOT** chứa PII sàn thật hay định danh cá nhân ngoài `device_hash` + FK `user_id` nội bộ.
+10. Hệ thống **MUST** idempotent: cùng `(device_hash, user_id)` không nhân bản; cập nhật `last_seen`.
+11. Một user dùng một thiết bị (một `device_hash` cho một `user_id`) **MUST** KHÔNG sinh cạnh device hay tín hiệu (tránh quấy nhiễu user thật).
+12. **MUST** phát metric: `device_shared_accounts_total` (phân phối số account/device), `device_edge_written_total` - để cân ngưỡng và quan sát chia sẻ thiết bị hợp lý vs farm.
+
+---
+
+## §2 - Vì sao thiết kế này (rationale cho người đọc)
+
+**Vì sao hash một chiều, không thuộc tính thô (DEC-TRUST-26)?** Fingerprint thiết bị thô (user-agent đầy đủ + font + canvas) là công cụ theo dõi mạnh, xâm phạm riêng tư - đúng cái SănDeal cam kết KHÔNG làm (§5.4). Hash một chiều giữ được khả năng "hai phiên có cùng thiết bị không" (so hash) mà bỏ khả năng "thiết bị này là ai/trông thế nào" (không đảo ngược). Đủ để liên kết tài khoản, không đủ để theo dõi cá nhân.
+
+**Vì sao chỉ ghi cạnh device vào đồ thị có sẵn (DEC-TRUST-27)?** FR-TRUST-004 đã có đồ thị quan hệ từ referral/payment. Fingerprint không dựng hệ thống mới mà thêm một loại cạnh (`device`) vào đồ thị đó. Multi-account lộ ra khi nhiều tài khoản chia sẻ thiết bị - một cạnh mạnh bổ sung cho referral/payment. Tái dùng đồ thị giữ engine một chỗ và nhất quán cách chấm điểm.
+
+**Vì sao chỉ là tín hiệu, không auto-khóa (DEC-TRUST-28)?** Chia sẻ thiết bị hợp lý tồn tại thật: gia đình dùng chung máy, quán net, điện thoại mượn. Auto-khóa tài khoản/thiết bị khi thấy nhiều account chung hash sẽ khóa nhầm người dùng thật - tổn hại niềm tin. Coi nó là tín hiệu (làm dày cụm, tăng điểm) để điều tra cùng các tín hiệu khác, thay vì kết luận một mình.
+
+**Vì sao mục đích duy nhất chống gian lận + cơ sở PDPL (DEC-TRUST-27, §1 #3)?** PDPL (Luật 91/2025) yêu cầu xử lý đúng mục đích, đơn mục đích. Fingerprint thu thập có thể bị lạm dụng cho theo dõi/quảng cáo - phải khóa chặt mục đích vào chống gian lận, có cơ sở pháp lý, và minh bạch. Đây là ranh giới giữ fingerprint là công cụ phòng vệ chứ không thành công cụ giám sát.
+
+**Vì sao minh bạch trong chính sách (DEC-TRUST-30)?** SănDeal bán niềm tin (§5.4). Thu thập fingerprint mà giấu là mâu thuẫn với định vị. Nói rõ trong chính sách (FR-TRUST-002): có dùng fingerprint, ở mức hash, cho mục đích chống gian lận - để người dùng biết và để nhất quán với cam kết minh bạch. Salt xoay được giảm rủi ro hash bị dùng liên miền.
+
+**Vì sao SHOULD chứ không MUST?** FR-TRUST-004 đã bắt multi-account phần nào qua đồ thị referral/payment. Fingerprint làm dày cạnh device - hữu ích nhưng không phải điều kiện tối thiểu để hệ chống gian lận vận hành. Đặt SHOULD phản ánh đúng: nên có để mạnh hơn, không chặn release nếu hoãn.
+
+---
+
+## §3 - Hợp đồng API / DDL
+
+### hash.ts (one-way + salt server, không gửi thô)
+
+```ts
+// extension/src/fingerprint/hash.ts
+// collect() trả tập thuộc tính ổn định-vừa-phải (KHÔNG gửi thô đi đâu).
+// hashDevice gửi server CHỈ chuỗi hash; server thêm salt rồi lưu.
+import { collect } from "./collect";
+
+export async function deviceHash(serverSalt: string): Promise<string> {
+  const attrs = collect();                       // {tz, lang, platform coarse, screenBucket...}
+  const stable = JSON.stringify(attrs);          // KHÔNG bao giờ rời máy nguyên dạng
+  const data = new TextEncoder().encode(serverSalt + "|" + stable);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+// Gửi server: { device_hash } DUY NHẤT. Không attrs thô.
+```
+
+### Migration
+
+```sql
+-- services/trust/migrations/0004_device_fingerprint.sql
+CREATE TABLE device_fingerprint (
+  device_hash TEXT        NOT NULL,              -- one-way hash (salt server), KHÔNG thuộc tính thô
+  user_id     BIGINT      NOT NULL REFERENCES app_user(id),
+  first_seen  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_seen   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (device_hash, user_id)             -- idempotent: cập nhật last_seen
+);
+CREATE INDEX idx_fp_hash ON device_fingerprint (device_hash);
+-- Mục đích DUY NHẤT: chống gian lận (PDPL). KHÔNG PII, KHÔNG theo dõi/quảng cáo.
+```
+
+### device.go (hash chung nhiều user -> cạnh device)
+
+```go
+// services/trust/internal/fraud/device.go
+// Record lưu fingerprint; nếu device_hash đã gắn user khác -> ghi cạnh 'device'.
+func (d *Device) Record(ctx context.Context, hash string, userID int64) error {
+    if err := d.upsert(ctx, hash, userID); err != nil { return err }
+    others, _ := d.usersForHash(ctx, hash, userID) // user khác cùng hash
+    for _, other := range others {
+        if err := d.graph.AddEdge(ctx, userID, other, "device", 1.0); err != nil { // FR-TRUST-004
+            return err
+        }
+    }
+    if len(others)+1 >= d.cfg.SharedAccountThreshold {
+        metrics.DeviceSharedAccounts(len(others) + 1)   // TÍN HIỆU, không auto-khóa
+    }
+    return nil
+}
+```
+
+---
+
+## §4 - Acceptance criteria
+
+1. Payload gửi server chỉ chứa `device_hash`; KHÔNG có user-agent đầy đủ/font list/canvas raw (test introspection).
+2. `device_hash` là one-way; không có đường lưu/khôi phục thuộc tính thô từ hash.
+3. `device_fingerprint` không chứa PII sàn; chỉ `device_hash` + FK `user_id` nội bộ.
+4. Một `device_hash` gắn nhiều `user_id` → ghi cạnh `link_type='device'` vào `account_link_edge` (FR-TRUST-004).
+5. Engine FR-TRUST-004 tiêu thụ cạnh `device`: cụm nhiều account chung thiết bị làm dày cụm → tín hiệu graph tăng.
+6. Nhiều account chung hash là TÍN HIỆU, KHÔNG auto-khóa tài khoản/thiết bị (kiểm: không có code set banned theo device).
+7. Ngưỡng `SharedAccountThreshold` cấu hình; đổi config → tín hiệu kích hoạt đổi, không sửa code.
+8. Chia sẻ thiết bị dưới ngưỡng (ví dụ 2 tài khoản gia đình) → không kích hoạt cảnh báo gay gắt; điều tra theo ngưỡng.
+9. Một user một thiết bị (một hash một user) → KHÔNG cạnh device, KHÔNG tín hiệu (không quấy nhiễu user thật).
+10. Fingerprint được mô tả trong chính sách dữ liệu (FR-TRUST-002): mục đích chống gian lận, mức hash, lý do.
+11. Idempotent: cùng `(device_hash, user_id)` không nhân bản; cập nhật `last_seen`.
+12. Metric `device_shared_accounts_total`/`device_edge_written_total` hoạt động; `npm test` + `go test` xanh.
+
+---
+
+## §5 - Kiểm thử (verification)
+
+```ts
+// extension/test/fingerprint-no-pii.test.ts
+import { deviceHash } from "../src/fingerprint/hash";
+
+test("chỉ gửi hash, KHÔNG thuộc tính thô/PII", async () => {
+  const h = await deviceHash("server-salt-xyz");
+  expect(h).toMatch(/^[0-9a-f]{64}$/);          // SHA-256 hex
+  // payload gửi server (giả lập) chỉ có device_hash
+  const payload = { device_hash: h };
+  const flat = JSON.stringify(payload).toLowerCase();
+  expect(flat).not.toMatch(/mozilla|font|canvas|webgl|user-agent/); // không thuộc tính thô
+  expect(Object.keys(payload)).toEqual(["device_hash"]);
+});
+
+test("hash ổn định trên cùng thiết bị, khác salt -> khác hash (xoay được)", async () => {
+  const a = await deviceHash("salt-1");
+  const b = await deviceHash("salt-2");
+  expect(a).not.toEqual(b);                      // salt xoay đổi hash
+});
+```
+
+```go
+// services/trust/internal/fraud/device_test.go
+func TestDevice_SharedHash_WritesEdge(t *testing.T) {
+    d := setupDevice(t)
+    d.Record(ctx, "h1", 100)
+    d.Record(ctx, "h1", 101)     // cùng device, user khác
+    require.True(t, edgeExists(t, d, 100, 101, "device")) // cạnh vào FR-TRUST-004
+}
+
+func TestDevice_SoloUser_NoEdge(t *testing.T) {
+    d := setupDevice(t)
+    d.Record(ctx, "h2", 200)
+    require.Equal(t, 0, edgeCountFor(t, d, 200)) // một user một thiết bị -> không cạnh
+}
+
+func TestDevice_SharedIsSignal_NotBan(t *testing.T) {
+    d := setupDeviceWithThreshold(t, 3)
+    for _, u := range []int64{300, 301, 302} { d.Record(ctx, "h3", u) }
+    require.GreaterOrEqual(t, sharedCount(t, d, "h3"), 3)  // tín hiệu
+    require.False(t, anyAccountBanned(t, d, []int64{300,301,302})) // KHÔNG auto-khóa
+}
+```
+
+---
+
+## §6 - Khung triển khai
+
+Xem §3. Thứ tự: `collect.ts` (thu thuộc tính ổn định-vừa-phải, không PII) → `hash.ts` (one-way + salt server, chỉ gửi hash) → migration 0004 (`device_fingerprint`) → `device.go` (lưu hash + khi nhiều user/hash ghi cạnh `device` vào `account_link_edge`) → nối `graph.go` tiêu thụ cạnh device → tests. Engine FR-TRUST-004 không cần đổi logic chấm điểm - chỉ thêm một loại cạnh. Fingerprint phải được thêm vào chính sách dữ liệu (FR-TRUST-002) cùng lúc ship. Salt server lưu trong Vault (FR-INFRA-003) và xoay được.
+
+---
+
+## §7 - Phụ thuộc
+
+- **FR-TRUST-004** - đồ thị quan hệ `account_link_edge` + engine chấm điểm; fingerprint ghi cạnh `device` và engine tiêu thụ.
+- **FR-TRUST-005** - self-referral/multi-account check dùng cụm liên kết; cạnh device làm cụm chính xác hơn.
+- **FR-TRUST-002** - chính sách dữ liệu phải mô tả fingerprint (mục đích chống gian lận, mức hash); local-first.
+- **FR-COMPLY-001** - cơ sở pháp lý PDPL cho mục đích chống gian lận; đơn mục đích.
+- **FR-INFRA-003** - Vault lưu salt server (xoay được); thuộc tính thô không rời máy.
+- NFR-TRUST-001 - tối thiểu hóa + không PII; fingerprint hash tuân ràng buộc này.
+
+---
+
+## §8 - Payload ví dụ
+
+### Client gửi server (chỉ hash)
+
+```json
+{ "device_hash": "9f2c8a1b...e71a" }
+// KHÔNG user-agent thô, KHÔNG font list, KHÔNG canvas. Thuộc tính thô không rời máy.
+```
+
+### Hệ quả: nhiều account chung thiết bị -> cạnh + tín hiệu
+
+```
+device_fingerprint: h3 gắn user 300, 301, 302 (3 account, 1 thiết bị)
+-> account_link_edge: (300,301,device), (300,302,device), (301,302,device)
+-> FR-TRUST-004 cụm dày hơn -> risk_score tăng -> điều tra
+   KHÔNG auto-khóa: có thể là máy chung; ngưỡng + điều tra quyết.
+```
+
+---
+
+## §9 - Câu hỏi mở
+
+Đã chốt. Hoãn:
+- Chọn tập thuộc tính fingerprint cụ thể (cân ổn định vs riêng tư) - tinh theo tỷ lệ trùng/độ phân biệt thật; FR đặt cơ chế hash + chỉ-gửi-hash.
+- Tần suất xoay salt server - căn theo chính sách bảo mật; xoay phá liên kết lịch sử (đánh đổi: chống lạm dụng vs giữ lịch sử gian lận).
+- Fingerprint mobile (FR-MOBILE-001) - cùng nguyên tắc hash + chỉ-gửi-hash, thêm khi mobile ship.
+- Chống giả mạo fingerprint (kẻ gian đổi thuộc tính né hash) - lớp đối kháng sâu hơn; engine FR-TRUST-004 vẫn bắt qua referral/payment khi device bị né.
+
+---
+
+## §10 - Failure modes inventory
+
+| Lỗi | Phát hiện | Hệ quả | Khắc phục |
+|---|---|---|---|
+| Lưu thuộc tính thô nhận dạng được | fingerprint-no-pii test | công cụ theo dõi, vi phạm §5.4 | One-way hash, chỉ gửi hash (DEC-TRUST-26) |
+| Dùng fingerprint cho theo dõi/quảng cáo | review mục đích + PDPL | vi phạm đơn-mục-đích PDPL | Khóa mục đích chống gian lận + cơ sở pháp lý (DEC-TRUST-27) |
+| Auto-khóa khi nhiều account chung device | device_test (signal not ban) | khóa nhầm máy chung/gia đình | Tín hiệu + điều tra, không auto-khóa (DEC-TRUST-28) |
+| Ngưỡng cứng không chỉnh được | review config | không cân chia sẻ hợp lý | Ngưỡng cấu hình (DEC-TRUST-29) |
+| Giấu fingerprint với user | review chính sách | mâu thuẫn cam kết minh bạch | Minh bạch trong chính sách dữ liệu (DEC-TRUST-30) |
+| Quấy nhiễu user một-thiết-bị | solo-user test | tín hiệu nhiễu | Một hash một user -> không cạnh (§1 #11) |
+| PII sàn lọt vào bảng fingerprint | review schema | vi phạm tối thiểu hóa | Chỉ hash + FK nội bộ (§1 #9) |
+| Nhân bản fingerprint khi ghi lại | PK + idempotent test | rác dữ liệu | PK(device_hash,user_id) + upsert (§1 #10) |
+
+---
+
+## §11 - Ghi chú
+
+- Fingerprint của SănDeal khác fingerprint quảng cáo ở bản chất: hash một chiều (không đảo về thuộc tính thô), mục đích duy nhất chống gian lận, có cơ sở PDPL, và minh bạch - công cụ phòng vệ, không phải giám sát.
+- Nó không dựng hệ thống mới mà thêm một loại cạnh (`device`) vào đồ thị quan hệ FR-TRUST-004 - multi-account lộ khi nhiều tài khoản chia sẻ thiết bị.
+- Chỉ là tín hiệu, không kết luận: chia sẻ thiết bị hợp lý (gia đình, máy net) tồn tại thật, nên ngưỡng + điều tra thay vì auto-khóa - nhất quán nguyên tắc không-auto-ban của cả module TRUST.
+- Salt server xoay được + chỉ-gửi-hash giữ thuộc tính thô không rời máy (local-first) và giảm rủi ro liên kết liên miền.
+- SHOULD vì FR-TRUST-004 đã bắt multi-account phần nào qua referral/payment; fingerprint làm dày cạnh device, hữu ích nhưng không phải điều kiện tối thiểu.
+- Minh bạch fingerprint trong chính sách (FR-TRUST-002) giữ nhất quán với định vị niềm tin (§5.4): có dùng, ở mức hash, cho chống gian lận - không giấu.
+
+---
+
+*Hết FR-TRUST-006. Status: ready_to_implement (mục tiêu audit 10/10).*

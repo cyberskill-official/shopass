@@ -1,0 +1,49 @@
+---
+fr_id: FR-TRUST-001
+audited: 2026-06-28
+verdict: PASS
+score: 10/10
+template: engineering-spec@1
+authoring_compliance: "khớp house style FR CyberOS (§1 BCP-14 normative -> §11 ghi chú + frontmatter đầy đủ)"
+---
+
+## §1 - Tóm tắt verdict
+
+FR-TRUST-001 đặc tả extension mã nguồn mở + reproducible build + disclosure ở mức triển khai được. 12 mệnh đề §1 normative, mỗi mệnh đề có AC tương ứng và verification trong §5. Điểm cốt lõi - reproducible build (so SHA-256 bản ship với build-lại-từ-source) - được đặc tả với script thật (`build-deterministic.mjs` + `verify-reproducible.sh`). Disclosure được neo vào allowlist FR-EXT-003 qua test consistency, nên không thể lệch khỏi hành vi thật. CI publish gate biến ba bất biến (tái lập + có tag + disclosure khớp) thành điều kiện ship. Đạt 10/10.
+
+## §2 - Findings (đã giải quyết)
+
+### ISS-001 - "Open-source" không chứng minh được bản ship khớp source
+Mở mã không đủ: bản ship có thể khác source công khai (cửa hậu). Giải: §1 #2/#4 + DEC-TRUST-02 - reproducible build + `verify-reproducible.sh` so SHA-256; AC #3/#4/#5; CI gate chặn publish khi hash lệch.
+
+### ISS-002 - Disclosure trôi khỏi hành vi thật
+Lời khai data-use dễ lệch khi pipeline đổi. Giải: §1 #8 + DEC-TRUST-05 - `disclosure-consistency.test.ts` neo disclosure vào allowlist `OutboundPayload` (FR-EXT-003); thêm/bớt trường mà không cập nhật → test đỏ (AC #7).
+
+### ISS-003 - Tái lập thất bại do toolchain/timestamp
+Build không xác định (timestamp, path tuyệt đối, thứ tự ngẫu nhiên, toolchain lệch) phá hash. Giải: §1 #2/#3 + DEC-TRUST-04 - SOURCE_DATE_EPOCH + bỏ path + pin toolchain/lockfile; AC #3/#10.
+
+### ISS-004 - Mã ship bị obfuscate làm "open-source" vô nghĩa
+Bundle làm rối cố ý cản kiểm tra độc lập. Giải: §1 #11 - cấm obfuscation, mã ship map được về source; điều kiện để FR-TRUST-003 audit khả thi.
+
+## §3 - Traceability §1 -> AC -> artefact
+
+| §1 | AC | Artefact |
+|---|---|---|
+| #1 source công khai + tag | #1,#2 | repo công khai + manifest homepage_url/version |
+| #2 reproducible build | #3,#10 | `build-deterministic.mjs` |
+| #3 pin toolchain | #10 | lockfile + REPRODUCIBLE-BUILD.md |
+| #4 verify hash | #4,#5 | `verify-reproducible.sh` |
+| #5 CI publish gate | #9 | `reproducible-publish-gate.yml` |
+| #6 disclosure đúng tập | #6 | `DISCLOSURE.md` |
+| #7 listing nhất quán | #8 | `chrome-web-store-listing.md` |
+| #8 disclosure parity test | #7 | `disclosure-consistency.test.ts` |
+| #11 cấm obfuscation | #11 | review + grep bundle |
+| #12 publish hash | #12 | release notes |
+
+## §4 - Kết luận
+
+Toàn bộ mệnh đề normative có script/test/AC backing. Reproducible build là trục: nó làm "mã nguồn mở" có nghĩa kiểm chứng được, và là nền cho audit độc lập FR-TRUST-003. Không có mệnh đề "mồ côi". Score = 10/10. Verdict: PASS. Sẵn sàng vào hàng đợi build (status `ready_to_implement`).
+
+---
+
+*Hết audit FR-TRUST-001.*

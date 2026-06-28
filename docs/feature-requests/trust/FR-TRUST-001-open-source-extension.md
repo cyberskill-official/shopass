@@ -1,0 +1,307 @@
+---
+id: FR-TRUST-001
+title: "Publish extension mã nguồn mở + reproducible build + disclosure rõ trên Chrome Web Store - chứng minh KHÔNG gửi cookie/mật khẩu, hash artifact khớp source công khai"
+module: TRUST
+priority: MUST
+status: ready_to_implement
+verify: T
+phase: P1
+milestone: P1 - slice 1
+slice: 1
+owner: Stephen Cheng (Founder)
+created: 2026-06-28
+related_frs: [FR-EXT-001, FR-EXT-003, FR-EXT-006, FR-TRUST-002, FR-TRUST-003, FR-COMPLY-005, NFR-TRUST-001]
+depends_on: [FR-EXT-001]
+blocks: []
+source_pages:
+  - "docs/TÀI LIỆU NỀN TẢNG SẢN PHẨM SănDeal §5.4 (trust & security: (1) open-source extension; (5) disclosure rõ trên Chrome Web Store)"
+  - "docs/... §3.8 (no-cleartext credential, token không rời client), §5.2 (Chrome gỡ extension kiểu Honey - minh bạch là moat)"
+source_decisions:
+  - "DEC-TRUST-01: mã nguồn extension công khai (GitHub) dưới giấy phép mở; mọi commit ship lên Chrome Web Store phải có tag tương ứng trong repo công khai"
+  - "DEC-TRUST-02: build phải tái lập (reproducible): cùng commit -> cùng bundle bit-by-bit (deterministic); SHA-256 của artifact ship khớp SHA-256 build lại từ source"
+  - "DEC-TRUST-03: trang Chrome Web Store + repo phải có DISCLOSURE rõ ràng về dữ liệu: liệt kê đúng dữ liệu thu thập, khẳng định KHÔNG gửi cookie/mật khẩu/token phiên về server"
+  - "DEC-TRUST-04: pin toolchain (phiên bản node, bundler, dependency lock) để build tái lập được; CI publish gate chặn nếu hash không khớp"
+  - "DEC-TRUST-05: store listing data-use phải nhất quán với pipeline tối thiểu hóa (FR-EXT-003) và chính sách local-first (FR-TRUST-002) - không khai gì pipeline không làm, không làm gì không khai"
+
+language: "TypeScript 5.x build (extension); shell + Node CI (verify hash); Markdown (DISCLOSURE.md, store listing)"
+service: shopass/extension/
+new_files:
+  - extension/REPRODUCIBLE-BUILD.md
+  - extension/DISCLOSURE.md
+  - extension/scripts/build-deterministic.mjs
+  - extension/scripts/verify-reproducible.sh
+  - extension/store/chrome-web-store-listing.md
+  - extension/.github/workflows/reproducible-publish-gate.yml
+  - extension/test/disclosure-consistency.test.ts
+modified_files:
+  - extension/build.mjs            # bật cờ deterministic (sort key, bỏ timestamp/path tuyệt đối)
+  - extension/manifest.json        # thêm homepage_url trỏ repo công khai + version khớp tag
+allowed_tools:
+  - file_read: extension/**
+  - file_write: extension/**
+  - bash: cd extension && npm test && bash scripts/verify-reproducible.sh
+disallowed_tools:
+  - ship lên Chrome Web Store một bundle KHÔNG có commit/tag công khai tương ứng (vi phạm DEC-TRUST-01)
+  - đưa timestamp/path tuyệt đối/thứ tự ngẫu nhiên vào bundle (phá tái lập, vi phạm DEC-TRUST-02)
+  - khai data-use trên store listing không khớp dữ liệu pipeline thực thu (vi phạm DEC-TRUST-05)
+  - publish khi hash artifact không khớp hash build-lại-từ-source (vi phạm DEC-TRUST-04)
+
+effort_hours: 6
+sub_tasks:
+  - "1.0h: build-deterministic.mjs - bundle tái lập (sort entries, SOURCE_DATE_EPOCH, bỏ path tuyệt đối, lock dependency)"
+  - "1.0h: verify-reproducible.sh - clone commit, build lại, so SHA-256 với artifact ship; exit !=0 nếu lệch"
+  - "1.0h: DISCLOSURE.md - liệt kê đúng dữ liệu thu thập (productId/price/qty) + khẳng định KHÔNG cookie/mật khẩu/token; trỏ FR-EXT-003"
+  - "0.5h: chrome-web-store-listing.md - mục data-use nhất quán DISCLOSURE.md + FR-EXT-003"
+  - "1.0h: reproducible-publish-gate.yml - CI chặn publish nếu verify-reproducible.sh fail hoặc thiếu tag công khai"
+  - "0.5h: manifest.json homepage_url + đồng bộ version với git tag"
+  - "1.0h: disclosure-consistency.test.ts - khẳng định trường khai trong DISCLOSURE/listing khớp đúng allowlist OutboundPayload (FR-EXT-003)"
+
+risk_if_skipped: "Extension đọc cookie phiên Shopee/TikTok/Lazada của chính người dùng - hành vi này dễ bị nghi là scam/malware (§5.4), và Chrome vừa thực thi chính sách gỡ extension kiểu Honey (10/06/2025, §4.2). ~45% người tiêu dùng VN lo ngại lừa đảo/lộ dữ liệu (Ken Research). Nếu mã đóng, người dùng và reviewer Chrome Web Store KHÔNG có cách nào kiểm chứng lời hứa 'không gửi cookie/mật khẩu' - lời hứa chỉ là lời nói. Mã nguồn mở + build tái lập biến lời hứa thành thứ ai cũng kiểm được: tải source, build lại, so hash với bản ship. Không có tái lập, 'open-source' là vô nghĩa (bản ship có thể khác source). Disclosure rõ trên store là điều kiện sống còn để qua review và xây niềm tin - đây là moat hậu-Honey của SănDeal. Bỏ FR này là tự đặt extension vào rủi ro bị gỡ và mất toàn bộ định vị niềm tin."
+---
+
+## §1 - Mô tả (BCP-14 normative)
+
+Extension SănDeal **MUST** được công khai mã nguồn, build tái lập được (cùng commit cho cùng bundle), và kèm disclosure rõ ràng trên Chrome Web Store khẳng định KHÔNG gửi cookie/mật khẩu/token phiên về server. Hợp đồng:
+
+1. Mã nguồn extension **MUST** công khai trên một repo (GitHub) dưới giấy phép mã nguồn mở; mọi bundle ship lên Chrome Web Store **MUST** tương ứng với một commit/tag công khai trong repo đó (DEC-TRUST-01). Không ship bản không truy nguyên được về source công khai.
+2. Build **MUST** tái lập (deterministic, DEC-TRUST-02): cùng một commit phải cho ra bundle giống nhau bit-by-bit. Cụ thể: sắp xếp entry ổn định, đặt `SOURCE_DATE_EPOCH` (bỏ timestamp), loại path tuyệt đối khỏi bundle, khóa chặt dependency (lockfile).
+3. Toolchain build **MUST** được pin (phiên bản node, bundler, lockfile dependency) để bên thứ ba build lại ra cùng kết quả (DEC-TRUST-04).
+4. **MUST** cung cấp `verify-reproducible.sh`: từ một commit, build lại trong môi trường sạch và so SHA-256 với artifact đã ship; lệch hash **MUST** làm script exit khác 0.
+5. CI publish gate (`reproducible-publish-gate.yml`) **MUST** chặn publish nếu (a) `verify-reproducible.sh` fail, hoặc (b) bundle không có tag công khai tương ứng, hoặc (c) listing data-use không nhất quán với pipeline (§1 #8).
+6. `DISCLOSURE.md` **MUST** liệt kê CHÍNH XÁC tập dữ liệu extension thu thập và gửi đi - đúng tập tối thiểu `{platform, productId, price, qty}` (+ voucher hiển thị) của FR-EXT-003 - và **MUST** khẳng định tường minh KHÔNG gửi cookie, mật khẩu, hay token phiên sàn về server (DEC-TRUST-03).
+7. Mục data-use trên Chrome Web Store listing (`chrome-web-store-listing.md`) **MUST** nhất quán với `DISCLOSURE.md` và với allowlist thực tế của FR-EXT-003: không khai gì pipeline không làm, không làm gì không khai (DEC-TRUST-05).
+8. **MUST** có test `disclosure-consistency.test.ts` khẳng định danh sách trường khai trong DISCLOSURE/listing khớp đúng allowlist `OutboundPayload` của FR-EXT-003. Nếu pipeline thêm/bớt trường mà disclosure không cập nhật -> test fail (chống "khai một đằng làm một nẻo").
+9. `manifest.json` **MUST** có `homepage_url` trỏ về repo công khai, và `version` **MUST** khớp git tag của bản ship (truy nguyên hai chiều store <-> source).
+10. Disclosure **MUST** nêu lý do từng quyền (`host_permissions` per-domain, `storage`, `alarms` của FR-EXT-001) bằng ngôn ngữ người dùng hiểu - vì sao extension cần quyền đó, dùng làm gì.
+11. **MUST NOT** chứa mã bị làm rối (obfuscation) hay bundle tối nghĩa cố ý cản kiểm tra; mã ship phải đọc được/map được về source công khai (điều kiện để "mã nguồn mở" có ý nghĩa).
+12. **SHOULD** publish hash SHA-256 của mỗi bản release công khai (trong repo release notes) để người dùng kỹ thuật tự đối chiếu với bản tải từ store.
+
+---
+
+## §2 - Vì sao thiết kế này (rationale cho người đọc)
+
+**Vì sao mã nguồn mở (DEC-TRUST-01)?** Extension đọc cookie phiên sàn của chính user (§3.2) - đây là hành vi nhạy cảm dễ bị nghi scam. Cách duy nhất để một bên ngoài kiểm chứng "extension không lén gửi cookie" là đọc được mã. Đóng mã thì lời hứa chỉ là lời nói; mở mã biến nó thành thứ kiểm chứng được. Đây là điểm bán niềm tin trung tâm của SănDeal hậu-Honey.
+
+**Vì sao build phải tái lập (DEC-TRUST-02)?** "Mã nguồn mở" mà bản ship khác source là vô nghĩa - kẻ xấu có thể công khai source sạch nhưng ship bundle có cửa hậu. Reproducible build đóng kẽ đó: bất kỳ ai build lại từ commit công khai phải ra bundle giống hệt bản trên store (so theo SHA-256). Nếu hai hash khớp, bản ship đúng là source công khai - không hơn không kém.
+
+**Vì sao pin toolchain (DEC-TRUST-04)?** Tái lập chỉ thành công khi mọi đầu vào build cố định: cùng phiên bản node, cùng bundler, cùng dependency (lockfile). Một phiên bản lệch có thể chèn timestamp hay đổi thứ tự byte, làm hash khác dù mã giống. Pin toolchain để bên thứ ba dựng lại đúng môi trường.
+
+**Vì sao disclosure phải khớp pipeline qua test (§1 #8)?** Lời khai data-use dễ trôi khỏi thực tế: pipeline (FR-EXT-003) đổi allowlist mà disclosure quên cập nhật. Test nối disclosure với allowlist thật làm hai thứ không thể lệch âm thầm - nếu pipeline thêm trường, disclosure buộc phải khai, nếu không CI đỏ. "Khai đúng những gì làm" trở thành ràng buộc máy kiểm.
+
+**Vì sao CI publish gate (§1 #5)?** Quy tắc không cưỡng chế thì bị phá qua một lần publish vội. Gate biến "phải tái lập + phải có tag + phải nhất quán disclosure" thành điều kiện kỹ thuật để ship: không đạt thì không lên store được. Đây là cách giữ lời hứa qua thời gian, không phụ thuộc kỷ luật thủ công.
+
+**Vì sao cấm obfuscation (§1 #11)?** Mã ship bị làm rối cố ý thì "mở source" thành hình thức - người đọc không map được bundle về mã. Yêu cầu mã ship đọc được/map được là điều kiện để kiểm tra độc lập (FR-TRUST-003) khả thi.
+
+---
+
+## §3 - Hợp đồng API / DDL
+
+### scripts/build-deterministic.mjs (build tái lập)
+
+```js
+// extension/scripts/build-deterministic.mjs
+import { build } from "esbuild";
+
+// SOURCE_DATE_EPOCH cố định -> bỏ timestamp khỏi artifact
+process.env.SOURCE_DATE_EPOCH = process.env.SOURCE_DATE_EPOCH || "0";
+
+await build({
+  entryPoints: ["src/background/service-worker.ts", "src/content/index.ts"],
+  bundle: true,
+  outdir: "dist",
+  minify: true,
+  // tái lập: thứ tự ổn định, không nhúng path tuyệt đối, không nhúng thời gian
+  absWorkingDir: process.cwd(),
+  sourcemap: false,
+  legalComments: "none",
+  define: { "process.env.BUILD_TIME": '""' },  // KHÔNG nhúng giờ build
+  metafile: false,
+});
+// Hậu xử lý: zip với thứ tự entry sort + mtime cố định (deterministic zip)
+```
+
+### scripts/verify-reproducible.sh (đối chiếu hash)
+
+```bash
+#!/usr/bin/env bash
+# extension/scripts/verify-reproducible.sh
+# Dùng: verify-reproducible.sh <commit> <shipped-artifact.zip>
+set -euo pipefail
+COMMIT="$1"; SHIPPED="$2"
+WORK="$(mktemp -d)"
+git worktree add --detach "$WORK" "$COMMIT"
+( cd "$WORK" && npm ci && node scripts/build-deterministic.mjs && \
+  ( cd dist && zip -rX -D -X ../rebuilt.zip . ) )   # zip xác định, mtime cố định
+
+REBUILT_HASH="$(shasum -a 256 "$WORK/rebuilt.zip" | awk '{print $1}')"
+SHIPPED_HASH="$(shasum -a 256 "$SHIPPED" | awk '{print $1}')"
+git worktree remove --force "$WORK"
+
+echo "rebuilt:  $REBUILT_HASH"
+echo "shipped:  $SHIPPED_HASH"
+if [ "$REBUILT_HASH" != "$SHIPPED_HASH" ]; then
+  echo "HASH KHÔNG KHỚP - bản ship khác source công khai" >&2
+  exit 1
+fi
+echo "OK - reproducible: bản ship khớp source @ $COMMIT"
+```
+
+### DISCLOSURE.md (trích cấu trúc bắt buộc)
+
+```markdown
+# SănDeal Extension - Disclosure dữ liệu
+
+## Dữ liệu extension GỬI về server (đúng tập tối thiểu)
+- platform: sàn đang xem (shopee | tiktok | lazada)
+- productId: ID sản phẩm công khai
+- price: giá hiển thị (số nguyên VND)
+- qty: số lượng trong giỏ
+- voucher hiển thị (mã + điều kiện hiển thị công khai)
+
+## Dữ liệu extension KHÔNG BAO GIỜ gửi
+- KHÔNG cookie phiên (Shopee/TikTok/Lazada)
+- KHÔNG mật khẩu
+- KHÔNG token phiên sàn / header xác thực
+- KHÔNG email / số điện thoại / tên / địa chỉ
+
+## Vì sao cần từng quyền
+- host_permissions (shopee.vn, tiktok.com, lazada.vn): đọc giá/giỏ trên đúng trang sàn
+- storage: lưu cấu hình + state cục bộ (service worker ephemeral, FR-EXT-001)
+- alarms: lập lịch quét định kỳ (>=30s) thay cho setInterval
+
+Mã nguồn: <repo công khai> · Bản build này: tag <vX.Y.Z>, SHA-256 <hash>
+```
+
+---
+
+## §4 - Acceptance criteria
+
+1. Repo extension công khai, có giấy phép mã nguồn mở; `manifest.json` `homepage_url` trỏ đúng repo.
+2. `version` trong `manifest.json` của bản ship khớp git tag tương ứng (truy nguyên store <-> source).
+3. Chạy `build-deterministic.mjs` hai lần trên cùng commit -> hai artifact có SHA-256 giống hệt (tái lập nội bộ).
+4. `verify-reproducible.sh <commit> <shipped.zip>` với artifact ĐÚNG -> in "OK", exit 0.
+5. `verify-reproducible.sh` với artifact đã bị sửa một byte -> in "HASH KHÔNG KHỚP", exit khác 0.
+6. `DISCLOSURE.md` liệt kê đúng `{platform, productId, price, qty}` (+ voucher) và khẳng định KHÔNG cookie/mật khẩu/token.
+7. `disclosure-consistency.test.ts`: danh sách trường khai trong DISCLOSURE khớp allowlist `OutboundPayload` (FR-EXT-003); thêm/bớt trường mà không cập nhật disclosure -> test đỏ.
+8. Mục data-use trên `chrome-web-store-listing.md` nhất quán với `DISCLOSURE.md` (so trường-với-trường).
+9. CI `reproducible-publish-gate.yml` fail khi: hash không khớp, thiếu tag công khai, hoặc disclosure lệch pipeline.
+10. Grep bundle ship: KHÔNG có path tuyệt đối máy build, KHÔNG có timestamp build nhúng (điều kiện tái lập).
+11. Bundle ship KHÔNG bị obfuscate cố ý; map được về source công khai.
+12. Release notes công khai có SHA-256 của bản ship (SHOULD) để user kỹ thuật tự đối chiếu.
+
+---
+
+## §5 - Kiểm thử (verification)
+
+```ts
+// extension/test/disclosure-consistency.test.ts
+import { readFileSync } from "node:fs";
+import { ALLOWED_ITEM_FIELDS, ALLOWED_VOUCHER_FIELDS } from "../src/pipeline/allowlist";
+
+test("DISCLOSURE liệt kê đúng trường pipeline thực gửi (không thừa/thiếu)", () => {
+  const disc = readFileSync("DISCLOSURE.md", "utf8").toLowerCase();
+  for (const f of ALLOWED_ITEM_FIELDS) expect(disc).toContain(f.toLowerCase());
+  // Cấm khai trường NHẠY CẢM (chống "khai sai để trông an toàn" hoặc rò ý đồ)
+  for (const banned of ["cookie", "password", "mật khẩu", "session token", "token phiên"])
+    expect(disc).toContain("không"); // mục "KHÔNG gửi" phải tồn tại
+  expect(disc).toMatch(/không.*(cookie)/);
+});
+
+test("trường mới ở allowlist mà DISCLOSURE chưa khai -> fail", () => {
+  const disc = readFileSync("DISCLOSURE.md", "utf8").toLowerCase();
+  const undisclosed = [...ALLOWED_ITEM_FIELDS, ...ALLOWED_VOUCHER_FIELDS]
+    .filter(f => !disc.includes(f.toLowerCase()));
+  expect(undisclosed).toEqual([]);  // mọi trường gửi đi phải được khai
+});
+```
+
+```bash
+# Kiểm tái lập (chạy trong CI gate)
+node scripts/build-deterministic.mjs && cp -r dist dist_a
+node scripts/build-deterministic.mjs && cp -r dist dist_b
+diff -r dist_a dist_b   # PHẢI rỗng: hai lần build giống hệt
+
+# Đối chiếu bản ship
+bash scripts/verify-reproducible.sh "$(git rev-parse HEAD)" shipped.zip
+```
+
+---
+
+## §6 - Khung triển khai
+
+Xem §3. Thứ tự: bật cờ deterministic trong `build.mjs` + `build-deterministic.mjs` (loại timestamp/path/thứ tự ngẫu nhiên) -> `verify-reproducible.sh` (build lại + so hash) -> `DISCLOSURE.md` + `chrome-web-store-listing.md` (khai data-use khớp FR-EXT-003) -> `disclosure-consistency.test.ts` (nối disclosure với allowlist) -> `reproducible-publish-gate.yml` (CI chặn publish khi lệch) -> cập nhật `manifest.json` (homepage_url + version=tag). Quy trình release: tag commit -> CI build deterministic -> verify hash -> publish lên store -> ghi SHA-256 vào release notes. Mọi bản ship đi qua gate này.
+
+---
+
+## §7 - Phụ thuộc
+
+- **FR-EXT-001** - scaffold MV3 + build.mjs là nền để bật chế độ deterministic; manifest có sẵn để thêm homepage_url/version.
+- **FR-EXT-003** - allowlist `OutboundPayload` là nguồn sự thật cho danh sách trường khai trong DISCLOSURE; test consistency nối hai bên.
+- **FR-EXT-006** - UI consent + disclosure lúc cài đặt dùng cùng nội dung DISCLOSURE.md.
+- **FR-TRUST-002 (đồng cấp)** - chính sách tối thiểu hóa + local-first; disclosure phản ánh chính sách này.
+- **FR-TRUST-003 (downstream)** - audit độc lập dùng reproducible build + disclosure làm bằng chứng kiểm chứng được; FR-TRUST-001 cung cấp nền hash + source công khai cho audit.
+- **FR-COMPLY-005** - cưỡng chế no-cleartext/token-not-on-server; disclosure khẳng định đúng bất biến mà COMPLY-005 kiểm máy.
+- Hạ tầng: GitHub repo công khai + giấy phép mở; CI (GitHub Actions) cho publish gate.
+
+---
+
+## §8 - Payload ví dụ
+
+### Release notes công khai (kèm hash để đối chiếu)
+
+```
+SănDeal Extension v1.4.0
+Commit: a1b2c3d (tag v1.4.0, repo công khai)
+Artifact SHA-256: 9f2c...e71a
+Tái lập: `bash scripts/verify-reproducible.sh a1b2c3d sandeal-1.4.0.zip` -> OK
+Thay đổi: thêm đọc voucher freeship Shopee; KHÔNG đổi tập dữ liệu gửi đi.
+```
+
+### Mục data-use trên Chrome Web Store listing (trích)
+
+```
+Dữ liệu thu thập: thông tin sản phẩm (ID, giá, số lượng) trên trang sàn bạn đang xem.
+KHÔNG thu thập: cookie, mật khẩu, token đăng nhập, thông tin liên hệ.
+Mục đích: theo dõi giá, phát hiện sale ảo, tối ưu voucher - xử lý tối thiểu hóa, ưu tiên cục bộ.
+Mã nguồn mở + build tái lập: <repo>. Tự kiểm: build lại commit và so hash với bản này.
+```
+
+---
+
+## §9 - Câu hỏi mở
+
+Đã chốt. Hoãn:
+- Chọn giấy phép mở cụ thể (MIT vs Apache-2.0 vs GPL) - quyết khi mở repo; không ảnh hưởng cơ chế tái lập.
+- Reproducible build cho bản Firefox/Edge/Cốc Cốc (đa kênh §5.2) - cùng cơ chế, thêm target khi ship kênh đó.
+- Ký số artifact (sigstore/cosign) ngoài SHA-256 - lớp tin cậy bổ sung, xét ở giai đoạn sau nếu cần chứng minh nguồn gốc mạnh hơn.
+- Bug bounty công khai cho extension - thuộc chương trình bảo mật rộng hơn, không thuộc FR này.
+
+---
+
+## §10 - Failure modes inventory
+
+| Lỗi | Phát hiện | Hệ quả | Khắc phục |
+|---|---|---|---|
+| Bản ship khác source công khai | verify-reproducible hash lệch | "open-source" giả, mất niềm tin | Gate chặn publish khi hash không khớp (DEC-TRUST-02/04) |
+| Bundle nhúng timestamp/path tuyệt đối | diff hai lần build khác nhau | không tái lập được | SOURCE_DATE_EPOCH + bỏ path + zip xác định (§1 #2) |
+| Toolchain lệch phiên bản | bên thứ ba build ra hash khác | tái lập thất bại | Pin node/bundler/lockfile (DEC-TRUST-04) |
+| Disclosure khai sai/thiếu trường | disclosure-consistency test đỏ | "khai một đằng làm một nẻo" | Test nối disclosure với allowlist FR-EXT-003 (§1 #8) |
+| Listing store lệch DISCLOSURE.md | so trường-với-trường (§4 #8) | review từ chối / hiểu lầm | Một nguồn sự thật (FR-EXT-003) cho cả hai |
+| Ship bundle không có tag công khai | CI gate kiểm tag | không truy nguyên được | Gate yêu cầu tag tương ứng (§1 #5) |
+| Mã ship bị obfuscate | review/grep | kiểm tra độc lập bất khả | Cấm obfuscation, mã map được (§1 #11) |
+| Quyền thừa không giải thích | review disclosure quyền | nghi ngờ + risk review từ chối | DISCLOSURE nêu lý do từng quyền (§1 #10) |
+
+---
+
+## §11 - Ghi chú
+
+- Reproducible build là thứ làm "mã nguồn mở" có nghĩa thật: bất kỳ ai cũng chứng minh được bản ship đúng là source công khai bằng cách so hash.
+- Disclosure không phải văn bản marketing - nó được nối với allowlist thực thi (FR-EXT-003) qua test, nên không thể lệch khỏi hành vi thật của extension.
+- Đây là moat niềm tin hậu-Honey (§5.2): nơi Honey lén thay cookie, SănDeal công khai mọi byte và mời người dùng tự kiểm.
+- CI publish gate giữ ba bất biến (tái lập + có tag + disclosure khớp) qua thời gian, không phụ thuộc kỷ luật thủ công của người release.
+- FR-TRUST-003 (audit độc lập) đứng trên nền này: hash + source công khai là đầu vào để bên thứ ba xác minh KHÔNG gửi cookie/mật khẩu.
+- ~45% người tiêu dùng VN lo ngại lừa đảo/lộ dữ liệu (Ken Research) - minh bạch kiểm chứng được là cách trực tiếp nhất để hóa giải nỗi lo đó.
+
+---
+
+*Hết FR-TRUST-001. Status: ready_to_implement (mục tiêu audit 10/10).*

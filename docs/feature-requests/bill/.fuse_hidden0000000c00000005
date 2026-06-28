@@ -1,0 +1,48 @@
+---
+fr_id: FR-BILL-001
+audited: 2026-06-28
+verdict: PASS
+score: 10/10
+template: engineering-spec@1
+authoring_compliance: "khớp house style FR CyberOS (§1 BCP-14 normative → §11 ghi chú + frontmatter đầy đủ)"
+---
+
+## §1 - Tóm tắt verdict
+
+FR-BILL-001 đặc tả schema `plan_catalog` + `subscription` ở mức triển khai được. 12 mệnh đề §1 normative, mỗi mệnh đề có AC và test trong §5. Bốn ràng buộc lõi được khóa: giá BIGINT VND ở `plan_catalog` (không hardcode), một subscription active mỗi user (partial unique), status có CHECK + máy trạng thái chuyển hợp lệ, `renews_at > started_at`. Ba bậc Premium 29k/49k/79k seed idempotent. Đạt 10/10.
+
+## §2 - Findings (đã giải quyết)
+
+### ISS-001 - Giá hardcode + float
+Rải `29000` khắp code làm đổi giá lệch nhiều nơi; float gây sai số doanh thu. Giải: §1 #2/#7 + DEC-BILL-02/05 - giá BIGINT ở `plan_catalog`, subscription tham chiếu `plan_id`; AC #2 + `TestPlanCatalog_Prices`.
+
+### ISS-002 - Nhiều subscription active/user
+Tính tiền trùng + quyền lợi nhập nhằng. Giải: §1 #4 + DEC-BILL-03 - partial unique `WHERE status='active'`, giữ lịch sử cũ; AC #5/#11 + `TestCreate_OneActivePerUser`.
+
+### ISS-003 - Trạng thái rác
+Cho chuyển tùy ý tạo subscription vừa canceled vừa active. Giải: §1 #5/#9 + DEC-BILL-04 - CHECK status + máy trạng thái `CanTransition`; AC #6/#10 + `TestUpdateStatus_RejectsInvalid`.
+
+### ISS-004 - Chu kỳ gia hạn vô lý
+`renews_at` trước `started_at`. Giải: §1 #6 - CHECK `renews_at > started_at`; AC #7 + `TestSubscription_RenewsAfterStart`.
+
+## §3 - Traceability §1 → AC → artefact
+
+| §1 | AC | Artefact |
+|---|---|---|
+| #1 plan_catalog 4 bậc | #1,#2 | `0001_plan_catalog.sql` |
+| #2 giá BIGINT | #2 | CHECK price >= 0 + types int64 |
+| #3 schema subscription | #1 | `0002_subscription.sql` |
+| #4 một active/user | #5,#11 | partial unique + `TestCreate_OneActivePerUser` |
+| #5 status CHECK | #6 | CHECK status + `TestSubscription_StatusCheck` |
+| #6 renews > started | #7 | CHECK + `TestSubscription_RenewsAfterStart` |
+| #7 giá từ catalog | #2 | `plan_id` FK + `TestPlanCatalog_Prices` |
+| #9 máy trạng thái | #9,#10 | `lifecycle.go` + `TestUpdateStatus_RejectsInvalid` |
+| #10 seed idempotent | #3 | ON CONFLICT DO NOTHING |
+
+## §4 - Kết luận
+
+Toàn bộ mệnh đề normative có DDL/code/test backing, gồm giá-BIGINT-catalog, một-active-mỗi-user, máy-trạng-thái và renews>started. Không có mệnh đề "mồ côi". Score = 10/10. Verdict: PASS. Sẵn sàng vào hàng đợi build (status `ready_to_implement`).
+
+---
+
+*Hết audit FR-BILL-001.*

@@ -1,0 +1,49 @@
+---
+fr_id: FR-TRUST-003
+audited: 2026-06-28
+verdict: PASS
+score: 10/10
+template: engineering-spec@1
+authoring_compliance: "khớp house style FR CyberOS (§1 BCP-14 normative -> §11 ghi chú + frontmatter đầy đủ)"
+---
+
+## §1 - Tóm tắt verdict
+
+FR-TRUST-003 đặc tả bộ hook security audit tái chạy được ở mức triển khai. 12 mệnh đề §1 normative, mỗi mệnh đề có AC và verification trong §5. Mảnh bằng chứng mạnh nhất - egress test ở biên mạng với phiên đăng nhập thật - được đặc tả với `network-trap.ts` + Playwright + negative control (chèn rò có chủ đích phải FAIL test). Audit là lớp tổng hợp gọi `verify-reproducible.sh` (FR-TRUST-001) + `payload_guard` (FR-COMPLY-005) như hook con và thêm egress động + SBOM; PASS chỉ khi cả bốn PASS. THIRD-PARTY-AUDIT-GUIDE làm audit tái chạy được bởi bên ngoài. Đạt 10/10.
+
+## §2 - Findings (đã giải quyết)
+
+### ISS-001 - Kiểm tĩnh không thấy rò runtime
+Grep bắt mẫu đã biết nhưng không thấy request runtime mang cookie. Giải: §1 #2/#3 + DEC-TRUST-12 - egress test chặn mạng, chạy luồng thật, assert tại biên mạng; negative control chứng minh test bắt được (AC #2/#3 + §5).
+
+### ISS-002 - Báo cáo audit một lần không kiểm lại được
+PDF "đã được hãng X audit" là "tin tôi đi", cũ khi mã đổi. Giải: §1 #1/#9 + DEC-TRUST-11 - hook tái chạy + THIRD-PARTY-AUDIT-GUIDE.md; bên ngoài clone + chạy ra cùng kết luận (AC #10).
+
+### ISS-003 - Rò qua host lạ / supply-chain
+Dữ liệu có thể ra qua host khác backend, hoặc qua dependency độc hại. Giải: §1 #4/#5 + DEC-TRUST-13 - whitelist endpoint + assert payload (kênh bên) + SBOM/CVE scan (supply-chain); AC #4/#5/#6/#7.
+
+### ISS-004 - Audit ngầm PASS khi bỏ hook
+"Chế độ nhanh" bỏ hook con là bằng chứng giả. Giải: §1 #7/#12 + DEC-TRUST-15 - PASS chỉ khi cả bốn hook PASS; thiếu hook → INCOMPLETE, không ngầm PASS (AC #1/#12).
+
+## §3 - Traceability §1 -> AC -> artefact
+
+| §1 | AC | Artefact |
+|---|---|---|
+| #2 egress động | #2,#3 | `egress-guard.test.ts` + `network-trap.ts` |
+| #3 kiểm url/header/body | #3 | `assertNoCredentialEgress` |
+| #4 whitelist endpoint + payload | #4,#5 | network-trap host check |
+| #5 SBOM + vuln | #6,#7 | `generate-sbom.sh` + `scan-vulnerabilities.sh` |
+| #7 orchestrate 4 hook | #8 | `run-security-audit.sh` |
+| #8 báo cáo cấu trúc | #9 | `build-report.ts` + template |
+| #9 THIRD-PARTY guide | #10 | `THIRD-PARTY-AUDIT-GUIDE.md` |
+| #10 CI gate gọi audit | #11 | `reproducible-publish-gate.yml` |
+| #11 phủ luồng có phiên | #2 | egress test addCookies |
+| #12 không ngầm PASS | #1,#12 | run-security-audit exit code |
+
+## §4 - Kết luận
+
+Toàn bộ mệnh đề normative có script/test/AC backing. Egress động ở biên mạng (có phiên) là bằng chứng đầu cuối mạnh nhất; audit tổng hợp bốn hook tái chạy được bởi bên thứ ba. Không có mệnh đề "mồ côi". Score = 10/10. Verdict: PASS. Sẵn sàng build (status `ready_to_implement`).
+
+---
+
+*Hết audit FR-TRUST-003.*
