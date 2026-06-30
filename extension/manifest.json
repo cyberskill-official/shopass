@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "SănDeal",
+  "version": "0.1.0",
+  "minimum_chrome_version": "120",
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://shopee.vn/*"
+  ],
+  "action": { "default_title": "SănDeal" }
+}
