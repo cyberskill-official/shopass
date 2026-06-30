@@ -50,8 +50,8 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-INFRA-001** | API Gateway / BFF - định tuyến REST+GraphQL+WSS, rate-limit, JWT verify, WAF | MUST | ready_to_implement | - | 8h |
-| **FR-INFRA-002** | Data-model foundation - migration framework + bảng `platform` + `app_user` lõi | MUST | ready_to_implement | - | 6h |
-| **FR-INFRA-003** | Secrets management - Vault / AWS Secrets Manager, no-cleartext, rotation | MUST | ready_to_implement | - | 5h |
+| **FR-INFRA-002** | Data-model foundation - migration framework + bảng `platform` + `app_user` lõi | MUST | done | - | 6h |
+| **FR-INFRA-003** | Secrets management - Vault / AWS Secrets Manager, no-cleartext, rotation | MUST | implementing | - | 5h |
 | **FR-INFRA-004** | Observability spine - Prometheus + Grafana + OTel tracing + structured logs | MUST | ready_to_implement | FR-INFRA-001 | 8h |
 | **FR-INFRA-005** | Per-country region config - gating hook (VN/ID/TH/PH/MY/SG/TW) + feature flags | MUST | ready_to_implement | FR-INFRA-002 | 6h |
 
