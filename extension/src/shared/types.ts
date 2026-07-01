@@ -23,7 +23,7 @@ export interface ParseDomResult {
 }
 
 export type Message =
-  | { type: "CART_READ"; platform: "shopee" | "tiktok"; items: CartItem[]; vouchers: VoucherItem[] }
+  | { type: "CART_READ"; platform: "shopee" | "tiktok" | "lazada"; items: CartItem[]; vouchers: VoucherItem[] }
   | { type: "PING" }
   | ParseDomRequest
   | ParseDomResult

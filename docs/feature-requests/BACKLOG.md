@@ -174,7 +174,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-EXT-007** | TikTok Shop content script (webview/SPA DOM reader, tránh API ký msToken/X-Bogus) | MUST | done | FR-EXT-002 | 10h |
-| **FR-EXT-008** | Lazada content script (Akamai-aware, đọc DOM render) | MUST | ready_to_implement | FR-EXT-002 | 8h |
+| **FR-EXT-008** | Lazada content script (Akamai-aware, đọc DOM render) | MUST | done | FR-EXT-002 | 8h |
 
 ### P2.2 - SCRAPE - TikTok Shop + Lazada adapters
 

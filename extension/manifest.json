@@ -11,7 +11,8 @@
   "permissions": ["storage", "alarms", "offscreen", "declarativeNetRequest"],
   "host_permissions": [
     "https://shopee.vn/*",
-    "https://*.tiktok.com/*"
+    "https://*.tiktok.com/*",
+    "https://www.lazada.vn/*"
   ],
   "declarative_net_request": {
     "rule_resources": [
@@ -29,6 +30,11 @@
     {
       "matches": ["https://*.tiktok.com/*"],
       "js": ["content/tiktok/index.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.lazada.vn/*"],
+      "js": ["content/lazada/index.js"],
       "run_at": "document_idle"
     }
   ]
