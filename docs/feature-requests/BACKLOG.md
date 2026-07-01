@@ -79,7 +79,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-SCRAPE-001** | Scraping orchestrator lõi - scheduler + scan-frequency tiering (hot/thường) | MUST | ready_to_implement | FR-INFRA-003, FR-PRICE-001 | 10h |
+| **FR-SCRAPE-001** | Scraping orchestrator lõi - scheduler + scan-frequency tiering (hot/thường) | MUST | done | FR-INFRA-003, FR-PRICE-001 | 10h |
 | **FR-SCRAPE-002** | Shopee internal-API adapter (`/api/v4/...`, hybrid, `is_login:false`) | MUST | ready_to_implement | FR-SCRAPE-001 | 8h |
 | **FR-SCRAPE-003** | Playwright headless farm + anti-fingerprint (Canvas/WebGL/JA3/JA4/HTTP2) | MUST | ready_to_implement | FR-SCRAPE-001 | 12h |
 | **FR-SCRAPE-004** | Residential proxy rotation + tiering + cost-guard (Bright Data/Oxylabs/Decodo/IPRoyal) | MUST | ready_to_implement | FR-SCRAPE-003 | 8h |
