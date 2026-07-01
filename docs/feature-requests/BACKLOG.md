@@ -70,8 +70,8 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-AUTH-001** | Schema `app_user` (argon2id pwd_hash, CITEXT email, phone, locale) + đăng ký | MUST | done | FR-INFRA-002 | 6h |
-| **FR-AUTH-002** | Phát hành JWT + refresh + phiên (BFF auth) | MUST | ready_to_implement | FR-AUTH-001, FR-INFRA-001 | 6h |
-| **FR-AUTH-003** | Liên kết `platform_account` - ext_user_ref ẩn danh, KHÔNG lưu token phiên | MUST | ready_to_implement | FR-AUTH-001 | 5h |
+| **FR-AUTH-002** | Phát hành JWT + refresh + phiên (BFF auth) | MUST | done | FR-AUTH-001, FR-INFRA-001 | 6h |
+| **FR-AUTH-003** | Liên kết `platform_account` - ext_user_ref ẩn danh, KHÔNG lưu token phiên | MUST | done | FR-AUTH-001 | 5h |
 | **FR-AUTH-004** | Social login (Google / Facebook / Zalo OAuth) | SHOULD | ready_to_implement | FR-AUTH-002 | 6h |
 | **FR-AUTH-005** | Vòng đời tài khoản - reset mật khẩu, status, xóa tài khoản (DSAR PDPL) | MUST | ready_to_implement | FR-AUTH-001, FR-COMPLY-003 | 5h |
 
@@ -199,7 +199,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-AFFIL-001** | Schema + tracking affiliate (user-initiated) + đối soát mạng | MUST | done | FR-INFRA-002 | 6h |
-| **FR-AFFIL-002** | Deep-link generator user-initiated (`POST /v1/affiliate/link`, disclosure, no auto-cookie) | MUST | ready_to_implement | FR-AFFIL-001 | 6h |
+| **FR-AFFIL-002** | Deep-link generator user-initiated (`POST /v1/affiliate/link`, disclosure, no auto-cookie) | MUST | done | FR-AFFIL-001 | 6h |
 | **FR-AFFIL-003** | Tích hợp affiliate network (Involve Asia / Accesstrade) compliant | MUST | ready_to_implement | FR-AFFIL-002 | 8h |
 | **FR-AFFIL-004** | Guardrails né Honey (no cookie-stuffing, bắt buộc user-action, tuân Chrome policy 10/06/2025) | MUST | ready_to_implement | FR-AFFIL-002, FR-EXT-003 | 5h |
 
