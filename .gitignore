@@ -1,0 +1,33 @@
+# OS/editor noise
+.DS_Store
+**/.DS_Store
+*.swp
+*.swo
+*~
+
+# FUSE temporary files
+.fuse_hidden*
+**/.fuse_hidden*
+
+# Local agent/spec-kit tooling
+.agents/
+.specify/
+.codex/
+.gitkeep
+
+# Runtime/build outputs
+node_modules/
+dist/
+build/
+.next/
+coverage/
+.turbo/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/

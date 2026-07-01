@@ -1,0 +1,10 @@
+# CI placeholder: ML (Python)
+name: ml-ci
+on: [push, pull_request]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "ML CI — Python lint, test. Replace with actual steps."

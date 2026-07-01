@@ -1,0 +1,10 @@
+# CI placeholder: Performance checks
+name: performance-ci
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Performance CI — API latency, time-series throughput, notification spike. Replace with actual steps."

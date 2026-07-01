@@ -1,0 +1,10 @@
+# CI placeholder: Extension (MV3 TypeScript)
+name: extension-ci
+on: [push, pull_request]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Extension CI — TypeScript build, lint, test. Replace with actual steps."

@@ -1,0 +1,10 @@
+# CI placeholder: Mobile (React Native / Flutter)
+name: mobile-ci
+on: [push, pull_request]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Mobile CI — build, lint, test. Replace with actual steps."

@@ -3,7 +3,7 @@ id: FR-INFRA-001
 title: "API Gateway / BFF - định tuyến REST+GraphQL+WSS, rate-limit per-user/IP, verify JWT (uỷ quyền AUTH), WAF rules, request-id propagation"
 module: INFRA
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P0
 milestone: P0 - slice 1

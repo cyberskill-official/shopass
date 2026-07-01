@@ -1,0 +1,10 @@
+# CI placeholder: Backend (Go services)
+name: backend-ci
+on: [push, pull_request]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: placeholder
+        run: echo "Backend CI — Go build, lint, test. Replace with actual steps."
