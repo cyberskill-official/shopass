@@ -16,6 +16,11 @@ func NewRepo(pool *pgxpool.Pool) *Repo {
 	return &Repo{pool: pool}
 }
 
+// UnexportedPoolForTest exposes the pgxpool only for tests
+func (r *Repo) UnexportedPoolForTest() *pgxpool.Pool {
+	return r.pool
+}
+
 // Upsert chèn SKU mới hoặc cập nhật metadata khi (platform_id, platform_item_id) đã có.
 // canonical_key KHÔNG được ghi ở đây - để NULL, FR-PRICE-005 điền sau.
 // first_seen KHÔNG bị nhánh DO UPDATE ghi đè (giữ mốc cold-start).
