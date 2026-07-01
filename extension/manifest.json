@@ -1,15 +1,29 @@
 {
   "manifest_version": 3,
   "name": "SănDeal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "minimum_chrome_version": "120",
+  "homepage_url": "https://github.com/shopass/sandeal-extension",
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
   },
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "offscreen", "declarativeNetRequest"],
   "host_permissions": [
     "https://shopee.vn/*"
   ],
-  "action": { "default_title": "SănDeal" }
+  "declarative_net_request": {
+    "rule_resources": [
+      { "id": "sandeal_rules", "enabled": true, "path": "dnr/rules.json" }
+    ]
+  },
+  "options_page": "ui/settings.html",
+  "action": { "default_title": "SănDeal" },
+  "content_scripts": [
+    {
+      "matches": ["https://shopee.vn/*"],
+      "js": ["content/shopee/index.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

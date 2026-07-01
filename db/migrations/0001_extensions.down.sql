@@ -1,0 +1,2 @@
+-- DROP EXTENSION IF EXISTS timescaledb;
+DROP EXTENSION IF EXISTS citext;

@@ -15,6 +15,7 @@ Lối tắt tới các tài liệu chính:
 - [`docs/feature-requests/IMPLEMENTATION-ORDER.md`](docs/feature-requests/IMPLEMENTATION-ORDER.md) - thứ tự build theo 8 layer (chọn FR tiếp theo).
 - [`docs/feature-requests/DATA-MODEL.md`](docs/feature-requests/DATA-MODEL.md) - schema DB hợp nhất.
 - [`docs/feature-requests/STATUS-REFERENCE.md`](docs/feature-requests/STATUS-REFERENCE.md) - enum 10 trạng thái + vòng đời FR.
+- [`docs/feature-requests/ANTIGRAVITY-KICKOFF.md`](docs/feature-requests/ANTIGRAVITY-KICKOFF.md) - prompt dán vào Antigravity để bắt đầu build.
 - Tài liệu nền tảng (PRD + SRS + chiến lược): trong [`docs/`](docs/).
 
 ## Bố cục

@@ -49,11 +49,11 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-INFRA-001** | API Gateway / BFF - định tuyến REST+GraphQL+WSS, rate-limit, JWT verify, WAF | MUST | implementing | - | 8h |
+| **FR-INFRA-001** | API Gateway / BFF - định tuyến REST+GraphQL+WSS, rate-limit, JWT verify, WAF | MUST | done | - | 8h |
 | **FR-INFRA-002** | Data-model foundation - migration framework + bảng `platform` + `app_user` lõi | MUST | done | - | 6h |
 | **FR-INFRA-003** | Secrets management - Vault / AWS Secrets Manager, no-cleartext, rotation | MUST | done | - | 5h |
-| **FR-INFRA-004** | Observability spine - Prometheus + Grafana + OTel tracing + structured logs | MUST | ready_to_implement | FR-INFRA-001 | 8h |
-| **FR-INFRA-005** | Per-country region config - gating hook (VN/ID/TH/PH/MY/SG/TW) + feature flags | MUST | ready_to_implement | FR-INFRA-002 | 6h |
+| **FR-INFRA-004** | Observability spine - Prometheus + Grafana + OTel tracing + structured logs | MUST | done | FR-INFRA-001 | 8h |
+| **FR-INFRA-005** | Per-country region config - gating hook (VN/ID/TH/PH/MY/SG/TW) + feature flags | MUST | done | FR-INFRA-002 | 6h |
 
 ---
 
@@ -69,7 +69,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-AUTH-001** | Schema `app_user` + đăng ký (argon2id, email/phone, no cleartext) | MUST | ready_to_implement | FR-INFRA-002 | 6h |
+| **FR-AUTH-001** | Schema `app_user` (argon2id pwd_hash, CITEXT email, phone, locale) + đăng ký | MUST | done | FR-INFRA-002 | 6h |
 | **FR-AUTH-002** | Phát hành JWT + refresh + phiên (BFF auth) | MUST | ready_to_implement | FR-AUTH-001, FR-INFRA-001 | 6h |
 | **FR-AUTH-003** | Liên kết `platform_account` - ext_user_ref ẩn danh, KHÔNG lưu token phiên | MUST | ready_to_implement | FR-AUTH-001 | 5h |
 | **FR-AUTH-004** | Social login (Google / Facebook / Zalo OAuth) | SHOULD | ready_to_implement | FR-AUTH-002 | 6h |
@@ -90,22 +90,22 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-PRICE-001** | Schema `tracked_product` + `canonical_key` (chuẩn hóa so sánh chéo sàn) | MUST | ready_to_implement | FR-INFRA-002 | 6h |
-| **FR-PRICE-002** | `price_snapshot` TimescaleDB hypertable + nén + continuous aggregate | MUST | ready_to_implement | FR-PRICE-001 | 8h |
-| **FR-PRICE-003** | API lịch sử giá (`GET /v1/products/{id}/price-history?range=90d`) | MUST | ready_to_implement | FR-PRICE-002 | 5h |
-| **FR-PRICE-004** | So sánh giá chéo 3 sàn (`GET /v1/compare?canonical_key=...`) | MUST | ready_to_implement | FR-PRICE-005 | 6h |
-| **FR-PRICE-005** | Thuật toán matching `canonical_key` (dedup sản phẩm chéo sàn) | MUST | ready_to_implement | FR-PRICE-001 | 8h |
+| **FR-PRICE-001** | `tracked_product` registry chuẩn hóa (UNIQUE platform_id, item_id) | MUST | done | FR-INFRA-002 | 6h |
+| **FR-PRICE-002** | `price_snapshot` TimescaleDB hypertable + nén + continuous aggregate | MUST | done | FR-PRICE-001 | 8h |
+| **FR-PRICE-003** | API lịch sử giá (`GET /v1/products/{id}/price-history?range=90d`) | MUST | done | FR-PRICE-002 | 5h |
+| **FR-PRICE-004** | So sánh giá chéo 3 sàn (`GET /v1/compare?canonical_key=...`) | MUST | pending | FR-PRICE-005 | 6h |
+| **FR-PRICE-005** | Thuật toán matching `canonical_key` (dedup sản phẩm chéo sàn) | MUST | done | FR-PRICE-001 | 8h |
 
 ### P1.4 - EXT - browser extension MV3 (Shopee)
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-EXT-001** | Scaffold MV3 + service worker lifecycle (ephemeral, chrome.storage, alarms >=30s) | MUST | ready_to_implement | - | 8h |
-| **FR-EXT-002** | Shopee content script - đọc giỏ hàng/voucher DOM (session piggyback) | MUST | ready_to_implement | FR-EXT-001 | 10h |
-| **FR-EXT-003** | Pipeline tối thiểu hóa dữ liệu client (chỉ productId/price/qty; KHÔNG cookie/token) | MUST | ready_to_implement | FR-EXT-002 | 6h |
-| **FR-EXT-004** | Offscreen API cho DOM parsing/clipboard + declarativeNetRequest | SHOULD | ready_to_implement | FR-EXT-001 | 5h |
+| **FR-EXT-001** | Scaffold extension Manifest V3 + service worker ephemeral, chrome.alarms, host_permissions | MUST | done | - | 8h |
+| **FR-EXT-002** | Shopee content script đọc giỏ/voucher (session piggyback) | MUST | done | FR-EXT-001 | 10h |
+| **FR-EXT-003** | Pipeline tối thiểu hóa dữ liệu client (chỉ productId/price/qty; KHÔNG cookie/token) | MUST | done | FR-EXT-002 | 6h |
+| **FR-EXT-004** | Offscreen API cho DOM parsing/clipboard + declarativeNetRequest | SHOULD | done | FR-EXT-001 | 5h |
 | **FR-EXT-005** | Đồng bộ extension <-> backend (auth bridge, WSS keep-alive khi cần realtime) | MUST | ready_to_implement | FR-EXT-003, FR-AUTH-002 | 6h |
-| **FR-EXT-006** | UI settings + consent (PDPL consent lúc cài, disclosure dữ liệu) | MUST | ready_to_implement | FR-EXT-001, FR-COMPLY-001 | 5h |
+| **FR-EXT-006** | UI settings + consent (PDPL consent lúc cài, disclosure dữ liệu) | MUST | done | FR-EXT-001, FR-COMPLY-001 | 5h |
 
 ### P1.5 - TRACK - theo dõi sản phẩm + wishlist + alert rules
 
@@ -128,7 +128,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-NOTIF-001** | Schema `notification` + template engine + routing kênh (push>email>sms) | MUST | ready_to_implement | FR-INFRA-002 | 6h |
+| **FR-NOTIF-001** | Schema notification + routing theo cost model (push > email > sms) | MUST | done | FR-INFRA-002 | 6h |
 | **FR-NOTIF-002** | FCM Web/Android dispatcher (token mgmt, quota 600k/phút, 429 backoff) | MUST | ready_to_implement | FR-NOTIF-001 | 8h |
 | **FR-NOTIF-003** | Fan-out pipeline (Kafka/Redis Streams -> workers -> per-channel) + DLQ | MUST | ready_to_implement | FR-NOTIF-001 | 8h |
 | **FR-NOTIF-004** | Scheduler flatten-the-curve cho đỉnh 00:00 (jitter, bucketing, FCM rate-limit) | MUST | ready_to_implement | FR-NOTIF-003 | 6h |
@@ -147,17 +147,17 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-COMPLY-001** | Khung consent PDPL (Luật 91/2025: tự nguyện/cụ thể/đơn mục đích; im lặng != đồng thuận) | MUST | ready_to_implement | FR-INFRA-002 | 8h |
-| **FR-COMPLY-002** | Sổ đăng ký DPIA/TIA (nộp trong 60 ngày, cập nhật mỗi 6 tháng) | MUST | ready_to_implement | FR-COMPLY-001 | 6h |
-| **FR-COMPLY-003** | Quyền chủ thể dữ liệu (truy cập/sửa/xóa/di chuyển - DSAR) | MUST | ready_to_implement | FR-COMPLY-001 | 8h |
-| **FR-COMPLY-004** | Quy trình thông báo vi phạm 72 giờ | MUST | ready_to_implement | FR-COMPLY-001, FR-INFRA-004 | 5h |
-| **FR-COMPLY-005** | Cưỡng chế no-cleartext + token-not-on-server (audit xử lý dữ liệu PDPL) | MUST | ready_to_implement | FR-INFRA-003 | 5h |
+| **FR-COMPLY-001** | Khung consent PDPL (Luật 91/2025/QH15) - đơn mục đích, tái lập | MUST | done | FR-INFRA-002 | 8h |
+| **FR-COMPLY-002** | Sổ đăng ký DPIA/TIA (nộp trong 60 ngày, cập nhật mỗi 6 tháng) | MUST | done | FR-COMPLY-001 | 6h |
+| **FR-COMPLY-003** | Quyền chủ thể dữ liệu (truy cập/sửa/xóa/di chuyển - DSAR) | MUST | done | FR-COMPLY-001 | 8h |
+| **FR-COMPLY-004** | Quy trình thông báo vi phạm 72 giờ | MUST | done | FR-COMPLY-001, FR-INFRA-004 | 5h |
+| **FR-COMPLY-005** | Cưỡng chế no-cleartext + token-not-on-server - audit gate CI | MUST | done | FR-INFRA-003 | 5h |
 
 ### P1.10 - TRUST - niềm tin (open-source + audit)
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-TRUST-001** | Publish extension open-source + reproducible build + disclosure Chrome Web Store | MUST | ready_to_implement | FR-EXT-001 | 6h |
+| **FR-TRUST-001** | Open-source extension + reproducible build + disclosure | MUST | done | FR-EXT-001 | 6h |
 | **FR-TRUST-002** | Chính sách minh bạch tối thiểu hóa dữ liệu + xử lý local-first | MUST | ready_to_implement | FR-EXT-003 | 5h |
 | **FR-TRUST-003** | Hook security audit độc lập (chứng minh không gửi cookie/mật khẩu) | MUST | ready_to_implement | FR-EXT-003, FR-COMPLY-005 | 6h |
 
@@ -187,7 +187,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-CART-001** | Schema + ingest `voucher_catalog` (shop/platform/freeship, stack_group, cap) | MUST | ready_to_implement | FR-INFRA-002 | 6h |
+| **FR-CART-001** | Schema + ingest `voucher_catalog` (shop/platform/freeship, stack_group, cap) | MUST | done | FR-INFRA-002 | 6h |
 | **FR-CART-002** | Schema `cart_snapshot` + `cart_item` (nhận từ extension) | MUST | ready_to_implement | FR-EXT-003 | 5h |
 | **FR-CART-003** | Optimizer giỏ/voucher/freeship (knapsack, ràng buộc stacking, applyCaps) | MUST | ready_to_implement | FR-CART-001, FR-CART-002 | 12h |
 | **FR-CART-004** | Engine luật stacking per-country (VN stack vs MY/PH bỏ stacking 2025) | MUST | ready_to_implement | FR-CART-003, FR-INFRA-005 | 6h |
@@ -198,7 +198,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-AFFIL-001** | Schema + tracking `affiliate_click` / `affiliate_conversion` | MUST | ready_to_implement | FR-INFRA-002 | 6h |
+| **FR-AFFIL-001** | Schema + tracking affiliate (user-initiated) + đối soát mạng | MUST | done | FR-INFRA-002 | 6h |
 | **FR-AFFIL-002** | Deep-link generator user-initiated (`POST /v1/affiliate/link`, disclosure, no auto-cookie) | MUST | ready_to_implement | FR-AFFIL-001 | 6h |
 | **FR-AFFIL-003** | Tích hợp affiliate network (Involve Asia / Accesstrade) compliant | MUST | ready_to_implement | FR-AFFIL-002 | 8h |
 | **FR-AFFIL-004** | Guardrails né Honey (no cookie-stuffing, bắt buộc user-action, tuân Chrome policy 10/06/2025) | MUST | ready_to_implement | FR-AFFIL-002, FR-EXT-003 | 5h |

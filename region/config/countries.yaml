@@ -1,0 +1,29 @@
+countries:
+  - country: VN
+    voucherStackingAllowed: true
+    affiliateChannelsAllowed: [web, extension, app]
+    dataResidencyRegion: ap-southeast-1
+  - country: MY
+    voucherStackingAllowed: false      # bỏ stacking 2025
+    affiliateChannelsAllowed: [web, app]
+    dataResidencyRegion: ap-southeast-1
+  - country: PH
+    voucherStackingAllowed: false      # bỏ stacking 2025
+    affiliateChannelsAllowed: [web, app]
+    dataResidencyRegion: ap-southeast-1
+  - country: ID
+    voucherStackingAllowed: true
+    affiliateChannelsAllowed: [web, app]  # Shopee ID hạn chế kênh extension/coupon
+    dataResidencyRegion: ap-southeast-3   # Indonesia PDP — residency riêng
+  - country: TH
+    voucherStackingAllowed: true
+    affiliateChannelsAllowed: [web, extension, app]
+    dataResidencyRegion: ap-southeast-1
+  - country: SG
+    voucherStackingAllowed: true
+    affiliateChannelsAllowed: [web, extension, app]
+    dataResidencyRegion: ap-southeast-1
+  - country: TW
+    voucherStackingAllowed: true
+    affiliateChannelsAllowed: [web, extension, app]
+    dataResidencyRegion: ap-east-1

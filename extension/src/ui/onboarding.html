@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SănDeal — Chào mừng</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f8f9fa; color: #1a1a2e;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; padding: 1rem;
+    }
+    .card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      max-width: 480px; width: 100%; padding: 2rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: .5rem; }
+    .subtitle { color: #666; font-size: .95rem; margin-bottom: 1.5rem; }
+    .disclosure {
+      background: #f0f4f8; border-radius: 8px;
+      padding: 1rem; margin-bottom: 1.5rem; font-size: .85rem; line-height: 1.6;
+    }
+    .disclosure strong { color: #0d6efd; }
+    .consent-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .75rem 0; border-bottom: 1px solid #eee;
+    }
+    .consent-item:last-child { border-bottom: none; }
+    .consent-item input[type="checkbox"] {
+      width: 20px; height: 20px; accent-color: #0d6efd;
+      /* DEC-EXT-29: KHÔNG checked sẵn — mặc định TẮT */
+    }
+    .consent-item label { font-size: .9rem; cursor: pointer; }
+    .consent-item .desc { font-size: .8rem; color: #888; }
+    .actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+    .btn {
+      flex: 1; padding: .75rem; border: none; border-radius: 8px;
+      font-size: .95rem; cursor: pointer; font-weight: 600;
+    }
+    /* DEC-EXT: nút đồng ý và từ chối ngang nhau về độ nổi bật — không dark pattern */
+    .btn-primary { background: #0d6efd; color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🛒 Chào mừng đến SănDeal</h1>
+    <p class="subtitle">Trước khi bắt đầu, bạn cần cho phép từng tính năng bên dưới.</p>
+
+    <div class="disclosure">
+      <p><strong>SănDeal cam kết:</strong></p>
+      <ul>
+        <li>KHÔNG thu thập mật khẩu</li>
+        <li>Cookie/token sàn KHÔNG BAO GIỜ rời máy bạn</li>
+        <li>Chỉ gửi <strong>mã sản phẩm (productId), giá, số lượng</strong> về server</li>
+        <li>Bạn bật/tắt từng tính năng bất cứ lúc nào</li>
+      </ul>
+    </div>
+
+    <div id="consent-list">
+      <div class="consent-item">
+        <input type="checkbox" id="consent-read-cart">
+        <div>
+          <label for="consent-read-cart">Đọc giỏ hàng</label>
+          <div class="desc">Xem sản phẩm và giá trong giỏ trên trang sàn</div>
+        </div>
+      </div>
+      <div class="consent-item">
+        <input type="checkbox" id="consent-read-voucher">
+        <div>
+          <label for="consent-read-voucher">Đọc voucher</label>
+          <div class="desc">Xem mã giảm giá đang áp dụng</div>
+        </div>
+      </div>
+      <div class="consent-item">
+        <input type="checkbox" id="consent-sync-backend">
+        <div>
+          <label for="consent-sync-backend">Đồng bộ server</label>
+          <div class="desc">Gửi mã SP / giá / số lượng (đã lọc) về SănDeal để theo dõi giá</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" id="btn-skip">Bỏ qua</button>
+      <button class="btn btn-primary" id="btn-save">Lưu lựa chọn</button>
+    </div>
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>

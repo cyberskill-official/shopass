@@ -1,0 +1,36 @@
+name: Reproducible Publish Gate
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Test Disclosure Consistency
+        run: npm run test -- test/disclosure-consistency.test.ts
+
+      - name: Build Deterministic
+        run: |
+          node scripts/build-deterministic.mjs
+          cd dist
+          zip -rX -D -X ../shipped.zip .
+          cd ..
+
+      - name: Verify Reproducible Build
+        run: bash scripts/verify-reproducible.sh HEAD shipped.zip
