@@ -61,3 +61,15 @@ export interface CoinChecklistMessage {
   platform: "shopee" | "tiktok" | "lazada";
   tasks: CoinTask[];
 }
+
+import type { OutboundPayload } from "../pipeline/schema";
+
+export interface SyncEnvelope {
+  payload: OutboundPayload;      // CHỈ dữ liệu đã sạch; KHÔNG credential trong body
+  clientTs: number;             // epoch ms (đo độ trễ; không phải PII)
+}
+
+export interface AuthState {
+  jwt?: string;                 // JWT SănDeal (storage.session, RAM-only)
+  // KHÔNG có trường token/cookie sàn
+}
