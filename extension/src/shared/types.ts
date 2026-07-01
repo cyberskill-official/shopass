@@ -26,7 +26,8 @@ export type Message =
   | { type: "CART_READ"; platform: "shopee"; items: CartItem[]; vouchers: VoucherItem[] }
   | { type: "PING" }
   | ParseDomRequest
-  | ParseDomResult;
+  | ParseDomResult
+  | TestCodesRequest;
 
 // FR-EXT-006: Consent types (PDPL §5.5 compliance)
 export type ConsentPurpose = "read_cart" | "read_voucher" | "sync_backend";
@@ -37,3 +38,14 @@ export interface ConsentRecord {
   granted: ConsentPurpose[]; // mục đã đồng ý - tái lập được (DEC-EXT-31)
 }
 
+// FR-CART-005: Auto test codes
+export interface CodeTestResult {
+  code: string;
+  discount: number;
+}
+
+export interface TestCodesRequest {
+  type: "TEST_CODES";
+  candidateCodes: string[];
+  userInitiated: boolean;
+}
