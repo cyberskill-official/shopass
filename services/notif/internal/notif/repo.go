@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -126,4 +127,27 @@ func (r *Repo) InvalidateToken(ctx context.Context, userID int64) error {
 		`UPDATE user_channel_token SET verified=false, updated_at=now()
 		 WHERE user_id=$1 AND channel='push'`, userID)
 	return err
+}
+
+// BatchSetScheduledAt writes scheduled_at for multiple notifications in one query
+func (r *Repo) BatchSetScheduledAt(ctx context.Context, scheduled map[int64]time.Time) error {
+	if len(scheduled) == 0 {
+		return nil
+	}
+
+	b := &pgx.Batch{}
+	for id, t := range scheduled {
+		b.Queue("UPDATE notification SET scheduled_at = $1 WHERE id = $2", t, id)
+	}
+	
+	br := r.pool.SendBatch(ctx, b)
+	defer br.Close()
+	
+	for range scheduled {
+		_, err := br.Exec()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
