@@ -20,8 +20,10 @@ describe("FR-CART-005 Pacing constraint", () => {
     const p = testCodes(["A", "B"], { userInitiated: true, cancelled: () => false });
     
     // mỗi mã chờ >=2.5s trước khi apply
-    await jest.advanceTimersByTimeAsync(2500);
-    await jest.advanceTimersByTimeAsync(5000);
+    // advance timers multiple times to ensure promises resolve
+    for (let i = 0; i < 20; i++) {
+      await jest.advanceTimersByTimeAsync(1000);
+    }
     
     await p;
     jest.useRealTimers();

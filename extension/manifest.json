@@ -10,7 +10,8 @@
   },
   "permissions": ["storage", "alarms", "offscreen", "declarativeNetRequest"],
   "host_permissions": [
-    "https://shopee.vn/*"
+    "https://shopee.vn/*",
+    "https://*.tiktok.com/*"
   ],
   "declarative_net_request": {
     "rule_resources": [
@@ -23,6 +24,11 @@
     {
       "matches": ["https://shopee.vn/*"],
       "js": ["content/shopee/index.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.tiktok.com/*"],
+      "js": ["content/tiktok/index.js"],
       "run_at": "document_idle"
     }
   ]

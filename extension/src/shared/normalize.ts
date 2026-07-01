@@ -1,4 +1,4 @@
-import { CartItem } from "../../shared/types";
+import { CartItem } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapCart(json: any): CartItem[] {
@@ -18,4 +18,12 @@ export function mapCart(json: any): CartItem[] {
     }
   }
   return items;
+}
+
+export function normalizeCart(raw: CartItem[]): CartItem[] {
+  return raw.map(i => ({
+    productId: String(i.productId).trim(),
+    price: Math.max(0, Number(i.price) || 0),
+    qty: Math.max(0, Math.floor(Number(i.qty) || 0))
+  })).filter(i => i.productId !== "");
 }

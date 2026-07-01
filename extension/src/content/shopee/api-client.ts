@@ -1,5 +1,5 @@
 import { CartItem } from "../../shared/types";
-import { mapCart } from "./normalize";
+import { mapCart } from "../../shared/normalize";
 
 const CART_ENDPOINT = "https://shopee.vn/api/v4/cart/get";
 
