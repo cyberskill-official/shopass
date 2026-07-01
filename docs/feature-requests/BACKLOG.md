@@ -207,7 +207,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-BILL-001** | Schema `subscription` + tier (Premium 29k/49k/79k) + vòng đời | MUST | ready_to_implement | FR-AUTH-001 | 6h |
+| **FR-BILL-001** | Schema `subscription` + tier (Premium 29k/49k/79k) + vòng đời | MUST | done | FR-AUTH-001 | 6h |
 | **FR-BILL-002** | Tích hợp cổng thanh toán (MoMo / ZaloPay / VNPay / VietQR) | MUST | ready_to_implement | FR-BILL-001 | 10h |
 | **FR-BILL-003** | Bản ghi `payment` + reconciliation + webhook | MUST | ready_to_implement | FR-BILL-002 | 6h |
 | **FR-BILL-004** | `referral_code` + attribution + hook chống abuse | SHOULD | ready_to_implement | FR-BILL-001 | 5h |
