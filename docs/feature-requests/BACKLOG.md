@@ -192,7 +192,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-CART-003** | Optimizer giỏ/voucher/freeship (knapsack, ràng buộc stacking, applyCaps) | MUST | ready_to_implement | FR-CART-001, FR-CART-002 | 12h |
 | **FR-CART-004** | Engine luật stacking per-country (VN stack vs MY/PH bỏ stacking 2025) | MUST | ready_to_implement | FR-CART-003, FR-INFRA-005 | 6h |
 | **FR-CART-005** | `testCodes`: thử mã an toàn client-side (sleep nhịp người, user-initiated, revert) | MUST | done | FR-EXT-002, FR-CART-001 | 6h |
-| **FR-CART-006** | Checklist xu/coin (nhắc nhở, KHÔNG auto-click - chống abuse) | SHOULD | ready_to_implement | FR-EXT-002 | 5h |
+| **FR-CART-006** | Checklist xu/coin (nhắc nhở, KHÔNG auto-click - chống abuse) | SHOULD | done | FR-EXT-002 | 5h |
 
 ### P2.4 - AFFIL - affiliate compliant
 

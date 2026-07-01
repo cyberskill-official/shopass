@@ -49,3 +49,15 @@ export interface TestCodesRequest {
   candidateCodes: string[];
   userInitiated: boolean;
 }
+
+// FR-CART-006: Coin Checklist
+export interface CoinTask {
+  taskType: string;
+  done: boolean;
+}
+
+export interface CoinChecklistMessage {
+  type: "COIN_CHECKLIST";
+  platform: "shopee" | "tiktok" | "lazada";
+  tasks: CoinTask[];
+}
