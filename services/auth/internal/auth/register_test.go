@@ -68,6 +68,18 @@ func (m *mockRepo) InsertRefreshToken(ctx context.Context, userID int64, hash, f
 	return nil
 }
 
+func (m *mockRepo) UpsertPlatformAccount(ctx context.Context, pa PlatformAccount) error {
+	return nil
+}
+
+func (m *mockRepo) ListPlatformAccountsByUser(ctx context.Context, userID int64) ([]PlatformAccount, error) {
+	return nil, nil
+}
+
+func (m *mockRepo) DeletePlatformAccount(ctx context.Context, userID int64, platformID int16) error {
+	return nil
+}
+
 func TestRegister_NoIdentifier(t *testing.T) {
 	ctx := context.Background()
 	s := NewService(newMockRepo(), defaultParams)

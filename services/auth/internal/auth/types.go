@@ -36,4 +36,13 @@ var (
 	ErrInvalidRefresh       = errors.New("invalid refresh token")
 	ErrRefreshReuseDetected = errors.New("refresh token reuse detected")
 	ErrInvalidCredentials   = errors.New("invalid email or password")
+	ErrInvalidExtRef        = errors.New("invalid external user reference")
+	ErrExtRefNotAnonymized  = errors.New("external user reference must be anonymized")
 )
+
+type PlatformAccount struct {
+	ID         int64
+	UserID     int64
+	PlatformID int16
+	ExtUserRef string
+}

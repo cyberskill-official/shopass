@@ -16,6 +16,10 @@ type Repo interface {
 	RevokeFamily(ctx context.Context, familyID string) error
 	MarkUsed(ctx context.Context, id int64) error
 	InsertRefreshToken(ctx context.Context, userID int64, hash, familyID string, expiresAt time.Time) error
+	
+	UpsertPlatformAccount(ctx context.Context, pa PlatformAccount) error
+	ListPlatformAccountsByUser(ctx context.Context, userID int64) ([]PlatformAccount, error)
+	DeletePlatformAccount(ctx context.Context, userID int64, platformID int16) error
 }
 
 type pgRepo struct {
