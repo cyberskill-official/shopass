@@ -36,9 +36,12 @@ func (s *Service) DetectFakeSale(ctx context.Context, productID int64, currentPr
 	// Mock history cho build thành công
 	hist := []int64{}
 	
-	verdict := fakesale.DetectFakeSale(hist, currentPrice, lp)
+	rawVerdict := fakesale.DetectFakeSale(hist, currentPrice, lp)
+	
+	// TODO: Fetch real product info
+	// mockProduct := coldstart.fakeProduct(len(hist)) // need to define a struct implementing coldstart.Product or just use simple one
 	
 	// TODO: Phát OTel counter fake_sale_verdict_total{verdict}
 	
-	return verdict, nil
+	return rawVerdict, nil
 }
