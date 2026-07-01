@@ -4,8 +4,9 @@ set -euo pipefail
 # This script assumes it is run from the root of the monorepo or services/comply.
 # If run from root, we need to adjust the path to cmd/auditscan.
 if [ -d "services/comply" ]; then
-    ROOT_DIR="."
-    CMD_PATH="./services/comply/cmd/auditscan"
+    cd services/comply
+    ROOT_DIR="../.."
+    CMD_PATH="./cmd/auditscan"
 elif [ -d "cmd/auditscan" ]; then
     ROOT_DIR="../.."
     CMD_PATH="./cmd/auditscan"
