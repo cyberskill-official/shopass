@@ -1,0 +1,12 @@
+{
+  "error": 0,
+  "data": {
+    "item": {
+      "price": 8900000000,
+      "price_before_discount": 14900000000,
+      "stock": 37,
+      "historical_sold": 1240,
+      "flash_sale": { "status": 1 }
+    }
+  }
+}
