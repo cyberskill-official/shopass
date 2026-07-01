@@ -14,6 +14,9 @@ func (s *TokenService) Login(ctx context.Context, email, password string) (Token
 	if u.ID == 0 {
 		return TokenPair{}, ErrInvalidCredentials
 	}
+	if u.Status != "active" {
+		return TokenPair{}, ErrAccountNotActive
+	}
 
 	// Verify password
 	// Assume password hashing uses specific params, but for this layer we'll just check if Verify returns true.

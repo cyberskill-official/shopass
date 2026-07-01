@@ -20,6 +20,17 @@ type Repo interface {
 	UpsertPlatformAccount(ctx context.Context, pa PlatformAccount) error
 	ListPlatformAccountsByUser(ctx context.Context, userID int64) ([]PlatformAccount, error)
 	DeletePlatformAccount(ctx context.Context, userID int64, platformID int16) error
+
+	// Lifecycle & Reset
+	FindByIdentifier(ctx context.Context, identifier string) (AppUser, bool)
+	SaveReset(ctx context.Context, userID int64, hash string, expiresAt time.Time) error
+	FindResetByHash(ctx context.Context, hash string) (PasswordResetRow, bool)
+	UpdatePassword(ctx context.Context, userID int64, newHash string) error
+	MarkResetUsed(ctx context.Context, id int64) error
+	RevokeAllRefresh(ctx context.Context, userID int64) error
+	SetStatus(ctx context.Context, userID int64, status string) error
+	AnonymizePII(ctx context.Context, userID int64) error
+	DeletePlatformAccounts(ctx context.Context, userID int64) error
 }
 
 type pgRepo struct {

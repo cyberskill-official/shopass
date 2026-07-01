@@ -36,6 +36,7 @@ var (
 	ErrInvalidRefresh       = errors.New("invalid refresh token")
 	ErrRefreshReuseDetected = errors.New("refresh token reuse detected")
 	ErrInvalidCredentials   = errors.New("invalid email or password")
+	ErrAccountNotActive     = errors.New("account is not active")
 	ErrInvalidExtRef        = errors.New("invalid external user reference")
 	ErrExtRefNotAnonymized  = errors.New("external user reference must be anonymized")
 )

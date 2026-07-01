@@ -80,6 +80,43 @@ func (m *mockRepo) DeletePlatformAccount(ctx context.Context, userID int64, plat
 	return nil
 }
 
+func (m *mockRepo) FindByIdentifier(ctx context.Context, identifier string) (AppUser, bool) {
+	return AppUser{}, false
+}
+
+func (m *mockRepo) SaveReset(ctx context.Context, userID int64, hash string, expiresAt time.Time) error {
+	return nil
+}
+
+func (m *mockRepo) FindResetByHash(ctx context.Context, hash string) (PasswordResetRow, bool) {
+	return PasswordResetRow{}, false
+}
+
+func (m *mockRepo) UpdatePassword(ctx context.Context, userID int64, newHash string) error {
+	return nil
+}
+
+func (m *mockRepo) MarkResetUsed(ctx context.Context, id int64) error {
+	return nil
+}
+
+func (m *mockRepo) RevokeAllRefresh(ctx context.Context, userID int64) error {
+	return nil
+}
+
+func (m *mockRepo) SetStatus(ctx context.Context, userID int64, status string) error {
+	return nil
+}
+
+func (m *mockRepo) AnonymizePII(ctx context.Context, userID int64) error {
+	return nil
+}
+
+func (m *mockRepo) DeletePlatformAccounts(ctx context.Context, userID int64) error {
+	return nil
+}
+
+
 func TestRegister_NoIdentifier(t *testing.T) {
 	ctx := context.Background()
 	s := NewService(newMockRepo(), defaultParams)

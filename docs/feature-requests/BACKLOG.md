@@ -73,7 +73,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-AUTH-002** | Phát hành JWT + refresh + phiên (BFF auth) | MUST | done | FR-AUTH-001, FR-INFRA-001 | 6h |
 | **FR-AUTH-003** | Liên kết `platform_account` - ext_user_ref ẩn danh, KHÔNG lưu token phiên | MUST | done | FR-AUTH-001 | 5h |
 | **FR-AUTH-004** | Social login (Google / Facebook / Zalo OAuth) | SHOULD | ready_to_implement | FR-AUTH-002 | 6h |
-| **FR-AUTH-005** | Vòng đời tài khoản - reset mật khẩu, status, xóa tài khoản (DSAR PDPL) | MUST | ready_to_implement | FR-AUTH-001, FR-COMPLY-003 | 5h |
+| **FR-AUTH-005** | Vòng đời tài khoản - reset mật khẩu, status, xóa tài khoản (DSAR PDPL) | MUST | done | FR-AUTH-001, FR-COMPLY-003 | 5h |
 
 ### P1.2 - SCRAPE - scraping giá (Shopee trước)
 
