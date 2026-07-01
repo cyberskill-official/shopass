@@ -130,7 +130,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 |---|---|:-:|:-:|---|---:|
 | **FR-NOTIF-001** | Schema notification + routing theo cost model (push > email > sms) | MUST | done | FR-INFRA-002 | 6h |
 | **FR-NOTIF-002** | FCM Web/Android dispatcher (token mgmt, quota 600k/phút, 429 backoff) | MUST | done | FR-NOTIF-001 | 8h |
-| **FR-NOTIF-003** | Fan-out pipeline (Kafka/Redis Streams -> workers -> per-channel) + DLQ | MUST | ready_to_implement | FR-NOTIF-001 | 8h |
+| **FR-NOTIF-003** | Fan-out pipeline (Kafka/Redis Streams -> workers -> per-channel) + DLQ | MUST | done | FR-NOTIF-001 | 8h |
 | **FR-NOTIF-004** | Scheduler flatten-the-curve cho đỉnh 00:00 (jitter, bucketing, FCM rate-limit) | MUST | ready_to_implement | FR-NOTIF-003 | 6h |
 
 ### P1.8 - WEB - web app + SEO

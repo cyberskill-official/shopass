@@ -17,6 +17,9 @@ type Notification struct {
 	SentAt      *time.Time
 	Status      string
 	CreatedAt   time.Time
+	Attempts    int
+	LeaseUntil  *time.Time
+	LastError   string
 }
 
 type Repo struct {
