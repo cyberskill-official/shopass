@@ -266,7 +266,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 |---|---|:-:|:-:|---|---:|
 | **FR-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | ready_to_implement | FR-INFRA-005, FR-CART-004 | 8h |
 | **FR-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | ready_to_implement | FR-COMPLY-001, FR-COMPLY-006 | 8h |
-| **FR-COMPLY-008** | Tuân thủ luật TMĐT VN (NĐ 52/2013 + 85/2021, MOIT, dự thảo livestream/affiliate 2025) | SHOULD | ready_to_implement | FR-COMPLY-001 | 6h |
+| **FR-COMPLY-008** | Tuân thủ luật TMĐT VN (NĐ 52/2013 + 85/2021, MOIT, dự thảo livestream/affiliate 2025) | SHOULD | done | FR-COMPLY-001 | 6h |
 
 ### P3.5 - TRUST - anti-fraud ở quy mô
 
