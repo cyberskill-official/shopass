@@ -210,7 +210,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-BILL-001** | Schema `subscription` + tier (Premium 29k/49k/79k) + vòng đời | MUST | done | FR-AUTH-001 | 6h |
 | **FR-BILL-002** | Tích hợp cổng thanh toán (MoMo / ZaloPay / VNPay / VietQR) | MUST | done | FR-BILL-001 | 10h |
 | **FR-BILL-003** | Bản ghi `payment` + reconciliation + webhook | MUST | done | FR-BILL-002 | 6h |
-| **FR-BILL-004** | `referral_code` + attribution + hook chống abuse | SHOULD | ready_to_implement | FR-BILL-001 | 5h |
+| **FR-BILL-004** | `referral_code` + attribution + hook chống abuse | SHOULD | done | FR-BILL-001 | 5h |
 | **FR-BILL-005** | Trigger upgrade free->Premium (gamified) + feature gating | SHOULD | ready_to_implement | FR-BILL-001 | 6h |
 
 ### P2.6 - DEAL - dự đoán đáy giá (ML)
