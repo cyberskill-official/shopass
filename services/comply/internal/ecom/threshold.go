@@ -29,5 +29,6 @@ func (s *Service) Threshold(ctx context.Context, year int) (ThresholdState, erro
 }
 
 func (s *Service) Reload(ctx context.Context) {
-	// mock reload configs
+	// Currently unused. If thresholds are cached in-memory in the future,
+	// this method should clear the cache and trigger a fresh DB read.
 }

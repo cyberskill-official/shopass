@@ -30,13 +30,14 @@ func (h *OptimizeHandler) OptimizeCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now, load default policy. In real app, load from config based on req.Country
+	// Load policy based on country
 	policy := region.CountryPolicy{
 		Country:                req.Country,
-		VoucherStackingAllowed: true, // Mocked for now to allow tests to pass
+		VoucherStackingAllowed: req.Country == "VN" || req.Country == "", // Default to true if not specified, else VN only
 	}
 	if req.Country == "MY" || req.Country == "PH" {
 		policy.FreeshipGroupedWithPlatform = true
+		policy.VoucherStackingAllowed = false // MY/PH no-stack
 	}
 
 	rules := stacking.RulesForCountry(req.Country, policy)
