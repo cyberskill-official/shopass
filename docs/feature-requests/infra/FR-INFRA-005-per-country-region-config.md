@@ -3,7 +3,7 @@ id: FR-INFRA-005
 title: "Per-country region config - gating flags theo nước (VN/ID/TH/PH/MY/SG/TW): voucher stacking, affiliate channel allowed, data residency; config loader + feature flags"
 module: INFRA
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P0
 milestone: P0 - slice 1
