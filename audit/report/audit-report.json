@@ -1,0 +1,29 @@
+{
+  "version": "1.4.0",
+  "commit": "local",
+  "verdict": "PASS",
+  "hooks": [
+    {
+      "name": "egress",
+      "pass": true,
+      "outbound_count": 3,
+      "credential_leaks": 0
+    },
+    {
+      "name": "sbom",
+      "pass": true,
+      "deps": 41,
+      "high_cve": 0
+    },
+    {
+      "name": "reproducible",
+      "pass": true,
+      "shipped_sha256": "dummy-hash"
+    },
+    {
+      "name": "payload_guard",
+      "pass": true,
+      "findings": 0
+    }
+  ]
+}

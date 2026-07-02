@@ -74,3 +74,32 @@ func (r *Repo) RejectConversion(ctx context.Context, id int64, reason string) er
 		 WHERE id=$1 AND status='pending'`, id) // status can also just go to rejected
 	return err
 }
+
+// LogPostback records the raw postback payload.
+func (r *Repo) LogPostback(ctx context.Context, network string, payload []byte, signature string, verified bool) error {
+	_, err := r.pool.Exec(ctx,
+		`INSERT INTO affiliate_postback_log (network, raw_payload, signature, verified)
+		 VALUES ($1, $2, $3, $4)`,
+		network, payload, signature, verified)
+	return err
+}
+
+// ConversionIDBySubID finds conversion ID by sub_id (for idempotency).
+func (r *Repo) ConversionIDBySubID(ctx context.Context, subID string) int64 {
+	var id int64
+	r.pool.QueryRow(ctx,
+		`SELECT c.id FROM affiliate_conversion c
+		 JOIN affiliate_click cl ON c.click_id = cl.id
+		 WHERE cl.sub_id = $1`, subID).Scan(&id)
+	return id
+}
+
+// StatusBySubID returns the conversion status for a given sub_id (mainly for tests).
+func (r *Repo) StatusBySubID(ctx context.Context, subID string) string {
+	var status string
+	r.pool.QueryRow(ctx,
+		`SELECT c.status FROM affiliate_conversion c
+		 JOIN affiliate_click cl ON c.click_id = cl.id
+		 WHERE cl.sub_id = $1`, subID).Scan(&status)
+	return status
+}

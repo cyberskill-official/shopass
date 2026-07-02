@@ -19,3 +19,4 @@
 - alarms: lập lịch quét định kỳ (>=30s) thay cho setInterval
 
 Mã nguồn: <https://github.com/shopass/sandeal-extension>
+Xem chi tiết [Chính sách Tối thiểu hóa Dữ liệu](../docs/trust/DATA-MINIMIZATION-POLICY.md)

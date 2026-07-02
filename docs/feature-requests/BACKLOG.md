@@ -81,10 +81,10 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 |---|---|:-:|:-:|---|---:|
 | **FR-SCRAPE-001** | Scraping orchestrator lõi - scheduler + scan-frequency tiering (hot/thường) | MUST | done | FR-INFRA-003, FR-PRICE-001 | 10h |
 | **FR-SCRAPE-002** | Shopee internal-API adapter (`/api/v4/...`, hybrid, `is_login:false`) | MUST | done | FR-SCRAPE-001 | 8h |
-| **FR-SCRAPE-003** | Playwright headless farm + anti-fingerprint (Canvas/WebGL/JA3/JA4/HTTP2) | MUST | ready_to_implement | FR-SCRAPE-001 | 12h |
-| **FR-SCRAPE-004** | Residential proxy rotation + tiering + cost-guard (Bright Data/Oxylabs/Decodo/IPRoyal) | MUST | ready_to_implement | FR-SCRAPE-003 | 8h |
-| **FR-SCRAPE-005** | Delta-only writes + pacing/jitter + CAPTCHA handling | MUST | ready_to_implement | FR-SCRAPE-002, FR-PRICE-002 | 6h |
-| **FR-SCRAPE-006** | DOM-change monitoring + adapter health (resilient A/B test DOM) | MUST | ready_to_implement | FR-SCRAPE-002 | 6h |
+| **FR-SCRAPE-003** | Playwright headless farm + anti-fingerprint (Canvas/WebGL/JA3/JA4/HTTP2) | MUST | done | FR-SCRAPE-001 | 12h |
+| **FR-SCRAPE-004** | Residential proxy rotation + tiering + cost-guard (Bright Data/Oxylabs/Decodo/IPRoyal) | MUST | done | FR-SCRAPE-003 | 8h |
+| **FR-SCRAPE-005** | Delta-only writes + pacing/jitter + CAPTCHA handling | MUST | done | FR-SCRAPE-002, FR-PRICE-002 | 6h |
+| **FR-SCRAPE-006** | DOM-change monitoring + adapter health (resilient A/B test DOM) | MUST | done | FR-SCRAPE-002 | 6h |
 
 ### P1.3 - PRICE - time-series giá + so sánh chéo sàn
 
@@ -104,25 +104,25 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-EXT-002** | Shopee content script đọc giỏ/voucher (session piggyback) | MUST | done | FR-EXT-001 | 10h |
 | **FR-EXT-003** | Pipeline tối thiểu hóa dữ liệu client (chỉ productId/price/qty; KHÔNG cookie/token) | MUST | done | FR-EXT-002 | 6h |
 | **FR-EXT-004** | Offscreen API cho DOM parsing/clipboard + declarativeNetRequest | SHOULD | done | FR-EXT-001 | 5h |
-| **FR-EXT-005** | Đồng bộ extension <-> backend (auth bridge, WSS keep-alive khi cần realtime) | MUST | ready_to_implement | FR-EXT-003, FR-AUTH-002 | 6h |
+| **FR-EXT-005** | Đồng bộ extension <-> backend (auth bridge, WSS keep-alive khi cần realtime) | MUST | done | FR-EXT-003, FR-AUTH-002 | 6h |
 | **FR-EXT-006** | UI settings + consent (PDPL consent lúc cài, disclosure dữ liệu) | MUST | done | FR-EXT-001, FR-COMPLY-001 | 5h |
 
 ### P1.5 - TRACK - theo dõi sản phẩm + wishlist + alert rules
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-TRACK-001** | API theo dõi sản phẩm (`POST /v1/track {platform, item_url}`) | MUST | ready_to_implement | FR-PRICE-001, FR-SCRAPE-002 | 5h |
-| **FR-TRACK-002** | Schema + API `wishlist` / `wishlist_item` (target_price) | MUST | ready_to_implement | FR-TRACK-001 | 5h |
-| **FR-TRACK-003** | Schema + API `alert_rule` (price_below/drop_pct/real_sale/bottom_predicted) | MUST | ready_to_implement | FR-TRACK-001 | 6h |
-| **FR-TRACK-004** | Engine kích hoạt alert (đánh giá rule trên `price_snapshot`) | MUST | ready_to_implement | FR-TRACK-003, FR-PRICE-002, FR-NOTIF-001 | 6h |
+| **FR-TRACK-001** | API theo dõi sản phẩm (`POST /v1/track {platform, item_url}`) | MUST | done | FR-PRICE-001, FR-SCRAPE-002 | 5h |
+| **FR-TRACK-002** | Schema + API `wishlist` / `wishlist_item` (target_price) | MUST | done | FR-TRACK-001 | 5h |
+| **FR-TRACK-003** | Schema + API `alert_rule` (price_below/drop_pct/real_sale/bottom_predicted) | MUST | done | FR-TRACK-001 | 6h |
+| **FR-TRACK-004** | Engine kích hoạt alert (đánh giá rule trên `price_snapshot`) | MUST | done | FR-TRACK-003, FR-PRICE-002, FR-NOTIF-001 | 6h |
 
 ### P1.6 - DEAL - phát hiện sale ảo + cold-start
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-DEAL-001** | Phát hiện sale ảo (statistical: median90/p10/trailing_min -> SALE_AO/SALE_XIN/TAM_DUOC) | MUST | ready_to_implement | FR-PRICE-002 | 8h |
-| **FR-DEAL-002** | Xử lý cold-start (category priors, <14d -> UNKNOWN, cổng baseline 90 ngày) | MUST | ready_to_implement | FR-DEAL-001 | 6h |
-| **FR-DEAL-003** | API dữ liệu biểu đồ giá (daily aggregate cho chart, p95 <500ms) | MUST | ready_to_implement | FR-PRICE-002 | 5h |
+| **FR-DEAL-001** | Phát hiện sale ảo (statistical: median90/p10/trailing_min -> SALE_AO/SALE_XIN/TAM_DUOC) | MUST | done | FR-PRICE-002 | 8h |
+| **FR-DEAL-002** | Xử lý cold-start (category priors, <14d -> UNKNOWN, cổng baseline 90 ngày) | MUST | done | FR-DEAL-001 | 6h |
+| **FR-DEAL-003** | API dữ liệu biểu đồ giá (daily aggregate cho chart, p95 <500ms) | MUST | done | FR-PRICE-002 | 5h |
 
 ### P1.7 - NOTIF - thông báo (push trước)
 
@@ -131,16 +131,16 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-NOTIF-001** | Schema notification + routing theo cost model (push > email > sms) | MUST | done | FR-INFRA-002 | 6h |
 | **FR-NOTIF-002** | FCM Web/Android dispatcher (token mgmt, quota 600k/phút, 429 backoff) | MUST | done | FR-NOTIF-001 | 8h |
 | **FR-NOTIF-003** | Fan-out pipeline (Kafka/Redis Streams -> workers -> per-channel) + DLQ | MUST | done | FR-NOTIF-001 | 8h |
-| **FR-NOTIF-004** | Scheduler flatten-the-curve cho đỉnh 00:00 (jitter, bucketing, FCM rate-limit) | MUST | ready_to_implement | FR-NOTIF-003 | 6h |
+| **FR-NOTIF-004** | Scheduler flatten-the-curve cho đỉnh 00:00 (jitter, bucketing, FCM rate-limit) | MUST | done | FR-NOTIF-003 | 6h |
 
 ### P1.8 - WEB - web app + SEO
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-WEB-001** | Scaffold Next.js + auth + shell dashboard | MUST | ready_to_implement | FR-AUTH-002 | 8h |
-| **FR-WEB-002** | Landing SEO (keyword: săn xu Shopee, lịch sale, mã freeship, sale thật/ảo) | MUST | ready_to_implement | FR-WEB-001 | 8h |
-| **FR-WEB-003** | UI biểu đồ lịch sử giá (render p95 <500ms) | MUST | ready_to_implement | FR-WEB-001, FR-DEAL-003 | 6h |
-| **FR-WEB-004** | UI quản lý wishlist + alert | MUST | ready_to_implement | FR-WEB-001, FR-TRACK-002, FR-TRACK-003 | 6h |
+| **FR-WEB-001** | Scaffold Next.js 14, cấu trúc shell UI, API client `lib/api.ts` (xử lý 401 refresh), middleware guard | MUST | done | FR-AUTH-002, FR-INFRA-001 | 8h |
+| **FR-WEB-002** | SEO landing page (SSG), Metadata API, JSON-LD (FAQ, Article, ItemList) + auto sitemap/robots | MUST | done | - | 6h |
+| **FR-WEB-003** | UI biểu đồ lịch sử giá (render p95 <500ms) | MUST | done | FR-WEB-001, FR-DEAL-003 | 6h |
+| **FR-WEB-004** | UI quản lý wishlist + alert | MUST | done | FR-WEB-001, FR-TRACK-002, FR-TRACK-003 | 6h |
 | **FR-WEB-005** | GraphQL BFF cho web (truy vấn linh hoạt wishlist/biểu đồ) | SHOULD | ready_to_implement | FR-INFRA-001, FR-WEB-001 | 6h |
 
 ### P1.9 - COMPLY - PDPL nền tảng
@@ -158,8 +158,8 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-TRUST-001** | Open-source extension + reproducible build + disclosure | MUST | done | FR-EXT-001 | 6h |
-| **FR-TRUST-002** | Chính sách minh bạch tối thiểu hóa dữ liệu + xử lý local-first | MUST | ready_to_implement | FR-EXT-003 | 5h |
-| **FR-TRUST-003** | Hook security audit độc lập (chứng minh không gửi cookie/mật khẩu) | MUST | ready_to_implement | FR-EXT-003, FR-COMPLY-005 | 6h |
+| **FR-TRUST-002** | Chính sách minh bạch tối thiểu hóa dữ liệu + xử lý local-first | MUST | done | FR-EXT-003 | 5h |
+| **FR-TRUST-003** | Hook security audit độc lập (chứng minh không gửi cookie/mật khẩu) | MUST | done | FR-EXT-003, FR-COMPLY-005 | 6h |
 
 ---
 
@@ -180,17 +180,17 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-SCRAPE-007** | TikTok Shop scraping adapter (ưu tiên DOM-render, né API ký) | MUST | ready_to_implement | FR-SCRAPE-003 | 10h |
-| **FR-SCRAPE-008** | Lazada scraping adapter (Akamai, residential bắt buộc) | MUST | ready_to_implement | FR-SCRAPE-003 | 8h |
+| **FR-SCRAPE-007** | TikTok Shop scraping adapter (ưu tiên DOM-render, né API ký) | MUST | done | FR-SCRAPE-003 | 10h |
+| **FR-SCRAPE-008** | Lazada scraping adapter (Akamai, residential bắt buộc) | MUST | done | FR-SCRAPE-003 | 8h |
 
 ### P2.3 - CART - voucher + tối ưu giỏ hàng
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-CART-001** | Schema + ingest `voucher_catalog` (shop/platform/freeship, stack_group, cap) | MUST | done | FR-INFRA-002 | 6h |
-| **FR-CART-002** | Schema `cart_snapshot` + `cart_item` (nhận từ extension) | MUST | ready_to_implement | FR-EXT-003 | 5h |
-| **FR-CART-003** | Optimizer giỏ/voucher/freeship (knapsack, ràng buộc stacking, applyCaps) | MUST | ready_to_implement | FR-CART-001, FR-CART-002 | 12h |
-| **FR-CART-004** | Engine luật stacking per-country (VN stack vs MY/PH bỏ stacking 2025) | MUST | ready_to_implement | FR-CART-003, FR-INFRA-005 | 6h |
+| **FR-CART-002** | Schema `cart_snapshot` + `cart_item` (nhận từ extension) | MUST | done | FR-EXT-003 | 5h |
+| **FR-CART-003** | Optimizer giỏ/voucher/freeship (knapsack, ràng buộc stacking, applyCaps) | MUST | done | FR-CART-001, FR-CART-002 | 12h |
+| **FR-CART-004** | Engine luật stacking per-country (VN stack vs MY/PH bỏ stacking 2025) | MUST | done | FR-CART-003, FR-INFRA-005 | 6h |
 | **FR-CART-005** | `testCodes`: thử mã an toàn client-side (sleep nhịp người, user-initiated, revert) | MUST | done | FR-EXT-002, FR-CART-001 | 6h |
 | **FR-CART-006** | Checklist xu/coin (nhắc nhở, KHÔNG auto-click - chống abuse) | SHOULD | done | FR-EXT-002 | 5h |
 
@@ -200,16 +200,16 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 |---|---|:-:|:-:|---|---:|
 | **FR-AFFIL-001** | Schema + tracking affiliate (user-initiated) + đối soát mạng | MUST | done | FR-INFRA-002 | 6h |
 | **FR-AFFIL-002** | Deep-link generator user-initiated (`POST /v1/affiliate/link`, disclosure, no auto-cookie) | MUST | done | FR-AFFIL-001 | 6h |
-| **FR-AFFIL-003** | Tích hợp affiliate network (Involve Asia / Accesstrade) compliant | MUST | ready_to_implement | FR-AFFIL-002 | 8h |
-| **FR-AFFIL-004** | Guardrails né Honey (no cookie-stuffing, bắt buộc user-action, tuân Chrome policy 10/06/2025) | MUST | ready_to_implement | FR-AFFIL-002, FR-EXT-003 | 5h |
+| **FR-AFFIL-003** | Tích hợp affiliate network (Involve Asia / Accesstrade) compliant | MUST | done | FR-AFFIL-002 | 8h |
+| **FR-AFFIL-004** | Guardrails né Honey (no cookie-stuffing, bắt buộc user-action, tuân Chrome policy 10/06/2025) | MUST | done | FR-AFFIL-002, FR-EXT-003 | 5h |
 
 ### P2.5 - BILL - Premium + thanh toán
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-BILL-001** | Schema `subscription` + tier (Premium 29k/49k/79k) + vòng đời | MUST | done | FR-AUTH-001 | 6h |
-| **FR-BILL-002** | Tích hợp cổng thanh toán (MoMo / ZaloPay / VNPay / VietQR) | MUST | ready_to_implement | FR-BILL-001 | 10h |
-| **FR-BILL-003** | Bản ghi `payment` + reconciliation + webhook | MUST | ready_to_implement | FR-BILL-002 | 6h |
+| **FR-BILL-002** | Tích hợp cổng thanh toán (MoMo / ZaloPay / VNPay / VietQR) | MUST | done | FR-BILL-001 | 10h |
+| **FR-BILL-003** | Bản ghi `payment` + reconciliation + webhook | MUST | done | FR-BILL-002 | 6h |
 | **FR-BILL-004** | `referral_code` + attribution + hook chống abuse | SHOULD | ready_to_implement | FR-BILL-001 | 5h |
 | **FR-BILL-005** | Trigger upgrade free->Premium (gamified) + feature gating | SHOULD | ready_to_implement | FR-BILL-001 | 6h |
 
