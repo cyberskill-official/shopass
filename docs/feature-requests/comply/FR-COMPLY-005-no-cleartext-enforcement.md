@@ -3,7 +3,7 @@ id: FR-COMPLY-005
 title: "Cưỡng chế no-cleartext + token-not-on-server - argon2id cho mật khẩu, KHÔNG lưu token phiên sàn trên server, secrets trong Vault, audit gate CI"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

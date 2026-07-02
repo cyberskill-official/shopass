@@ -3,7 +3,7 @@ id: FR-CART-001
 title: "Schema + ingest voucher_catalog - danh mục voucher 3 loại (shop/platform/freeship) với discount_type, min_spend, cap, stack_group, valid window; BIGINT VND; nguồn cho optimizer giỏ hàng"
 module: CART
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

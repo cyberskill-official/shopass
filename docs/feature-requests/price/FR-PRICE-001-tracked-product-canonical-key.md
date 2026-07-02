@@ -3,7 +3,7 @@ id: FR-PRICE-001
 title: "tracked_product registry chuẩn hóa - khóa duy nhất (platform_id, platform_item_id) + cột canonical_key + index so sánh chéo sàn cho FK của price_snapshot"
 module: PRICE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

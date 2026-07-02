@@ -3,7 +3,7 @@ id: FR-TRUST-001
 title: "Publish extension mã nguồn mở + reproducible build + disclosure rõ trên Chrome Web Store - chứng minh KHÔNG gửi cookie/mật khẩu, hash artifact khớp source công khai"
 module: TRUST
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

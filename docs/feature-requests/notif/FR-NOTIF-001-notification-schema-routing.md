@@ -3,7 +3,7 @@ id: FR-NOTIF-001
 title: "Schema notification + template engine + routing kênh theo cost model (push > email > sms) - bảng notification, render template an toàn, chọn kênh rẻ nhất khả dụng làm điểm vào của fan-out"
 module: NOTIF
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

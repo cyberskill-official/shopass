@@ -3,7 +3,7 @@ id: FR-AUTH-001
 title: "Schema `app_user` (argon2id pwd_hash, CITEXT email unique, phone, locale 'vi-VN', status, referral_code_id) + đăng ký; no cleartext"
 module: AUTH
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

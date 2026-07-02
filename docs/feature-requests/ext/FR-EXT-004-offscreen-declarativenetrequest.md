@@ -3,7 +3,7 @@ id: FR-EXT-004
 title: "Offscreen API cho DOM parsing/clipboard ngoài service worker + declarativeNetRequest thay webRequest blocking - tài liệu offscreen vòng đời ngắn, DNR static rules tối thiểu"
 module: EXT
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

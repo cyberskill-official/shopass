@@ -3,7 +3,7 @@ id: FR-COMPLY-001
 title: "Khung consent PDPL (Luật 91/2025/QH15, NĐ 356/2025) - đồng thuận tự nguyện/cụ thể/đơn mục đích/tái lập, im lặng != đồng thuận, bản ghi consent versioned"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

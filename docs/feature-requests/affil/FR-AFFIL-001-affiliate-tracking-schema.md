@@ -3,7 +3,7 @@ id: FR-AFFIL-001
 title: "Schema + tracking `affiliate_click` / `affiliate_conversion` - bảng ghi nhấp affiliate (user-initiated) + đối soát hoa hồng theo network; last-click attribution chuẩn bị cho postback"
 module: AFFIL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1
