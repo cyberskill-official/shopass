@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.21.0
 	github.com/stretchr/testify v1.11.1
+	shopass/obs v0.0.0-00010101000000-000000000000
 )
 
 require golang.org/x/sys v0.45.0 // indirect
@@ -42,7 +43,6 @@ require (
 	google.golang.org/grpc v1.81.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	shopass/obs v0.0.0-00010101000000-000000000000 // indirect
 )
 
 replace shopass/obs => ../../obs
