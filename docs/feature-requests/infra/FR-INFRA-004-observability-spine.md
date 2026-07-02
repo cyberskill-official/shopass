@@ -3,7 +3,7 @@ id: FR-INFRA-004
 title: "Observability spine - Prometheus + Grafana + OTel tracing xuyên service + structured JSON logs + trace-id correlation"
 module: INFRA
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P0
 milestone: P0 - slice 1
