@@ -5,7 +5,7 @@
 **Tài liệu nguồn:** [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" - PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../)
 **Tài liệu hỗ trợ ship (cho agent triển khai):** [`SHIP-GUIDE.md`](SHIP-GUIDE.md) (conventions + bất biến build) | [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md) (thứ tự build theo layer) | [`DATA-MODEL.md`](DATA-MODEL.md) (schema hợp nhất) | [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md) (vòng đời status). Ghi chú: `AGENTS.md` ở gốc repo dành cho giao thức memory CyberOS (BRAIN); conventions build nằm ở SHIP-GUIDE.md.
 **Playbook tác giả:** workflow `feature-request-author` + `feature-request-audit` của CyberOS (`cyberos/modules/skill/contracts/feature-request/`). Mỗi FR đi kèm một file `.audit.md`.
-**Status enum (10 trạng thái):** `draft | ready_to_implement | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
+**Status enum (10 trạng thái):** `draft | done | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
 
 ---
 
@@ -72,7 +72,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-AUTH-001** | Schema `app_user` (argon2id pwd_hash, CITEXT email, phone, locale) + đăng ký | MUST | done | FR-INFRA-002 | 6h |
 | **FR-AUTH-002** | Phát hành JWT + refresh + phiên (BFF auth) | MUST | done | FR-AUTH-001, FR-INFRA-001 | 6h |
 | **FR-AUTH-003** | Liên kết `platform_account` - ext_user_ref ẩn danh, KHÔNG lưu token phiên | MUST | done | FR-AUTH-001 | 5h |
-| **FR-AUTH-004** | Social login (Google / Facebook / Zalo OAuth) | SHOULD | ready_to_implement | FR-AUTH-002 | 6h |
+| **FR-AUTH-004** | Social login (Google / Facebook / Zalo OAuth) | SHOULD | done | FR-AUTH-002 | 6h |
 | **FR-AUTH-005** | Vòng đời tài khoản - reset mật khẩu, status, xóa tài khoản (DSAR PDPL) | MUST | done | FR-AUTH-001, FR-COMPLY-003 | 5h |
 
 ### P1.2 - SCRAPE - scraping giá (Shopee trước)
@@ -93,7 +93,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-PRICE-001** | `tracked_product` registry chuẩn hóa (UNIQUE platform_id, item_id) | MUST | done | FR-INFRA-002 | 6h |
 | **FR-PRICE-002** | `price_snapshot` TimescaleDB hypertable + nén + continuous aggregate | MUST | done | FR-PRICE-001 | 8h |
 | **FR-PRICE-003** | API lịch sử giá (`GET /v1/products/{id}/price-history?range=90d`) | MUST | done | FR-PRICE-002 | 5h |
-| **FR-PRICE-004** | So sánh giá chéo 3 sàn (`GET /v1/compare?canonical_key=...`) | MUST | pending | FR-PRICE-005 | 6h |
+| **FR-PRICE-004** | So sánh giá chéo 3 sàn (`GET /v1/compare?canonical_key=...`) | MUST | done | FR-PRICE-005 | 6h |
 | **FR-PRICE-005** | Thuật toán matching `canonical_key` (dedup sản phẩm chéo sàn) | MUST | done | FR-PRICE-001 | 8h |
 
 ### P1.4 - EXT - browser extension MV3 (Shopee)
@@ -141,7 +141,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **FR-WEB-002** | SEO landing page (SSG), Metadata API, JSON-LD (FAQ, Article, ItemList) + auto sitemap/robots | MUST | done | - | 6h |
 | **FR-WEB-003** | UI biểu đồ lịch sử giá (render p95 <500ms) | MUST | done | FR-WEB-001, FR-DEAL-003 | 6h |
 | **FR-WEB-004** | UI quản lý wishlist + alert | MUST | done | FR-WEB-001, FR-TRACK-002, FR-TRACK-003 | 6h |
-| **FR-WEB-005** | GraphQL BFF cho web (truy vấn linh hoạt wishlist/biểu đồ) | SHOULD | ready_to_implement | FR-INFRA-001, FR-WEB-001 | 6h |
+| **FR-WEB-005** | GraphQL BFF cho web (truy vấn linh hoạt wishlist/biểu đồ) | SHOULD | done | FR-INFRA-001, FR-WEB-001 | 6h |
 
 ### P1.9 - COMPLY - PDPL nền tảng
 
@@ -219,15 +219,15 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 |---|---|:-:|:-:|---|---:|
 | **FR-DEAL-004** | Baseline dự đoán đáy (Prophet, regressor double-date/payday) | MUST | done | FR-PRICE-002, FR-DEAL-002 | 10h |
 | **FR-DEAL-005** | Model LightGBM (>=180d history, target future_min_price_14d) + feature store | SHOULD | done | FR-DEAL-004 | 12h |
-| **FR-DEAL-006** | Batch scoring đêm + alert (P(bottom trong 14d) > 0.7) | MUST | ready_to_implement | FR-DEAL-004, FR-TRACK-003 | 6h |
+| **FR-DEAL-006** | Batch scoring đêm + alert (P(bottom trong 14d) > 0.7) | MUST | done | FR-DEAL-004, FR-TRACK-003 | 6h |
 
 ### P2.7 - NOTIF - email + SMS + APNs
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | ready_to_implement | FR-NOTIF-003 | 5h |
-| **FR-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | ready_to_implement | FR-NOTIF-003 | 4h |
-| **FR-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | ready_to_implement | FR-NOTIF-003 | 6h |
+| **FR-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | done | FR-NOTIF-003 | 5h |
+| **FR-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | done | FR-NOTIF-003 | 4h |
+| **FR-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | done | FR-NOTIF-003 | 6h |
 
 ---
 
@@ -241,40 +241,40 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | ready_to_implement | FR-AFFIL-003, FR-BILL-002, FR-TRUST-005 | 10h |
+| **FR-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | done | FR-AFFIL-003, FR-BILL-002, FR-TRUST-005 | 10h |
 
 ### P3.2 - B2B - dữ liệu + analytics
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | ready_to_implement | FR-PRICE-002, FR-COMPLY-003 | 10h |
-| **FR-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | ready_to_implement | FR-B2B-001, FR-BILL-001 | 8h |
-| **FR-B2B-003** | Seller-facing competitor price analytics | COULD | ready_to_implement | FR-B2B-001 | 8h |
-| **FR-B2B-004** | Premium API access (tiers, rate-limited) | COULD | ready_to_implement | FR-INFRA-001, FR-B2B-001 | 6h |
+| **FR-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | done | FR-PRICE-002, FR-COMPLY-003 | 10h |
+| **FR-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | done | FR-B2B-001, FR-BILL-001 | 8h |
+| **FR-B2B-003** | Seller-facing competitor price analytics | COULD | done | FR-B2B-001 | 8h |
+| **FR-B2B-004** | Premium API access (tiers, rate-limited) | COULD | done | FR-INFRA-001, FR-B2B-001 | 6h |
 
 ### P3.3 - MOBILE - mobile app + SEA virality
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | ready_to_implement | FR-AUTH-002, FR-NOTIF-002 | 12h |
-| **FR-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | ready_to_implement | FR-MOBILE-001, FR-CART-003 | 10h |
-| **FR-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | ready_to_implement | FR-MOBILE-001, FR-BILL-004 | 6h |
+| **FR-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | done | FR-AUTH-002, FR-NOTIF-002 | 12h |
+| **FR-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | done | FR-MOBILE-001, FR-CART-003 | 10h |
+| **FR-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | done | FR-MOBILE-001, FR-BILL-004 | 6h |
 
 ### P3.4 - COMPLY - per-country gating + SEA + e-commerce law
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | ready_to_implement | FR-INFRA-005, FR-CART-004 | 8h |
-| **FR-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | ready_to_implement | FR-COMPLY-001, FR-COMPLY-006 | 8h |
+| **FR-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | done | FR-INFRA-005, FR-CART-004 | 8h |
+| **FR-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | done | FR-COMPLY-001, FR-COMPLY-006 | 8h |
 | **FR-COMPLY-008** | Tuân thủ luật TMĐT VN (NĐ 52/2013 + 85/2021, MOIT, dự thảo livestream/affiliate 2025) | SHOULD | done | FR-COMPLY-001 | 6h |
 
 ### P3.5 - TRUST - anti-fraud ở quy mô
 
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **FR-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | ready_to_implement | FR-BILL-004, FR-AFFIL-001 | 10h |
-| **FR-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | ready_to_implement | FR-AFFIL-001, FR-AFFIL-003, FR-BILL-002, FR-TRUST-004 | 6h |
-| **FR-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | ready_to_implement | FR-TRUST-004 | 6h |
+| **FR-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | done | FR-BILL-004, FR-AFFIL-001 | 10h |
+| **FR-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | done | FR-AFFIL-001, FR-AFFIL-003, FR-BILL-002, FR-TRUST-004 | 6h |
+| **FR-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | done | FR-TRUST-004 | 6h |
 
 ---
 

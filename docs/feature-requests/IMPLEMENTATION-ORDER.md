@@ -2,7 +2,7 @@
 
 Tài liệu này dẫn xuất tự động từ đồ thị `depends_on` của 90 FR. Một agent triển khai nên build theo **layer**: mọi FR trong layer N chỉ phụ thuộc vào FR ở layer < N, nên trong cùng một layer các FR build song song được. DAG đã được xác minh **acyclic** (không có phụ thuộc vòng) và **reciprocal** (`blocks` là nghịch đảo của `depends_on`).
 
-Tổng: **90 FR**, **627h**, **8 layer**. Mỗi FR ở status `ready_to_implement` (audit 10/10).
+Tổng: **90 FR**, **627h**, **8 layer**. Mỗi FR ở status `done` (audit 10/10).
 
 ## Cách dùng cho agent ship
 
