@@ -3,40 +3,54 @@ package ecom
 import (
 	"context"
 	"fmt"
+	
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repo struct {
-	// mock internal structure for testing since we don't have DB
-	txCounts   map[int]int64
-	thresholds map[string]int64
-	obs        []EcommerceObligation
+	pool *pgxpool.Pool
 }
 
-func NewRepo() *Repo {
+func NewRepo(pool *pgxpool.Pool) *Repo {
 	return &Repo{
-		txCounts:   make(map[int]int64),
-		thresholds: map[string]int64{"foreign_platform_yearly_tx": 100000},
-		obs: []EcommerceObligation{
-			{ObligationKey: "moit_registration", DescriptionVi: "Dang ky/thong bao website TMĐT voi Bo Cong Thuong", SourceLaw: "ND_52_2013", Status: "not_started"},
-			{ObligationKey: "affiliate_disclosure", DescriptionVi: "Cong bo quan he affiliate (du thao Luat TMĐT 2025 - cho luat chot)", SourceLaw: "DRAFT_2025", Status: "not_started"},
-			{ObligationKey: "livestream_disclosure", DescriptionVi: "Cong bo noi dung livestream thuong mai (du thao 2025 - cho luat chot)", SourceLaw: "DRAFT_2025", Status: "not_started"},
-		},
+		pool: pool,
 	}
 }
 
 func (r *Repo) txCount(ctx context.Context, year int) (int64, error) {
-	return r.txCounts[year], nil
+	var count int64
+	err := r.pool.QueryRow(ctx, "SELECT count FROM yearly_transaction_count WHERE year=$1", year).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (r *Repo) threshold(ctx context.Context, key string) (int64, error) {
-	if val, ok := r.thresholds[key]; ok {
-		return val, nil
+	var val int64
+	err := r.pool.QueryRow(ctx, "SELECT value FROM compliance_threshold WHERE key=$1 ORDER BY version DESC LIMIT 1", key).Scan(&val)
+	if err != nil {
+		return 0, err
 	}
-	return 0, fmt.Errorf("threshold not found")
+	return val, nil
 }
 
 func (r *Repo) Obligations(ctx context.Context) ([]EcommerceObligation, error) {
-	return r.obs, nil
+	rows, err := r.pool.Query(ctx, "SELECT obligation_key, description_vi, source_law, status FROM ecommerce_obligation")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var obs []EcommerceObligation
+	for rows.Next() {
+		var o EcommerceObligation
+		if err := rows.Scan(&o.ObligationKey, &o.DescriptionVi, &o.SourceLaw, &o.Status); err != nil {
+			return nil, err
+		}
+		obs = append(obs, o)
+	}
+	return obs, rows.Err()
 }
 
 func (r *Repo) MarkObligation(ctx context.Context, key string, status string) error {
@@ -44,11 +58,12 @@ func (r *Repo) MarkObligation(ctx context.Context, key string, status string) er
 		return fmt.Errorf("invalid status") // CHECK constraint equivalent
 	}
 
-	for i, o := range r.obs {
-		if o.ObligationKey == key {
-			r.obs[i].Status = status
-			return nil
-		}
+	res, err := r.pool.Exec(ctx, "UPDATE ecommerce_obligation SET status=$1 WHERE obligation_key=$2", status, key)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("obligation not found")
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("obligation not found")
+	}
+	return nil
 }

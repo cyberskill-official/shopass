@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,10 +22,30 @@ import (
 const nightlyScoreLockKey = 1001
 const refreshPriorsLockKey = 1002
 
-type dummyNotif struct{}
+type httpNotif struct {
+	url string
+}
 
-func (d *dummyNotif) Enqueue(ctx context.Context, item batch.NotifItem) error {
-	slog.Info("dummy enqueue", "item", item)
+func (h *httpNotif) Enqueue(ctx context.Context, item batch.NotifItem) error {
+	b, err := json.Marshal(item)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, h.url, bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("notifsvc returned status %d", resp.StatusCode)
+	}
 	return nil
 }
 
@@ -43,8 +67,13 @@ func main() {
 	}
 	defer pool.Close()
 
+	notifURL := os.Getenv("NOTIFSVC_URL")
+	if notifURL == "" {
+		notifURL = "http://localhost:8081/notify"
+	}
+
 	// Initialize batches
-	b := batch.New(pool, log, &dummyNotif{})
+	b := batch.New(pool, log, &httpNotif{url: notifURL})
 
 	// Setup Cron with Asia/Ho_Chi_Minh timezone
 	loc, err := time.LoadLocation("Asia/Ho_Chi_Minh")

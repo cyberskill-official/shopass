@@ -20,8 +20,13 @@ type IPNPayload struct {
 
 type IPNHandler struct {
 	payments bill.PaymentRepo
+	subs     SubscriptionActivator
 	secrets  pay.SecretReader
 	metrics  ipnMetrics
+}
+
+type SubscriptionActivator interface {
+	ActivateSubscription(ctx context.Context, subID int64, duration time.Duration) error
 }
 
 type ipnMetrics interface {
@@ -32,9 +37,10 @@ type dummyIPNMetrics struct{}
 
 func (m dummyIPNMetrics) IPN(gateway string, result string) {}
 
-func NewIPNHandler(payments bill.PaymentRepo, secrets pay.SecretReader) *IPNHandler {
+func NewIPNHandler(payments bill.PaymentRepo, subs SubscriptionActivator, secrets pay.SecretReader) *IPNHandler {
 	return &IPNHandler{
 		payments: payments,
+		subs:     subs,
 		secrets:  secrets,
 		metrics:  dummyIPNMetrics{},
 	}
@@ -95,7 +101,12 @@ func (h *IPNHandler) HandleIPN(w http.ResponseWriter, req *http.Request) {
 	switch ipn.Status {
 	case "paid":
 		h.payments.MarkPaid(req.Context(), p.ID, ipn.TransactionID)
-		// TODO: Activate Subscription (FR-BILL-001)
+		if p.SubscriptionID != nil && h.subs != nil {
+			// Activate Subscription (FR-BILL-001) for 1 month
+			if err := h.subs.ActivateSubscription(req.Context(), *p.SubscriptionID, 30*24*time.Hour); err != nil {
+				log.Printf("ERROR: failed to activate subscription id=%d: %v", *p.SubscriptionID, err)
+			}
+		}
 		h.metrics.IPN(gateway, "paid")
 		w.WriteHeader(200)
 	case "failed":

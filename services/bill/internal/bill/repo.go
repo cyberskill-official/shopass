@@ -55,3 +55,13 @@ func (r *Repo) statusOf(ctx context.Context, subID int64) (string, error) {
 	err := r.pool.QueryRow(ctx, `SELECT status FROM subscription WHERE id=$1`, subID).Scan(&status)
 	return status, err
 }
+
+func (r *Repo) ActivateSubscription(ctx context.Context, subID int64, duration time.Duration) error {
+	now := time.Now()
+	_, err := r.pool.Exec(ctx, `
+		UPDATE subscription 
+		SET status = 'active', started_at = $1, renews_at = $2 
+		WHERE id = $3
+	`, now, now.Add(duration), subID)
+	return err
+}

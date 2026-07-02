@@ -3,6 +3,8 @@ package proxy
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -23,14 +25,22 @@ type Pool struct {
 	bannedIPs   map[string]time.Time
 	cooldown    time.Duration
 	rotateIndex int
+	proxies     []string
 }
 
 func NewPool(guard *CostGuard, vault Vault) *Pool {
+	proxyList := os.Getenv("PROXY_LIST")
+	var proxies []string
+	if proxyList != "" {
+		proxies = strings.Split(proxyList, ",")
+	}
+
 	return &Pool{
 		guard:     guard,
 		vault:     vault,
 		bannedIPs: make(map[string]time.Time),
 		cooldown:  5 * time.Minute, // ví dụ 5 phút cooldown
+		proxies:   proxies,
 	}
 }
 
@@ -65,16 +75,26 @@ func (p *Pool) rotate(tier Tier, country string) string {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// Logic mock để giả lập xoay vòng IP
-	p.rotateIndex++
-	baseIP := fmt.Sprintf("http://proxy.%s.%s:%d", tier, country, 8000+p.rotateIndex%100)
+	var baseIP string
+	if len(p.proxies) > 0 {
+		p.rotateIndex++
+		baseIP = p.proxies[p.rotateIndex%len(p.proxies)]
+	} else {
+		// Fallback to generated IP if PROXY_LIST is empty
+		p.rotateIndex++
+		baseIP = fmt.Sprintf("http://proxy.%s.%s:%d", tier, country, 8000+p.rotateIndex%100)
+	}
 	
 	// Tránh IP bị ban
 	for {
 		if bannedAt, ok := p.bannedIPs[baseIP]; ok {
 			if time.Since(bannedAt) < p.cooldown {
 				p.rotateIndex++
-				baseIP = fmt.Sprintf("http://proxy.%s.%s:%d", tier, country, 8000+p.rotateIndex%100)
+				if len(p.proxies) > 0 {
+					baseIP = p.proxies[p.rotateIndex%len(p.proxies)]
+				} else {
+					baseIP = fmt.Sprintf("http://proxy.%s.%s:%d", tier, country, 8000+p.rotateIndex%100)
+				}
 				continue
 			}
 			// Hết cooldown, xóa khỏi map

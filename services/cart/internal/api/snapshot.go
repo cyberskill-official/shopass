@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,13 +18,18 @@ func NewSnapshotHandler(repo *cart.SnapshotRepo) *SnapshotHandler {
 }
 
 func (h *SnapshotHandler) CreateSnapshot(w http.ResponseWriter, r *http.Request) {
-	// Giả lập middleware lấy user_id từ JWT (sẽ được tích hợp sau)
-	// Hiện tại mock 1 để bypass auth tests, thực tế FR-CART-002 require JWT header/context
-	userIDVal := r.Context().Value("user_id")
-	if userIDVal == nil {
-		userIDVal = int64(1) // dummy for now if not set
+	// Read user_id from Gateway injected header (FR-CART-002)
+	userIDStr := r.Header.Get("X-User-Id")
+	if userIDStr == "" {
+		http.Error(w, "Unauthorized: missing user_id", http.StatusUnauthorized)
+		return
 	}
-	userID := userIDVal.(int64)
+	
+	var userID int64
+	if _, err := fmt.Sscanf(userIDStr, "%d", &userID); err != nil {
+		http.Error(w, "Unauthorized: invalid user_id format", http.StatusUnauthorized)
+		return
+	}
 
 	var payload cart.SnapshotPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {

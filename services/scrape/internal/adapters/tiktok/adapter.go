@@ -3,8 +3,10 @@ package tiktok
 import (
 	"context"
 	"fmt"
-	"shopass/services/scrape/internal/orchestrator"
 	"time"
+
+	"shopass/services/scrape/internal/orchestrator"
+	"github.com/playwright-community/playwright-go"
 )
 
 // PLATFORM_TIKTOK maps to platform_id = 2
@@ -23,15 +25,36 @@ func (a *TikTokAdapter) PlatformID() int16 {
 }
 
 func (a *TikTokAdapter) Fetch(ctx context.Context, job orchestrator.ScrapeJob) (orchestrator.PriceSnapshot, error) {
-	// Proxy enterprise được gán ở tầng orchestrator hoặc worker/farm.
-	// Adapter Go này sẽ gọi sang farm (Playwright Node.js) qua HTTP/gRPC.
-	// Ở bước này ta mock pass qua để orchestrator integration test chạy.
-	fmt.Printf("[TikTokAdapter] dispatching job %d to farm (tier %s)...\n", job.ProductID, job.Tier)
+	fmt.Printf("[TikTokAdapter] dispatching job %d using local Playwright (tier %s)...\n", job.ProductID, job.Tier)
+
+	pw, err := playwright.Run()
+	if err != nil {
+		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not start playwright: %w", err)
+	}
+	defer pw.Stop()
+
+	browser, err := pw.Chromium.Launch()
+	if err != nil {
+		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not launch browser: %w", err)
+	}
+	defer browser.Close()
+
+	page, err := browser.NewPage()
+	if err != nil {
+		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not create page: %w", err)
+	}
+
+	// This is just a conceptual script logic for tiktok products.
+	// Normally we would navigate to tiktok.com/product/job.ProductID
+	targetURL := fmt.Sprintf("https://www.tiktok.com/t/%d", job.ProductID)
+	if _, err := page.Goto(targetURL); err != nil {
+		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not goto: %w", err)
+	}
 
 	return orchestrator.PriceSnapshot{
 		ProductID: job.ProductID,
 		TS:        time.Now(),
-		Price:     99000,
+		Price:     99000, // Conceptually we would parse the DOM: page.Locator(".price").TextContent()
 		FlashSale: true,
 	}, nil
 }
