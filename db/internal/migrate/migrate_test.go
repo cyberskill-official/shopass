@@ -19,7 +19,7 @@ func newMigratorFreshDB(t *testing.T) (*Migrator, *sql.DB) {
 	ctx := context.Background()
 
 	postgresContainer, err := postgres.RunContainer(ctx,
-		testcontainers.WithImage("postgres:16"),
+		testcontainers.WithImage("timescale/timescaledb:latest-pg16"),
 		postgres.WithDatabase("shopass"),
 		postgres.WithUsername("postgres"),
 		postgres.WithPassword("postgres"),
@@ -113,10 +113,10 @@ func TestUp_Idempotent(t *testing.T) {
 
 func TestDown_OneStep(t *testing.T) {
 	mg, db := newMigratorFreshDB(t)
-	require.NoError(t, mg.Up())
+	require.NoError(t, mg.m.Steps(3))
 	require.NoError(t, mg.Down(1))
-	require.False(t, tableExists(t, db, "app_user")) // last migration rolled back
-	require.True(t, tableExists(t, db, "platform"))  // prev still exists
+	require.False(t, tableExists(t, db, "app_user")) // 0003 rolled back
+	require.True(t, tableExists(t, db, "platform"))  // 0002 still exists
 }
 
 func TestPlatformSeed_Idempotent(t *testing.T) {

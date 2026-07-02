@@ -3,7 +3,7 @@ id: FR-INFRA-002
 title: "Data-model foundation - migration framework (golang-migrate) + bảng `platform` + cột lõi `app_user` + quy ước đặt tên/migration"
 module: INFRA
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P0
 milestone: P0 - slice 1

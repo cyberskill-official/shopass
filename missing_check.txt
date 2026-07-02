@@ -1,0 +1,837 @@
+--- docs/feature-requests/affil/FR-AFFIL-001-affiliate-tracking-schema.md
+services/affil/migrations/0001_affiliate_click.sql
+services/affil/migrations/0002_affiliate_conversion.sql
+services/affil/internal/affil/types.go
+services/affil/internal/affil/repo.go
+services/affil/internal/affil/subid.go
+services/affil/internal/affil/repo_test.go
+services/affil/internal/affil/subid_test.go
+file_read: services/affil/**
+--- docs/feature-requests/affil/FR-AFFIL-002-user-initiated-deeplink.md
+services/affil/internal/api/link.go
+services/affil/internal/affil/deeplink.go
+services/affil/internal/affil/disclosure.go
+services/affil/internal/api/link_test.go
+services/affil/internal/affil/deeplink_test.go
+services/affil/internal/api/router.go            # đăng ký POST /v1/affiliate/link sau JWT middleware
+file_read: services/affil/**
+file_write: services/affil/**
+--- docs/feature-requests/affil/FR-AFFIL-003-network-integration.md
+services/affil/migrations/0003_affiliate_network.sql
+services/affil/migrations/0004_affiliate_postback_log.sql
+services/affil/internal/affil/network.go
+services/affil/internal/api/postback.go
+services/affil/internal/affil/postback_verify.go
+services/affil/internal/api/postback_test.go
+services/affil/internal/affil/postback_verify_test.go
+services/affil/internal/api/router.go            # đăng ký POST /v1/affiliate/postback/{network}
+--- docs/feature-requests/affil/FR-AFFIL-004-honey-avoidance-guardrails.md
+extension/src/guardrails/no-cookie-stuffing.ts
+extension/src/guardrails/user-gesture.ts
+extension/src/guardrails/manifest-audit.ts
+extension/test/guardrails/no-cookie-stuffing.test.ts
+extension/test/guardrails/manifest-audit.test.ts
+extension/test/guardrails/single-affiliate-path.test.ts
+services/affil/internal/affil/guardrail_assert.go
+services/affil/internal/affil/guardrail_assert_test.go
+docs/compliance/CHROME-WEBSTORE-AFFILIATE-CHECKLIST.md
+--- docs/feature-requests/affil/FR-AFFIL-005-cashback-layering.md
+services/affil/migrations/0005_cashback_ledger.sql
+services/affil/internal/cashback/ledger.go
+services/affil/internal/cashback/release.go
+services/affil/internal/cashback/payout.go
+services/affil/internal/cashback/ledger_test.go
+services/affil/internal/cashback/release_test.go
+services/affil/internal/affiliate/conversion.go    # phát sự kiện khi conversion confirmed
+file_read: services/affil/**
+--- docs/feature-requests/auth/FR-AUTH-001-app-user-schema.md
+services/auth/migrations/0004_app_user_secrets.up.sql
+services/auth/migrations/0004_app_user_secrets.down.sql
+services/auth/internal/auth/password.go
+services/auth/internal/auth/register.go
+services/auth/internal/auth/repo.go
+services/auth/internal/auth/password_test.go
+services/auth/internal/auth/register_test.go
+services/auth/internal/auth/types.go            # struct AppUser
+--- docs/feature-requests/auth/FR-AUTH-002-jwt-issuance.md
+services/auth/internal/auth/token.go
+services/auth/internal/auth/jwks.go
+services/auth/internal/auth/refresh.go
+services/auth/internal/auth/login.go
+services/auth/migrations/0005_refresh_token.up.sql
+services/auth/migrations/0005_refresh_token.down.sql
+services/auth/internal/auth/token_test.go
+services/auth/internal/auth/refresh_test.go
+services/auth/internal/auth/types.go            # struct Claims, TokenPair
+--- docs/feature-requests/auth/FR-AUTH-003-platform-account-linking.md
+services/auth/migrations/0006_platform_account.up.sql
+services/auth/migrations/0006_platform_account.down.sql
+services/auth/internal/auth/linkacct.go
+services/auth/internal/auth/linkacct_repo.go
+services/auth/internal/auth/linkacct_test.go
+services/auth/internal/auth/types.go            # struct PlatformAccount
+file_read: services/auth/**
+file_write: services/auth/**
+--- docs/feature-requests/auth/FR-AUTH-004-social-login.md
+services/auth/migrations/0007_social_identity.up.sql
+services/auth/migrations/0007_social_identity.down.sql
+services/auth/internal/auth/oauth.go
+services/auth/internal/auth/oauth_google.go
+services/auth/internal/auth/oauth_callback.go
+services/auth/internal/auth/oauth_test.go
+services/auth/internal/auth/types.go            # struct SocialIdentity
+file_read: services/auth/**
+--- docs/feature-requests/auth/FR-AUTH-005-account-lifecycle.md
+services/auth/migrations/0008_password_reset.up.sql
+services/auth/migrations/0008_password_reset.down.sql
+services/auth/internal/auth/reset.go
+services/auth/internal/auth/lifecycle.go
+services/auth/internal/auth/erasure.go
+services/auth/internal/auth/reset_test.go
+services/auth/internal/auth/lifecycle_test.go
+services/auth/internal/auth/erasure_test.go
+services/auth/internal/auth/login.go            # chặn đăng nhập khi status != active
+--- docs/feature-requests/b2b/FR-B2B-001-anonymized-trend-pipeline.md
+services/b2b/migrations/0001_market_trend_daily.sql
+services/b2b/internal/trend/aggregate.go
+services/b2b/internal/trend/kanon.go
+services/b2b/internal/trend/job.go
+services/b2b/internal/trend/repo.go
+services/b2b/internal/trend/aggregate_test.go
+services/b2b/internal/trend/kanon_test.go
+services/b2b/internal/trend/types.go            # struct MarketTrendCell
+--- docs/feature-requests/b2b/FR-B2B-002-b2b-insights-reports.md
+services/b2b/migrations/0002_b2b_subscription.sql
+services/b2b/internal/report/builder.go
+services/b2b/internal/report/entitlement.go
+services/b2b/internal/report/export.go
+services/b2b/internal/api/report_handler.go
+services/b2b/internal/report/builder_test.go
+services/b2b/internal/report/entitlement_test.go
+services/b2b/internal/api/router.go            # đăng ký route GET /v1/b2b/reports
+--- docs/feature-requests/b2b/FR-B2B-003-seller-competitor-analytics.md
+services/b2b/migrations/0003_seller_owned_sku.sql
+services/b2b/internal/seller/position.go
+services/b2b/internal/seller/ownership.go
+services/b2b/internal/api/seller_handler.go
+services/b2b/internal/seller/position_test.go
+services/b2b/internal/seller/ownership_test.go
+services/b2b/internal/api/router.go            # đăng ký route GET /v1/b2b/seller/position
+file_read: services/b2b/**
+--- docs/feature-requests/b2b/FR-B2B-004-premium-api-access.md
+services/b2b/migrations/0004_api_key.sql
+services/b2b/internal/apikey/auth.go
+services/b2b/internal/apikey/ratelimit.go
+services/b2b/internal/apikey/usage.go
+services/b2b/internal/api/public_trend_handler.go
+services/b2b/internal/apikey/auth_test.go
+services/b2b/internal/apikey/ratelimit_test.go
+services/b2b/internal/api/router.go            # đăng ký /public/v1/trends sau middleware api-key
+--- docs/feature-requests/bill/FR-BILL-001-subscription-schema.md
+services/bill/migrations/0001_plan_catalog.sql
+services/bill/migrations/0002_subscription.sql
+services/bill/internal/bill/types.go
+services/bill/internal/bill/repo.go
+services/bill/internal/bill/lifecycle.go
+services/bill/internal/bill/repo_test.go
+services/bill/internal/bill/lifecycle_test.go
+file_read: services/bill/**
+--- docs/feature-requests/bill/FR-BILL-002-payment-gateway.md
+services/bill/internal/pay/gateway.go
+services/bill/internal/pay/momo.go
+services/bill/internal/pay/zalopay.go
+services/bill/internal/pay/vnpay.go
+services/bill/internal/pay/vietqr.go
+services/bill/internal/pay/sign.go
+services/bill/internal/api/checkout.go
+services/bill/internal/pay/gateway_test.go
+services/bill/internal/pay/sign_test.go
+services/bill/internal/api/checkout_test.go
+--- docs/feature-requests/bill/FR-BILL-003-payment-reconciliation.md
+services/bill/migrations/0003_payment.sql
+services/bill/internal/api/ipn.go
+services/bill/internal/bill/reconcile.go
+services/bill/internal/bill/payment_repo.go
+services/bill/internal/api/ipn_test.go
+services/bill/internal/bill/reconcile_test.go
+services/bill/internal/api/router.go            # đăng ký POST /v1/billing/ipn/{gateway}
+file_read: services/bill/**
+--- docs/feature-requests/bill/FR-BILL-004-referral-code.md
+services/bill/migrations/0004_referral_code.sql
+services/bill/internal/referral/code.go
+services/bill/internal/referral/attribute.go
+services/bill/internal/referral/repo.go
+services/bill/internal/referral/attribute_test.go
+services/bill/internal/referral/code_test.go
+file_read: services/bill/**
+file_write: services/bill/**
+--- docs/feature-requests/bill/FR-BILL-005-upgrade-triggers-gating.md
+services/bill/migrations/0005_plan_feature.sql
+services/bill/internal/gating/gate.go
+services/bill/internal/gating/triggers.go
+services/bill/internal/gating/repo.go
+services/bill/internal/gating/gate_test.go
+services/bill/internal/gating/triggers_test.go
+file_read: services/bill/**
+file_write: services/bill/**
+--- docs/feature-requests/cart/FR-CART-001-voucher-catalog-schema.md
+db/migrations/0010_voucher_catalog.up.sql
+db/migrations/0010_voucher_catalog.down.sql
+services/cart/internal/voucher/types.go
+services/cart/internal/voucher/repo.go
+services/cart/internal/voucher/ingest.go
+services/cart/internal/voucher/repo_test.go
+services/cart/internal/voucher/ingest_test.go
+services/cart/internal/cart/errors.go        # thêm lỗi voucher không hợp lệ
+--- docs/feature-requests/cart/FR-CART-002-cart-snapshot-schema.md
+db/migrations/0011_cart_snapshot.up.sql
+db/migrations/0011_cart_snapshot.down.sql
+services/cart/internal/cart/snapshot_types.go
+services/cart/internal/cart/snapshot_repo.go
+services/cart/internal/api/snapshot.go
+services/cart/internal/cart/snapshot_repo_test.go
+services/cart/internal/api/snapshot_test.go
+services/cart/internal/api/router.go         # đăng ký POST /v1/cart/snapshot
+--- docs/feature-requests/cart/FR-CART-003-cart-voucher-optimizer.md
+services/cart/internal/optimizer/optimize.go
+services/cart/internal/optimizer/discount.go
+services/cart/internal/optimizer/types.go
+services/cart/internal/optimizer/rules.go
+services/cart/internal/api/optimize.go
+services/cart/internal/optimizer/optimize_test.go
+services/cart/internal/optimizer/discount_test.go
+services/cart/internal/api/router.go         # đăng ký POST /v1/cart/optimize
+--- docs/feature-requests/cart/FR-CART-004-per-country-stacking-rules.md
+services/cart/internal/optimizer/stacking/vn_rules.go
+services/cart/internal/optimizer/stacking/mypph_rules.go
+services/cart/internal/optimizer/stacking/policy_rules.go
+services/cart/internal/optimizer/stacking/factory.go
+services/cart/internal/optimizer/stacking/vn_rules_test.go
+services/cart/internal/optimizer/stacking/mypph_rules_test.go
+services/cart/internal/optimizer/stacking/factory_test.go
+services/cart/internal/api/optimize.go        # chọn rules theo country của platform
+--- docs/feature-requests/cart/FR-CART-005-auto-test-codes.md
+extension/src/content/shared/test-codes.ts
+extension/src/content/shared/code-applier.ts
+extension/src/content/shared/pacing.ts
+extension/src/ui/test-codes-button.ts
+extension/test/test-codes-user-initiated.test.ts
+extension/test/test-codes-revert.test.ts
+extension/test/test-codes-pacing.test.ts
+extension/src/shared/types.ts                # thêm CodeTestResult, TestCodesRequest
+--- docs/feature-requests/cart/FR-CART-006-coin-checklist.md
+extension/src/content/shared/coin-task-reader.ts
+extension/src/ui/coin-checklist.ts
+db/migrations/0012_coin_task.up.sql
+db/migrations/0012_coin_task.down.sql
+services/cart/internal/coin/types.go
+services/cart/internal/coin/repo.go
+extension/test/coin-no-autoclick.test.ts
+services/cart/internal/coin/repo_test.go
+extension/src/shared/types.ts                # thêm CoinTask, CoinChecklistMessage
+--- docs/feature-requests/comply/FR-COMPLY-001-pdpl-consent-framework.md
+services/comply/migrations/0001_consent_policy.sql
+services/comply/migrations/0002_consent_record.sql
+services/comply/internal/consent/policy.go
+services/comply/internal/consent/record.go
+services/comply/internal/consent/repo.go
+services/comply/internal/consent/service.go
+services/comply/internal/consent/repo_test.go
+services/comply/internal/consent/service_test.go
+services/comply/internal/consent/types.go      # struct ConsentPolicy, ConsentRecord, Purpose
+--- docs/feature-requests/comply/FR-COMPLY-002-dpia-tia-register.md
+services/comply/migrations/0003_processing_activity.sql
+services/comply/migrations/0004_dpia_register.sql
+services/comply/internal/dpia/register.go
+services/comply/internal/dpia/deadline.go
+services/comply/internal/dpia/repo.go
+services/comply/internal/dpia/repo_test.go
+services/comply/internal/dpia/deadline_test.go
+services/comply/internal/dpia/types.go      # struct ProcessingActivity, DPIA, TIA
+--- docs/feature-requests/comply/FR-COMPLY-003-data-subject-rights.md
+services/comply/migrations/0005_dsar_request.sql
+services/comply/internal/dsar/request.go
+services/comply/internal/dsar/export.go
+services/comply/internal/dsar/erase.go
+services/comply/internal/dsar/repo.go
+services/comply/internal/dsar/request_test.go
+services/comply/internal/dsar/erase_test.go
+services/comply/internal/dsar/types.go      # struct DSARRequest, ExportBundle
+--- docs/feature-requests/comply/FR-COMPLY-004-breach-notification-72h.md
+services/comply/migrations/0006_breach_incident.sql
+services/comply/internal/breach/incident.go
+services/comply/internal/breach/clock.go
+services/comply/internal/breach/repo.go
+services/comply/internal/breach/incident_test.go
+services/comply/internal/breach/clock_test.go
+services/comply/internal/breach/types.go      # struct BreachIncident, Severity
+file_read: services/comply/**
+--- docs/feature-requests/comply/FR-COMPLY-005-no-cleartext-enforcement.md
+services/comply/internal/audit/scan.go
+services/comply/internal/audit/rules.go
+services/comply/internal/audit/scan_test.go
+services/comply/scripts/no_cleartext_gate.sh
+services/comply/internal/audit/payload_guard.go
+services/comply/internal/audit/payload_guard_test.go
+.github/workflows/ci.yml      # thêm bước no-cleartext audit gate (chặn merge)
+file_read: services/comply/**
+--- docs/feature-requests/comply/FR-COMPLY-006-per-country-gating.md
+services/comply/migrations/0007_country_rule.sql
+services/comply/internal/gating/rule.go
+services/comply/internal/gating/registry.go
+services/comply/internal/gating/repo.go
+services/comply/internal/gating/rule_test.go
+services/comply/internal/gating/registry_test.go
+services/comply/internal/gating/types.go      # struct CountryRule, GateKey
+file_read: services/comply/**
+--- docs/feature-requests/comply/FR-COMPLY-007-sea-data-protection.md
+services/comply/internal/regime/adapter.go
+services/comply/internal/regime/vn_pdpl.go
+services/comply/internal/regime/id_pdp.go
+services/comply/internal/regime/th_pdpa.go
+services/comply/internal/regime/registry.go
+services/comply/internal/regime/adapter_test.go
+services/comply/internal/regime/registry_test.go
+services/comply/internal/regime/types.go      # interface RegimeAdapter, struct RegimeProfile
+--- docs/feature-requests/comply/FR-COMPLY-008-vn-ecommerce-law.md
+services/comply/migrations/0008_ecommerce_obligation.sql
+services/comply/internal/ecom/obligation.go
+services/comply/internal/ecom/threshold.go
+services/comply/internal/ecom/repo.go
+services/comply/internal/ecom/obligation_test.go
+services/comply/internal/ecom/threshold_test.go
+services/comply/internal/ecom/types.go      # struct EcommerceObligation, ThresholdState
+file_read: services/comply/**
+--- docs/feature-requests/deal/FR-DEAL-001-fake-sale-detection.md
+services/deal/internal/fakesale/types.go
+services/deal/internal/fakesale/stats.go
+services/deal/internal/fakesale/detect.go
+services/deal/internal/fakesale/detect_test.go
+services/deal/internal/deal/service.go        # gọi DetectFakeSale sau khi nạp lịch sử
+file_read: services/deal/**
+file_write: services/deal/**
+bash: cd services/deal && go test ./...
+--- docs/feature-requests/deal/FR-DEAL-002-cold-start-handling.md
+services/deal/migrations/0001_category_prior.sql
+services/deal/internal/coldstart/maturity.go
+services/deal/internal/coldstart/priors.go
+services/deal/internal/coldstart/maturity_test.go
+services/deal/internal/fakesale/detect.go            # hỏi cổng maturity trước khi phát verdict tự tin
+file_read: services/deal/**
+file_write: services/deal/**
+bash: cd services/deal && go test ./...
+--- docs/feature-requests/deal/FR-DEAL-003-chart-data-api.md
+services/deal/internal/api/chart.go
+services/deal/internal/api/chart_test.go
+services/deal/internal/chart/annotate.go
+services/deal/internal/api/router.go               # đăng ký route GET /v1/products/{id}/chart
+file_read: services/deal/**
+file_write: services/deal/**
+bash: cd services/deal && go test ./...
+--- docs/feature-requests/deal/FR-DEAL-004-bottom-price-prophet.md
+services/ml/bottom/regressors.py
+services/ml/bottom/features.py
+services/ml/bottom/prophet_baseline.py
+services/ml/migrations/0001_price_forecast.sql
+services/ml/tests/test_regressors.py
+services/ml/tests/test_prophet_baseline.py
+services/ml/bottom/__init__.py            # export build_baseline, forecast_bottom
+file_read: services/ml/**
+--- docs/feature-requests/deal/FR-DEAL-005-bottom-price-lightgbm.md
+services/ml/bottom/feature_store.py
+services/ml/bottom/labels.py
+services/ml/bottom/lgbm_model.py
+services/ml/migrations/0002_feature_store.sql
+services/ml/tests/test_feature_store.py
+services/ml/tests/test_labels.py
+services/ml/tests/test_lgbm_model.py
+services/ml/bottom/serve.py                 # route SKU >=180 ngày sang LightGBM, dưới ngưỡng giữ Prophet (FR-DEAL-004)
+--- docs/feature-requests/deal/FR-DEAL-006-nightly-scoring-alert.md
+services/deal/internal/batch/nightly_score.go
+services/deal/internal/batch/alert_match.go
+services/deal/internal/batch/dedupe.go
+services/deal/internal/batch/nightly_score_test.go
+services/deal/migrations/0002_bottom_alert_log.sql
+services/deal/cmd/dealsvc/main.go            # đăng ký cron job nightly score off-peak
+file_read: services/deal/**
+file_write: services/deal/**
+--- docs/feature-requests/ext/FR-EXT-001-mv3-scaffold-service-worker.md
+extension/manifest.json
+extension/src/background/service-worker.ts
+extension/src/background/lifecycle.ts
+extension/src/background/alarms.ts
+extension/src/shared/storage.ts
+extension/src/shared/messaging.ts
+extension/src/shared/types.ts
+extension/build.mjs
+extension/tsconfig.json
+extension/test/lifecycle.test.ts
+--- docs/feature-requests/ext/FR-EXT-002-shopee-content-script.md
+extension/src/content/shopee/cart-reader.ts
+extension/src/content/shopee/voucher-reader.ts
+extension/src/content/shopee/dom-selectors.ts
+extension/src/content/shopee/api-client.ts
+extension/src/content/shopee/index.ts
+extension/src/content/shared/normalize.ts
+extension/test/shopee-cart-reader.test.ts
+extension/test/shopee-no-secret-leak.test.ts
+extension/test/shopee-dom-fallback.test.ts
+--- docs/feature-requests/ext/FR-EXT-003-data-minimization-pipeline.md
+extension/src/pipeline/minimize.ts
+extension/src/pipeline/allowlist.ts
+extension/src/pipeline/schema.ts
+extension/src/pipeline/redact.ts
+extension/test/minimize.test.ts
+extension/test/allowlist.test.ts
+extension/test/no-pii-leak.test.ts
+extension/src/background/service-worker.ts   # nối onMessage(CART_READ) -> minimize -> queue (FR-EXT-005)
+extension/src/shared/types.ts                # thêm OutboundPayload (tập tối thiểu)
+--- docs/feature-requests/ext/FR-EXT-004-offscreen-declarativenetrequest.md
+extension/src/offscreen/offscreen.html
+extension/src/offscreen/offscreen.ts
+extension/src/offscreen/manager.ts
+extension/src/dnr/rules.json
+extension/src/dnr/dnr.ts
+extension/test/offscreen-lifecycle.test.ts
+extension/test/dnr-rules.test.ts
+extension/test/offscreen-no-fetch.test.ts
+extension/manifest.json                 # thêm permissions offscreen + declarativeNetRequest + declarative_net_request.rule_resources
+--- docs/feature-requests/ext/FR-EXT-005-extension-backend-sync.md
+extension/src/sync/auth-bridge.ts
+extension/src/sync/queue.ts
+extension/src/sync/sender.ts
+extension/src/sync/ws-client.ts
+extension/test/auth-bridge.test.ts
+extension/test/queue-persist.test.ts
+extension/test/sync-no-platform-token.test.ts
+extension/test/ws-lifecycle.test.ts
+extension/src/background/service-worker.ts   # nối queue -> sender; mở/đóng WSS theo nhu cầu
+--- docs/feature-requests/ext/FR-EXT-006-settings-consent-ui.md
+extension/src/ui/onboarding.html
+extension/src/ui/onboarding.ts
+extension/src/ui/settings.html
+extension/src/ui/settings.ts
+extension/src/consent/consent-store.ts
+extension/src/consent/consent-gate.ts
+extension/test/consent-gate.test.ts
+extension/test/consent-record.test.ts
+extension/test/consent-default-off.test.ts
+--- docs/feature-requests/ext/FR-EXT-007-tiktok-shop-content-script.md
+extension/src/content/tiktok/cart-reader.ts
+extension/src/content/tiktok/dom-selectors.ts
+extension/src/content/tiktok/spa-observer.ts
+extension/src/content/tiktok/index.ts
+extension/test/tiktok-cart-reader.test.ts
+extension/test/tiktok-no-api-sign.test.ts
+extension/test/tiktok-spa-observer.test.ts
+extension/manifest.json                 # thêm content_scripts cho tiktok.com + host_permissions
+extension/src/shared/types.ts           # tái dùng CartItem/VoucherItem; thêm platform "tiktok" nơi cần
+--- docs/feature-requests/ext/FR-EXT-008-lazada-content-script.md
+extension/src/content/lazada/cart-reader.ts
+extension/src/content/lazada/dom-selectors.ts
+extension/src/content/lazada/index.ts
+extension/test/lazada-cart-reader.test.ts
+extension/test/lazada-no-akamai-evasion.test.ts
+extension/test/lazada-dom-fallback.test.ts
+extension/manifest.json                 # thêm content_scripts cho lazada.vn + host_permissions
+extension/src/shared/types.ts           # tái dùng CartItem/VoucherItem; platform "lazada"
+--- docs/feature-requests/infra/FR-INFRA-002-data-model-foundation.md
+db/migrations/0001_extensions.up.sql
+db/migrations/0001_extensions.down.sql
+db/migrations/0002_platform.up.sql
+db/migrations/0002_platform.down.sql
+db/migrations/0003_app_user_core.up.sql
+db/migrations/0003_app_user_core.down.sql
+db/seed/0001_platform_seed.sql
+db/internal/migrate/migrate.go
+db/internal/migrate/migrate_test.go
+docs/conventions/NAMING-AND-MIGRATIONS.md
+--- docs/feature-requests/infra/FR-INFRA-003-secrets-management.md
+secrets/provider.go
+secrets/vault.go
+secrets/awssm.go
+secrets/cache.go
+secrets/mask.go
+secrets/provider_test.go
+secrets/cache_test.go
+secrets/mask_test.go
+--- docs/feature-requests/infra/FR-INFRA-004-observability-spine.md
+obs/tracing.go
+obs/metrics.go
+obs/logging.go
+obs/middleware.go
+obs/redact.go
+obs/tracing_test.go
+obs/logging_test.go
+obs/redact_test.go
+deploy/grafana/dashboards/overview.json
+--- docs/feature-requests/infra/FR-INFRA-005-per-country-region-config.md
+region/policy.go
+region/loader.go
+region/flags.go
+region/config/countries.yaml
+region/policy_test.go
+region/loader_test.go
+region/flags_test.go
+file_read: region/**
+--- docs/feature-requests/mobile/FR-MOBILE-001-mobile-scaffold.md
+apps/mobile/src/auth/authClient.ts
+apps/mobile/src/auth/tokenStore.ts
+apps/mobile/src/auth/authClient.test.ts
+apps/mobile/src/push/registerDevice.ts
+apps/mobile/src/push/registerDevice.test.ts
+apps/mobile/src/api/httpClient.ts
+apps/mobile/src/api/httpClient.test.ts
+apps/mobile/src/app/RootNavigator.tsx
+apps/mobile/package.json                       # thêm dependency firebase messaging + keychain
+--- docs/feature-requests/mobile/FR-MOBILE-002-mobile-tracking-checkout.md
+apps/mobile/src/track/trackScreen.tsx
+apps/mobile/src/track/priceChart.tsx
+apps/mobile/src/checkout/checkoutAssistant.tsx
+apps/mobile/src/checkout/optimizerClient.ts
+apps/mobile/src/checkout/optimizerClient.test.ts
+apps/mobile/src/track/trackClient.ts
+apps/mobile/src/track/trackClient.test.ts
+apps/mobile/src/app/RootNavigator.tsx           # thêm tab Theo dõi + màn Checkout assistant
+--- docs/feature-requests/mobile/FR-MOBILE-003-deeplink-virality.md
+apps/mobile/src/share/shareLink.ts
+apps/mobile/src/share/shareLink.test.ts
+apps/mobile/src/deeplink/linkHandler.ts
+apps/mobile/src/deeplink/linkHandler.test.ts
+apps/mobile/src/deeplink/pendingReferral.ts
+apps/mobile/src/share/ShareSheet.tsx
+apps/mobile/src/auth/authClient.ts             # gắn pending ref vào luồng đăng ký (FR-BILL-004)
+file_read: apps/mobile/**
+--- docs/feature-requests/notif/FR-NOTIF-001-notification-schema-routing.md
+services/notif/migrations/0001_notification.sql
+services/notif/migrations/0002_user_channel_token.sql
+services/notif/internal/notif/template.go
+services/notif/internal/notif/routing.go
+services/notif/internal/notif/repo.go
+services/notif/internal/notif/template_test.go
+services/notif/internal/notif/routing_test.go
+file_read: services/notif/**
+--- docs/feature-requests/notif/FR-NOTIF-002-fcm-dispatcher.md
+services/notif/internal/fcm/client.go
+services/notif/internal/fcm/message.go
+services/notif/internal/fcm/backoff.go
+services/notif/internal/fcm/dispatcher.go
+services/notif/internal/fcm/quota.go
+services/notif/internal/fcm/client_test.go
+services/notif/internal/fcm/backoff_test.go
+services/notif/internal/fcm/dispatcher_test.go
+services/notif/internal/notif/repo.go            # thêm ClaimPushBatch + MarkSent/MarkFailed + InvalidateToken
+--- docs/feature-requests/notif/FR-NOTIF-003-fanout-pipeline.md
+services/notif/migrations/0003_notification_lease.sql
+services/notif/migrations/0004_notification_dlq.sql
+services/notif/internal/fanout/producer.go
+services/notif/internal/fanout/worker.go
+services/notif/internal/fanout/dispatch.go
+services/notif/internal/fanout/backoff.go
+services/notif/internal/fanout/dlq.go
+services/notif/internal/fanout/worker_test.go
+services/notif/internal/fanout/backoff_test.go
+services/notif/internal/fanout/dispatch_test.go
+--- docs/feature-requests/notif/FR-NOTIF-004-midnight-spike-scheduler.md
+services/notif/internal/notif/scheduler.go
+services/notif/internal/notif/scheduler_test.go
+services/notif/internal/notif/repo.go        # thêm BatchSetScheduledAt(ids, times) ghi scheduled_at hàng loạt
+file_read: services/notif/**
+file_write: services/notif/**
+bash: cd services/notif && go test ./...
+dùng time.Now()/rand toàn cục trực tiếp trong ScheduleAlerts (vi phạm DEC-NOTIF-35, test không tất định)
+--- docs/feature-requests/notif/FR-NOTIF-005-apns-dispatcher.md
+services/notif/internal/apns/client.go
+services/notif/internal/apns/payload.go
+services/notif/internal/apns/jwt.go
+services/notif/internal/apns/pool.go
+services/notif/internal/apns/backoff.go
+services/notif/internal/apns/dispatcher.go
+services/notif/internal/apns/client_test.go
+services/notif/internal/apns/pool_test.go
+services/notif/internal/apns/dispatcher_test.go
+--- docs/feature-requests/notif/FR-NOTIF-006-email-dispatcher.md
+services/notif/internal/email/provider.go
+services/notif/internal/email/ses.go
+services/notif/internal/email/backoff.go
+services/notif/internal/email/dispatcher.go
+services/notif/internal/email/bounce.go
+services/notif/internal/email/provider_test.go
+services/notif/internal/email/backoff_test.go
+services/notif/internal/email/dispatcher_test.go
+services/notif/internal/email/bounce_test.go
+--- docs/feature-requests/notif/FR-NOTIF-007-sms-dispatcher-vn.md
+services/notif/internal/sms/provider.go
+services/notif/internal/sms/speedsms.go
+services/notif/internal/sms/twilio.go
+services/notif/internal/sms/dispatcher.go
+services/notif/internal/sms/guard.go
+services/notif/internal/sms/provider_test.go
+services/notif/internal/sms/dispatcher_test.go
+services/notif/internal/sms/guard_test.go
+services/notif/internal/notif/repo.go            # thêm ClaimSMSBatch + (tái dùng MarkSent/MarkFailed của FR-NOTIF-002)
+--- docs/feature-requests/price/FR-PRICE-001-tracked-product-canonical-key.md
+services/price/migrations/0001_tracked_product.sql
+services/price/internal/price/product.go
+services/price/internal/price/product_repo.go
+services/price/internal/price/product_repo_test.go
+file_read: services/price/**
+file_write: services/price/**
+bash: cd services/price && go test ./...
+--- docs/feature-requests/price/FR-PRICE-002-price-snapshot-hypertable.md
+services/price/migrations/0002_price_snapshot.sql
+services/price/migrations/0003_price_daily_cagg.sql
+services/price/migrations/0004_compression_policy.sql
+services/price/internal/price/snapshot.go
+services/price/internal/price/delta.go
+services/price/internal/price/repo.go
+services/price/internal/price/repo_test.go
+services/price/internal/price/delta_test.go
+services/price/internal/price/types.go            # thêm struct PriceSnapshot
+--- docs/feature-requests/price/FR-PRICE-003-price-history-api.md
+services/price/internal/api/price_history.go
+services/price/internal/api/price_history_test.go
+services/price/internal/price/history_query.go
+services/price/internal/api/router.go            # đăng ký route GET /v1/products/{id}/price-history
+file_read: services/price/**
+file_write: services/price/**
+bash: cd services/price && go test ./...
+--- docs/feature-requests/price/FR-PRICE-004-cross-platform-compare.md
+services/price/internal/api/compare.go
+services/price/internal/api/compare_test.go
+services/price/internal/price/compare_query.go
+services/price/internal/api/router.go            # đăng ký route GET /v1/compare
+file_read: services/price/**
+file_write: services/price/**
+bash: cd services/price && go test ./...
+--- docs/feature-requests/price/FR-PRICE-005-canonical-key-matching.md
+services/price/internal/canon/normalize.go
+services/price/internal/canon/key.go
+services/price/internal/canon/match.go
+services/price/internal/canon/review_queue.go
+services/price/internal/canon/normalize_test.go
+services/price/internal/canon/match_test.go
+services/price/migrations/0005_canonical_review.sql
+services/price/internal/price/product_repo.go   # thêm SetCanonicalKey(productID, key)
+--- docs/feature-requests/scrape/FR-SCRAPE-001-orchestrator-core.md
+services/scrape/internal/orchestrator/scheduler.go
+services/scrape/internal/orchestrator/queue.go
+services/scrape/internal/orchestrator/pool.go
+services/scrape/internal/orchestrator/tier.go
+services/scrape/internal/orchestrator/adapter.go
+services/scrape/internal/orchestrator/scheduler_test.go
+services/scrape/internal/orchestrator/tier_test.go
+services/scrape/internal/orchestrator/pool_test.go
+services/scrape/migrations/0001_scrape_job.sql
+--- docs/feature-requests/scrape/FR-SCRAPE-002-shopee-internal-api-adapter.md
+services/scrape/internal/adapters/shopee/adapter.go
+services/scrape/internal/adapters/shopee/endpoints.go
+services/scrape/internal/adapters/shopee/parse.go
+services/scrape/internal/adapters/shopee/parse_test.go
+services/scrape/internal/adapters/shopee/adapter_test.go
+services/scrape/internal/adapters/shopee/testdata/pdp_get_pc.json
+services/scrape/internal/orchestrator/registry.go     # đăng ký ShopeeAdapter theo platform_id
+file_read: services/scrape/**
+--- docs/feature-requests/scrape/FR-SCRAPE-003-playwright-farm-antifingerprint.md
+services/scrape/farm/src/browser.ts
+services/scrape/farm/src/fingerprint.ts
+services/scrape/farm/src/behavior.ts
+services/scrape/farm/src/render.ts
+services/scrape/farm/src/__tests__/fingerprint.test.ts
+services/scrape/farm/src/__tests__/behavior.test.ts
+services/scrape/farm/src/__tests__/render.test.ts
+services/scrape/farm/src/config.ts                    # thêm profile pool + binding proxy session
+--- docs/feature-requests/scrape/FR-SCRAPE-004-residential-proxy-rotation.md
+services/scrape/internal/proxy/pool.go
+services/scrape/internal/proxy/tier.go
+services/scrape/internal/proxy/costguard.go
+services/scrape/internal/proxy/session.go
+services/scrape/internal/proxy/tier_test.go
+services/scrape/internal/proxy/costguard_test.go
+services/scrape/internal/proxy/pool_test.go
+services/scrape/migrations/0002_proxy_usage.sql
+services/scrape/internal/config/config.go            # thêm provider tiers + ngân sách/ngày
+--- docs/feature-requests/scrape/FR-SCRAPE-005-delta-pacing-captcha.md
+services/scrape/internal/pacing/limiter.go
+services/scrape/internal/captcha/detect.go
+services/scrape/internal/captcha/solver.go
+services/scrape/internal/sink/sink.go
+services/scrape/internal/pacing/limiter_test.go
+services/scrape/internal/captcha/detect_test.go
+services/scrape/internal/sink/sink_test.go
+services/scrape/internal/orchestrator/pool.go         # chèn pacing trước Fetch + sink sau Fetch
+--- docs/feature-requests/scrape/FR-SCRAPE-006-dom-change-monitoring.md
+services/scrape/internal/health/monitor.go
+services/scrape/internal/health/window.go
+services/scrape/internal/health/state.go
+services/scrape/internal/health/alert.go
+services/scrape/internal/health/window_test.go
+services/scrape/internal/health/state_test.go
+services/scrape/internal/health/monitor_test.go
+services/scrape/internal/orchestrator/pool.go         # báo cáo outcome parse vào monitor + đọc health state
+--- docs/feature-requests/scrape/FR-SCRAPE-007-tiktok-shop-adapter.md
+services/scrape/farm/src/adapters/tiktok/adapter.ts
+services/scrape/farm/src/adapters/tiktok/extract.ts
+services/scrape/farm/src/adapters/tiktok/selectors.ts
+services/scrape/farm/src/adapters/tiktok/__tests__/extract.test.ts
+services/scrape/farm/src/adapters/tiktok/__tests__/adapter.test.ts
+services/scrape/farm/src/adapters/tiktok/__tests__/fixtures/pdp.html
+services/scrape/internal/orchestrator/registry.go     # đăng ký TikTokAdapter theo platform_id
+file_read: services/scrape/**
+--- docs/feature-requests/scrape/FR-SCRAPE-008-lazada-adapter.md
+services/scrape/farm/src/adapters/lazada/adapter.ts
+services/scrape/farm/src/adapters/lazada/extract.ts
+services/scrape/farm/src/adapters/lazada/selectors.ts
+services/scrape/farm/src/adapters/lazada/__tests__/extract.test.ts
+services/scrape/farm/src/adapters/lazada/__tests__/adapter.test.ts
+services/scrape/farm/src/adapters/lazada/__tests__/fixtures/pdp.html
+services/scrape/internal/orchestrator/registry.go     # đăng ký LazadaAdapter theo platform_id
+file_read: services/scrape/**
+--- docs/feature-requests/track/FR-TRACK-001-track-product-api.md
+services/track/migrations/0001_user_tracked_product.sql
+services/track/internal/api/track.go
+services/track/internal/track/url_parser.go
+services/track/internal/track/repo.go
+services/track/internal/track/url_parser_test.go
+services/track/internal/api/track_test.go
+services/track/internal/api/router.go            # đăng ký route POST /v1/track
+file_read: services/track/**
+--- docs/feature-requests/track/FR-TRACK-002-wishlist-schema.md
+services/track/migrations/0002_wishlist.sql
+services/track/internal/api/wishlist.go
+services/track/internal/track/wishlist_repo.go
+services/track/internal/track/wishlist_repo_test.go
+services/track/internal/api/wishlist_test.go
+services/track/internal/api/router.go            # đăng ký các route wishlist
+file_read: services/track/**
+file_write: services/track/**
+--- docs/feature-requests/track/FR-TRACK-003-alert-rule-schema.md
+services/track/migrations/0003_alert_rule.sql
+services/track/internal/api/alert_rule.go
+services/track/internal/track/alert_rule_repo.go
+services/track/internal/track/alert_validate.go
+services/track/internal/track/alert_validate_test.go
+services/track/internal/api/alert_rule_test.go
+services/track/internal/api/router.go            # đăng ký các route alert
+file_read: services/track/**
+--- docs/feature-requests/track/FR-TRACK-004-alert-firing-engine.md
+services/track/migrations/0004_alert_fired_state.sql
+services/track/internal/engine/evaluate.go
+services/track/internal/engine/dedup.go
+services/track/internal/engine/handoff.go
+services/track/internal/engine/evaluate_test.go
+services/track/internal/engine/dedup_test.go
+services/track/cmd/tracksvc/main.go            # đăng ký consumer sự kiện price-written
+file_read: services/track/**
+--- docs/feature-requests/trust/FR-TRUST-001-open-source-extension.md
+extension/REPRODUCIBLE-BUILD.md
+extension/DISCLOSURE.md
+extension/scripts/build-deterministic.mjs
+extension/scripts/verify-reproducible.sh
+extension/store/chrome-web-store-listing.md
+extension/.github/workflows/reproducible-publish-gate.yml
+extension/test/disclosure-consistency.test.ts
+extension/build.mjs            # bật cờ deterministic (sort key, bỏ timestamp/path tuyệt đối)
+extension/manifest.json        # thêm homepage_url trỏ repo công khai + version khớp tag
+--- docs/feature-requests/trust/FR-TRUST-002-data-minimization-policy.md
+docs/trust/DATA-MINIMIZATION-POLICY.md
+docs/trust/data-flow.md
+extension/test/policy-allowlist-parity.test.ts
+extension/src/policy/collected-fields.ts
+extension/src/pipeline/allowlist.ts   # export hằng ALLOWED_* để policy test tham chiếu (nguồn sự thật chung)
+file_read: docs/trust/**, extension/**
+file_write: docs/trust/**, extension/**
+bash: cd extension && npm test
+--- docs/feature-requests/trust/FR-TRUST-003-security-audit-hooks.md
+audit/run-security-audit.sh
+audit/egress/egress-guard.test.ts
+audit/egress/network-trap.ts
+audit/sbom/generate-sbom.sh
+audit/sbom/scan-vulnerabilities.sh
+audit/report/audit-report.template.md
+audit/report/build-report.ts
+audit/THIRD-PARTY-AUDIT-GUIDE.md
+extension/.github/workflows/reproducible-publish-gate.yml   # gọi run-security-audit.sh trong gate
+--- docs/feature-requests/trust/FR-TRUST-004-anti-fraud-engine.md
+services/trust/migrations/0001_fraud_signal.sql
+services/trust/migrations/0002_account_link_edge.sql
+services/trust/internal/fraud/velocity.go
+services/trust/internal/fraud/graph.go
+services/trust/internal/fraud/rules.go
+services/trust/internal/fraud/score.go
+services/trust/internal/fraud/score_test.go
+services/trust/internal/fraud/velocity_test.go
+services/trust/internal/fraud/graph_test.go
+--- docs/feature-requests/trust/FR-TRUST-005-attribution-gaming-detection.md
+services/trust/migrations/0003_payout_hold.sql
+services/trust/internal/payout/delay.go
+services/trust/internal/payout/attribution_guard.go
+services/trust/internal/payout/release.go
+services/trust/internal/payout/delay_test.go
+services/trust/internal/payout/attribution_guard_test.go
+services/trust/internal/payout/release_test.go
+services/affil/internal/affil/repo.go   # conversion confirmed -> tạo payout_hold (không trả ngay)
+--- docs/feature-requests/trust/FR-TRUST-006-device-fingerprint-multiaccount.md
+services/trust/migrations/0004_device_fingerprint.sql
+services/trust/internal/fraud/device.go
+services/trust/internal/fraud/device_test.go
+extension/src/fingerprint/collect.ts
+extension/src/fingerprint/hash.ts
+extension/test/fingerprint-no-pii.test.ts
+services/trust/internal/fraud/graph.go   # nhận cạnh 'device' từ device_fingerprint
+file_read: services/trust/**, extension/**
+--- docs/feature-requests/web/FR-WEB-001-nextjs-scaffold.md
+web/package.json
+web/next.config.mjs
+web/middleware.ts
+web/app/layout.tsx
+web/app/(auth)/login/page.tsx
+web/app/(app)/dashboard/page.tsx
+web/app/(app)/layout.tsx
+web/lib/api.ts
+web/lib/auth.ts
+web/components/app-shell.tsx
+--- docs/feature-requests/web/FR-WEB-002-seo-landing.md
+web/app/(marketing)/[keyword]/page.tsx
+web/app/(marketing)/[keyword]/content.ts
+web/app/(marketing)/layout.tsx
+web/app/sitemap.ts
+web/app/robots.ts
+web/lib/seo/jsonld.ts
+web/lib/seo/keywords.ts
+web/test/seo-metadata.test.ts
+web/test/seo-jsonld.test.ts
+web/test/sitemap.test.ts
+--- docs/feature-requests/web/FR-WEB-003-price-chart-ui.md
+web/app/(app)/products/[id]/chart/page.tsx
+web/components/price-chart/price-chart.tsx
+web/components/price-chart/verdict-badge.tsx
+web/components/price-chart/range-selector.tsx
+web/components/price-chart/maturity-notice.tsx
+web/lib/chart/fetch-chart.ts
+web/lib/chart/types.ts
+web/test/price-chart.test.tsx
+web/test/verdict-badge.test.tsx
+web/test/range-selector.test.tsx
+--- docs/feature-requests/web/FR-WEB-004-wishlist-alert-ui.md
+web/app/(app)/wishlist/page.tsx
+web/app/(app)/alerts/page.tsx
+web/components/wishlist/wishlist-panel.tsx
+web/components/wishlist/wishlist-item-row.tsx
+web/components/alerts/alert-form.tsx
+web/components/alerts/alert-list.tsx
+web/lib/wishlist/api.ts
+web/lib/alerts/api.ts
+web/lib/alerts/validate.ts
+web/test/alert-form-validate.test.ts
+--- docs/feature-requests/web/FR-WEB-005-graphql-bff.md
+services/bff/src/schema.graphql
+services/bff/src/server.ts
+services/bff/src/context.ts
+services/bff/src/resolvers/wishlist.ts
+services/bff/src/resolvers/chart.ts
+services/bff/src/loaders/chart-loader.ts
+services/bff/src/security/limits.ts
+services/bff/src/rest-client.ts
+services/bff/test/resolver-auth.test.ts
+services/bff/test/dataloader-n1.test.ts
