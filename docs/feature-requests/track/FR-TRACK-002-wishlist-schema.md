@@ -3,7 +3,7 @@ id: FR-TRACK-002
 title: "Schema + API wishlist / wishlist_item - danh sách mong muốn nhiều cấp với target_price BIGINT VND, CRUD có phân quyền theo chủ sở hữu, FK tới tracked_product"
 module: TRACK
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

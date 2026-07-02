@@ -3,7 +3,7 @@ id: FR-TRACK-003
 title: "Schema + API alert_rule + bảng alert - bốn rule_type (price_below/drop_pct/real_sale/bottom_predicted), channel[] (push/email/sms), active flag; CRUD có phân quyền, validate threshold theo loại"
 module: TRACK
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

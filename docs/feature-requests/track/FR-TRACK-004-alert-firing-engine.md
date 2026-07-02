@@ -3,7 +3,7 @@ id: FR-TRACK-004
 title: "Engine kích hoạt alert - đánh giá alert_rule trên price_snapshot sau mỗi lần ghi giá mới, dedup rising-edge, tạo dòng alert, bàn giao notification (FR-NOTIF-001) - không tự gửi"
 module: TRACK
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

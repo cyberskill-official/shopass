@@ -3,7 +3,7 @@ id: FR-TRACK-001
 title: "POST /v1/track - parse item_url theo sàn -> upsert tracked_product -> enqueue scrape job: API người dùng bắt đầu theo dõi một SKU, idempotent một lần track không nhân bản"
 module: TRACK
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1
