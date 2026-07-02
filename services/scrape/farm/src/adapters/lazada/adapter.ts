@@ -40,10 +40,11 @@ export class LazadaAdapter {
       }
 
       const stateStr = await page.evaluate(() => {
-        const scripts = document.querySelectorAll('script');
-        for (let i = 0; i < scripts.length; i++) {
-          if (scripts[i].innerHTML.includes('window.pageData') || scripts[i].innerHTML.includes('__moduleData__') || scripts[i].innerHTML.includes('pdpTrackingData')) {
-            return scripts[i].innerHTML;
+        const scripts = Array.from(document.querySelectorAll('script'));
+        for (const s of scripts) {
+          const html = s.innerHTML;
+          if (html.includes('window.pageData') || html.includes('__moduleData__') || html.includes('pdpTrackingData')) {
+            return html;
           }
         }
         return null;

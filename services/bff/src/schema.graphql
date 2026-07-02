@@ -1,0 +1,47 @@
+# GraphQL BFF cho web (FR-WEB-005) - chỉ Query (đọc). Ghi vẫn qua REST của
+# FR-TRACK-002/003 (DEC-WEB-25). schema.ts đọc file này lúc khởi động.
+
+type Query {
+  me: User!
+  wishlists: [Wishlist!]! # của caller; track-svc kiểm chủ sở hữu (DEC-WEB-22)
+  productChart(productId: ID!, range: String = "90d"): ChartData!
+}
+
+type User {
+  id: ID!
+  displayName: String
+}
+
+type Wishlist {
+  id: ID!
+  name: String!
+  items: [WishlistItem!]!
+}
+
+type WishlistItem {
+  productId: ID!
+  targetPrice: Int # VND int64, nullable
+  chart(range: String = "90d"): ChartData # nạp qua DataLoader (chống N+1)
+}
+
+# mirror feed FR-DEAL-003 (BFF chỉ chuyển tiếp, không tự tính verdict/median)
+type ChartData {
+  maturity: String!
+  daily: [DailyPoint!]!
+  annotations: Annotations!
+}
+
+type DailyPoint {
+  day: String!
+  minP: Int!
+  maxP: Int!
+  closeP: Int!
+}
+
+type Annotations {
+  median90: Int!
+  trailingMin: Int!
+  verdict: String!
+  accumulating: Boolean!
+  doubleDates: [String!]!
+}

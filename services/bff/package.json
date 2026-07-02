@@ -1,0 +1,21 @@
+{
+  "name": "shopass-bff",
+  "version": "1.0.0",
+  "description": "GraphQL BFF cho web (FR-WEB-005) - đọc-only, đứng sau gateway, ủy quyền REST",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc && cp src/schema.graphql dist/schema.graphql",
+    "test": "tsc && cp src/schema.graphql dist/schema.graphql && node --test dist",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@graphql-tools/schema": "^10.0.0",
+    "dataloader": "^2.2.0",
+    "graphql": "^16.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0"
+  }
+}

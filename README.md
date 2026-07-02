@@ -2,7 +2,17 @@
 
 Nền tảng SaaS-tiện ích săn deal / theo dõi giá / tối ưu mua sắm đa sàn (Shopee + TikTok Shop + Lazada) cho Việt Nam và Đông Nam Á.
 
-Trạng thái: backlog SHIP-READY. 90 Feature Request + 10 NFR đặc tả toàn bộ sản phẩm, mỗi cái đã qua audit độc lập 10/10. Đây là spec để xây - chưa có code; mục tiêu là một người hoặc một agent đọc xong là build được.
+Trạng thái: backlog đầy đủ (90 Feature Request + 10 NFR, mỗi cái qua audit độc lập 10/10) và một phần code đã hiện thực. Vòng lặp lõi chạy được end to end: scrape giá Shopee, lưu vào TimescaleDB, dự báo đáy, bắn cảnh báo, hiển thị biểu đồ. Xem `docs/AUDIT-REPORT.md` (chất lượng, cách chạy test) và `docs/FR-COVERAGE.md` (phần nào thật, phần nào còn stub).
+
+## Chạy nhanh bằng Docker
+
+```
+make env      # tạo deploy/.env
+make up       # dựng cả stack (db + service)
+make smoke    # đi hết vòng lặp lõi và in kết quả
+```
+
+Kỹ sư dev local: [`docs/DEVELOPMENT-GUIDE.md`](docs/DEVELOPMENT-GUIDE.md). Triển khai server (DevOps): [`deploy/README.md`](deploy/README.md). Danh sách lệnh: `make help`.
 
 ## Bắt đầu ở đâu
 

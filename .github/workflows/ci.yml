@@ -68,7 +68,10 @@ jobs:
             db="$(dbfor "$mod")"; url=""
             [ -n "$db" ] && url="postgres://postgres:postgres@localhost:5432/$db?sslmode=disable"
             echo "== $mod (db=${db:-none}) =="
-            ( cd "$mod" && TEST_DB_URL="$url" go vet ./... && TEST_DB_URL="$url" go test ./... )
+            # -p 1: run each module's package test binaries serially. Integration
+            # suites in the same module share one database and would otherwise race
+            # on shared tables (e.g. scrape feeder vs pgqueue on tracked_product).
+            ( cd "$mod" && TEST_DB_URL="$url" go vet ./... && TEST_DB_URL="$url" go test -p 1 ./... )
           done
 
   frontend:

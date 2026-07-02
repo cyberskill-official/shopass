@@ -1,59 +1,126 @@
-# SănDeal deploy stack
+# SănDeal - Hướng dẫn triển khai (DevOps)
 
-A Docker Compose stack that runs the core value loop on real services and a real TimescaleDB: scrape a price, store it, forecast the bottom, fire the alert, notify. Requires Docker with the Compose plugin.
+Tài liệu này hướng dẫn triển khai SănDeal bằng Docker Compose, từng bước, cho môi trường staging/production. Stack chạy vòng lặp lõi trên một Postgres/TimescaleDB thật: scrape giá, lưu, dự báo đáy, bắn cảnh báo, hiển thị biểu đồ.
 
-## Bring it up
+Đối tượng: DevOps/SRE. Kỹ sư dev local xem `docs/DEVELOPMENT-GUIDE.md`.
 
-```
-docker compose -f deploy/docker-compose.yml up -d --build
-```
+## 1. Yêu cầu trên server
 
-This starts:
+- Docker Engine (khuyến nghị 24+) kèm plugin Compose v2. Kiểm tra: `docker compose version`.
+- Git và make (hoặc chạy trực tiếp các lệnh `docker compose`).
+- Tài nguyên tối thiểu gợi ý: 2 vCPU, 4 GB RAM, 20 GB đĩa (Postgres/TimescaleDB, image, dữ liệu giá). Dữ liệu giá tích lũy theo thời gian nên theo dõi dung lượng.
 
-- `db` - Postgres 16 + TimescaleDB
-- `migrate` - one-shot; applies the shared foundation and every service's forward migrations (see `migrate.sh`), then exits
-- `notifsvc` - notification receiver on `:8082/notify`
-- `pricesvc` - price read + ingest API on `:8081`
-- `dealsvc` - nightly bottom-price scorer (cron, 02:00 Asia/Ho_Chi_Minh)
-- `web` - Next.js UI on `:3000`
+## 2. Các thành phần trong stack
 
-Check: `docker compose -f deploy/docker-compose.yml ps` and open `http://localhost:3000`.
+Luôn bật: `db` (Postgres 16 + TimescaleDB), `migrate` (chạy 1 lần rồi thoát), `pricesvc` (API giá + so sánh chéo sàn, cổng 8081), `dealsvc` (cron chấm điểm đáy 02:00 Asia/Ho_Chi_Minh + phục vụ biểu đồ FR-DEAL-003 ở cổng 8082), `notifsvc` (nhận thông báo), `web` (giao diện, cổng 3000), `authsvc` (đăng nhập/refresh + social login, cổng 8084), `tracksvc` (wishlist, cổng 8083), `bff` (GraphQL cho web, cổng 8085).
 
-## Run the loop (one-shot jobs)
+Job chạy theo yêu cầu (profile `jobs`): `scrapesvc` (scrape + hàng đợi bền vững), `mlforecast` (dự báo, có cài CmdStan để chạy Prophet).
 
-The scraper and the forecast job are under the `jobs` profile, run on demand:
+Tất cả service dùng chung một database `shopass`; mỗi bảng có đúng một service sở hữu.
+
+## 3. Cấu hình
 
 ```
-# 1. seed a product to track (the scraper writes price_snapshot for it)
-docker compose -f deploy/docker-compose.yml exec db psql -U postgres -d shopass -c \
-  "INSERT INTO app_user(id) VALUES (999) ON CONFLICT DO NOTHING; \
-   INSERT INTO tracked_product(id, platform_id, platform_item_id, first_seen) \
-     VALUES (100, 1, '555:777', now() - INTERVAL '100 days') ON CONFLICT DO NOTHING; \
-   INSERT INTO alert_rule(user_id, product_id, rule_type, active) VALUES (999,100,'bottom_predicted',true);"
-
-# 2. scrape -> price ingest (SHOPEE_BASE_URL can point at a fixture for a dry run)
-SCRAPE_SEED=100:555:777 docker compose -f deploy/docker-compose.yml run --rm scrapesvc
-
-# 3. forecast -> price_forecast (Prophet for mature SKUs; needs enough history)
-docker compose -f deploy/docker-compose.yml run --rm mlforecast
-
-# 4. fire the nightly score once (instead of waiting for cron)
-docker compose -f deploy/docker-compose.yml run --rm -e RUN_ONCE=1 dealsvc
+git clone <repo-url> shopass
+cd shopass
+make env                 # tạo deploy/.env từ mẫu
 ```
 
-Then inspect `price_snapshot`, `price_forecast`, and `bottom_alert_log` in `db`.
+Mở `deploy/.env` và đặt giá trị thật trước khi lên staging/production:
 
-## Acceptance check
+- `POSTGRES_PASSWORD`: bắt buộc đổi khỏi giá trị mặc định.
+- `POSTGRES_USER`, `POSTGRES_DB`: đổi nếu cần.
+- `DB_PORT`, `PRICE_PORT`, `WEB_PORT`: cổng mở ra host; đổi nếu trùng.
+- `SHOPEE_BASE_URL`, `SCRAPE_SEED`, `HTTPS_PROXY`: cấu hình cho job scrape (proxy dân cư theo FR-SCRAPE-002).
 
-`scripts/smoke_loop.sh` walks one product from a scraped price to a fired alert and asserts the result. Point it at the compose database:
+File `deploy/.env` đã nằm trong `.gitignore` - không commit. `docker compose` tự nạp file này.
+
+## 4. Triển khai
 
 ```
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/shopass?sslmode=disable ./scripts/smoke_loop.sh
+make up                  # build image + chạy toàn bộ service luôn-bật
+make ps                  # kiểm tra: db healthy, migrate đã Exit 0, còn lại Up
 ```
 
-## Notes
+`migrate` chạy đầy đủ chuỗi migration (nền tảng dùng chung + của từng service) lên TimescaleDB thật, gồm cả hypertable `price_snapshot` và continuous aggregate `price_daily`.
 
-- All services share one database (`shopass`); price owns `price_snapshot`, ml owns `price_forecast`, deal reads both. `platform` is seeded by its migration (shopee=1, tiktok=2, lazada=3).
-- The Go build image is `golang:1.25` (matches `go.mod`); bump it if you align to 1.22 per the hygiene note in `docs/AUDIT-REPORT.md`.
-- `mlforecast`'s image installs CmdStan so the mature-SKU Prophet fit works.
-- Not yet in the stack: the durable scrape queue/scheduler (FR-SCRAPE-001), a cron for the scraper and forecast jobs, and the API gateway. Add them once the loop is exercised.
+## 5. Kiểm tra sau triển khai
+
+```
+curl -s http://<host>:8081/v1/products/1/price-history?range=7d   # pricesvc trả JSON
+open http://<host>:3000                                            # web
+make smoke                                                         # đi hết vòng lặp và in kết quả
+```
+
+`make smoke` seed một sản phẩm demo, chạy scrape + deal, rồi in `price_snapshot` và `bottom_alert_log`. Với server không ra được Shopee thật, trỏ `SHOPEE_BASE_URL` sang endpoint fixture để chạy khô.
+
+## 6. Vận hành
+
+Log và trạng thái:
+
+```
+make logs                # hoặc: docker compose -f deploy/docker-compose.yml logs -f <service>
+make ps
+```
+
+Chạy lại migration (idempotent, sau khi cập nhật schema): `make migrate`.
+
+Mở psql: `make psql`.
+
+Sao lưu và phục hồi database:
+
+```
+# backup
+docker compose -f deploy/docker-compose.yml exec -T db pg_dump -U postgres shopass | gzip > backup_$(date +%F).sql.gz
+# restore (stack đang chạy, database rỗng)
+gunzip -c backup_YYYY-MM-DD.sql.gz | docker compose -f deploy/docker-compose.yml exec -T db psql -U postgres -d shopass
+```
+
+Giám sát: thư mục `deploy/grafana/` có sẵn dashboard. Đấu Prometheus/Grafana vào endpoint metrics của các service khi bạn thêm chúng vào compose (chưa nằm trong stack lõi này).
+
+Lên lịch job (quan trọng để hệ tự chạy): `scrapesvc` và `mlforecast` là job một-lần. Đặt cron trên host, hoặc thêm một scheduler (ví dụ ofelia) để chạy định kỳ:
+
+```
+# ví dụ crontab trên host: scrape mỗi 5 phút, dự báo mỗi giờ
+*/5 * * * * cd /srv/shopass && SCRAPE_SEED= docker compose -f deploy/docker-compose.yml run --rm scrapesvc
+0   * * * * cd /srv/shopass && docker compose -f deploy/docker-compose.yml run --rm mlforecast
+```
+
+Hàng đợi `scrape_job` là bền vững trên Postgres, nên chạy chồng hay service chết giữa chừng đều an toàn (lease + reclaim).
+
+Mở rộng: tăng số bản sao service không giữ trạng thái:
+
+```
+docker compose -f deploy/docker-compose.yml up -d --scale pricesvc=3
+```
+
+Cập nhật phiên bản:
+
+```
+git pull
+make up                  # build lại image thay đổi và chạy tiếp; make migrate nếu có migration mới
+```
+
+Dừng và dọn:
+
+```
+make down                # dừng, GIỮ dữ liệu
+make clean               # dừng và XÓA volume dữ liệu (mất toàn bộ dữ liệu)
+```
+
+## 7. Bảo mật
+
+- Đổi `POSTGRES_PASSWORD` và mọi bí mật khỏi giá trị mặc định.
+- Không mở cổng `db` (5432) ra Internet công cộng; chỉ mở cho mạng nội bộ hoặc bỏ ánh xạ cổng nếu không cần truy cập từ host.
+- Đặt một reverse proxy có TLS (Caddy/Nginx/Traefik) trước `web` và `pricesvc`; không phục vụ HTTP trần ra ngoài.
+- Bí mật thật (khóa cổng thanh toán, token proxy) nên đưa qua trình quản lý bí mật hoặc biến môi trường của môi trường triển khai, không ghi vào file trong repo.
+- Tôn trọng các bất biến ở `docs/feature-requests/SHIP-GUIDE.md` (không lưu token phiên sàn phía server, tuân thủ PDPL).
+
+## 8. Ghi chú và giới hạn hiện tại
+
+- Ảnh Go build dùng `golang:1.25` (khớp `go.mod`); nếu hạ về 1.22 theo ghi chú vệ sinh trong `docs/AUDIT-REPORT.md` thì đổi cả ở đây.
+- Ảnh ml cài CmdStan để chạy Prophet cho SKU đã đủ lịch sử; SKU chưa đủ dùng đường prior nhẹ.
+- Chưa nằm trong stack: API gateway đứng trước các service (xác thực JWT tập trung). Hiện `authsvc`, `tracksvc`, `bff` tin `X-User-Id` do gateway chuyển xuống; khi chưa có gateway thật, đặt gateway/reverse-proxy tự gắn header này, hoặc chỉ mở các service qua mạng nội bộ.
+- `authsvc`, `tracksvc`, `bff` nay đã nằm trong compose và build được (đã kiểm bằng `go build`/`npm run build`), nhưng `docker compose up` chưa chạy thử ở môi trường xây dựng vì không có Docker. Còn hai điểm chưa trọn: `bff` trả wishlist nhưng chưa kèm item (cần `tracksvc` nhúng item vào response `GET /v1/wishlists`), và social login chỉ bật khi có `GOOGLE_CLIENT_ID/SECRET` thật.
+- Chuỗi migration `deploy/migrate.sh` (gồm cả `0007_social_identity`) đã được kiểm trên một Postgres thật và áp dụng sạch; `make migrate` tạo cả `social_identity`.
+- Đọc thêm: `docs/AUDIT-REPORT.md` (chất lượng và cách chạy test), `docs/FR-COVERAGE.md` (tính năng thật và phần còn stub).

@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/robfig/cron/v3"
 
+	"shopass/services/deal/internal/api"
 	"shopass/services/deal/internal/batch"
 )
 
@@ -91,6 +92,27 @@ func main() {
 		return
 	}
 
+	// Serve the chart feed over HTTP (FR-DEAL-003), read by the web BFF. This
+	// runs alongside the nightly cron below.
+	dealAddr := os.Getenv("DEAL_ADDR")
+	if dealAddr == "" {
+		dealAddr = ":8082"
+	}
+	chartHandler := api.NewHandler(&chartRepo{pool: pool}, &dealService{pool: pool})
+	mux := http.NewServeMux()
+	api.RegisterRoutes(mux, chartHandler)
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	})
+	httpSrv := &http.Server{Addr: dealAddr, Handler: mux}
+	go func() {
+		log.Info("dealsvc chart http listening", "addr", dealAddr)
+		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("chart http serve", "err", err)
+		}
+	}()
+
 	// Setup Cron with Asia/Ho_Chi_Minh timezone
 	loc, err := time.LoadLocation("Asia/Ho_Chi_Minh")
 	if err != nil {
@@ -132,4 +154,7 @@ func main() {
 
 	log.Info("shutting down")
 	c.Stop()
+	shutdownCtx, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelShutdown()
+	_ = httpSrv.Shutdown(shutdownCtx)
 }

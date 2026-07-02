@@ -13,8 +13,9 @@ function pickPriceFromState(state: any): RawPrice | null {
 
     if (state?.ItemModule) {
       const keys = Object.keys(state.ItemModule);
-      if (keys.length > 0) {
-        const item = state.ItemModule[keys[0]];
+      const firstKey = keys[0];
+      if (firstKey) {
+        const item = state.ItemModule[firstKey];
         if (item?.price?.priceValue) price = Math.round(Number(item.price.priceValue) * VND_UNIT);
         if (item?.price?.originalPriceValue) listPrice = Math.round(Number(item.price.originalPriceValue) * VND_UNIT);
         if (item?.activityInfo?.isFlashSale) flashSale = true;

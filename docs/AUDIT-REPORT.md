@@ -96,3 +96,28 @@ cd web && npm test
 # ml (needs prophet + cmdstan for the full suite)
 cd services/ml && pytest tests/
 ```
+
+## Feature build (2026-07-03) - the three P1 gaps + Lazada
+
+After the rework, four features were built and verified with the same real toolchain. Details and per-feature test counts are in `docs/FR-COVERAGE.md`; this is how to run them.
+
+```
+# FR-PRICE-004 cross-platform compare (5 integration tests) - part of pricesvc
+cd services/price && TEST_DB_URL="postgres://.../shopass_price_test?sslmode=disable" go test -p 1 ./...
+
+# Lazada: Go orchestrator adapter now dispatches to the farm (4 unit tests)
+cd services/scrape && go test ./internal/adapters/lazada/...
+# Lazada/TikTok farm extraction (TypeScript): tsc --noEmit clean; extraction logic verified.
+# The browser-backed farm adapter.test.ts needs Playwright Chromium (not in this sandbox).
+
+# FR-WEB-005 GraphQL BFF (10 tests on Node's built-in runner)
+cd services/bff && npm install && npm test        # runs tsc then node --test
+
+# FR-AUTH-004 social login core (auth unit + Postgres integration)
+cd services/auth && TEST_DB_URL="postgres://.../shopass_auth_test?sslmode=disable" go test -p 1 ./...
+```
+
+Two honesty notes carried over from the sandbox limits above:
+
+- Docker itself is still not run here (there is no Docker in the sandbox). The `deploy/migrate.sh` chain, including the new `0007_social_identity` migration, was replayed against a real Postgres and applies cleanly; a `docker compose up` has not been exercised.
+- The compare endpoint (in `pricesvc`) and the Lazada change (in `scrapesvc`) ride compose services that already exist. The BFF and the auth service are built and tested but are not yet in `docker-compose.yml` - wiring them needs the API gateway and the track service, which are also not in the core stack. `make migrate` does create `social_identity`.
