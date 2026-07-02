@@ -8,16 +8,15 @@ import (
 )
 
 func setupSeeded() *Service {
-	repo := NewRepo()
-	return NewService(repo)
+	return NewService(newMemRepo())
 }
 
 func setTxCount(s *Service, year int, count int64) {
-	s.repo.txCounts[year] = count
+	s.repo.(*memRepo).txCounts[year] = count
 }
 
 func seedThresholdVersion(s *Service, key string, version int, count int64) {
-	s.repo.thresholds[key] = count
+	s.repo.(*memRepo).thresholds[key] = count
 }
 
 func TestThreshold_BelowDoesNotFlag(t *testing.T) {

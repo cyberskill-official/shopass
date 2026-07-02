@@ -16,8 +16,12 @@ type Pool struct {
 	adapters map[int16]PlatformAdapter
 	price    PriceRepo
 	queue    Queue
+	resched  Rescheduler
 	inflight map[int16]chan struct{}
 }
+
+// SetRescheduler enables persisted tier-based rescheduling on successful scrapes.
+func (p *Pool) SetRescheduler(r Rescheduler) { p.resched = r }
 
 func NewPool(cfg Config, price PriceRepo, q Queue) *Pool {
 	p := &Pool{
@@ -78,6 +82,8 @@ func (p *Pool) scheduleRetry(ctx context.Context, job ScrapeJob, err error) erro
 }
 
 func (p *Pool) commit(ctx context.Context, productID int64, tier Tier, nextRun time.Time) error {
-	// In a real implementation this writes to DB
+	if p.resched != nil {
+		return p.resched.Reschedule(ctx, productID, tier, nextRun)
+	}
 	return nil
 }

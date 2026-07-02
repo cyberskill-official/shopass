@@ -2,11 +2,20 @@ package ecom
 
 import "context"
 
-type Service struct {
-	repo *Repo
+// store abstracts the ecom persistence layer so the DB-backed *Repo is used in
+// production and an in-memory fake is used in unit tests (FR-COMPLY-008).
+type store interface {
+	txCount(ctx context.Context, year int) (int64, error)
+	threshold(ctx context.Context, key string) (int64, error)
+	Obligations(ctx context.Context) ([]EcommerceObligation, error)
+	MarkObligation(ctx context.Context, key, status string) error
 }
 
-func NewService(repo *Repo) *Service {
+type Service struct {
+	repo store
+}
+
+func NewService(repo store) *Service {
 	return &Service{repo: repo}
 }
 

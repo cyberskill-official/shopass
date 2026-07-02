@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -41,9 +40,8 @@ func TestSnapshotHandler_CreateSnapshot_Auth(t *testing.T) {
 	body, _ := json.Marshal(payload)
 
 	req := httptest.NewRequest("POST", "/v1/cart/snapshot", bytes.NewReader(body))
-	// Set context with user_id 999
-	ctx := context.WithValue(req.Context(), "user_id", int64(999))
-	req = req.WithContext(ctx)
+	// Gateway injects the authenticated user via header (FR-CART-002).
+	req.Header.Set("X-User-Id", "999")
 
 	rr := httptest.NewRecorder()
 	handler.CreateSnapshot(rr, req)
@@ -74,6 +72,7 @@ func TestSnapshotHandler_CreateSnapshot_InvalidPayload(t *testing.T) {
 	body, _ := json.Marshal(payload)
 
 	req := httptest.NewRequest("POST", "/v1/cart/snapshot", bytes.NewReader(body))
+	req.Header.Set("X-User-Id", "999")
 	rr := httptest.NewRecorder()
 	handler.CreateSnapshot(rr, req)
 

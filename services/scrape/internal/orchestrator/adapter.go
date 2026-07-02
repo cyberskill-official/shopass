@@ -35,3 +35,9 @@ type PlatformAdapter interface {
 type PriceRepo interface {
 	InsertSnapshot(ctx context.Context, snap PriceSnapshot) (bool, error)
 }
+
+// Rescheduler persists the next scrape time and tier after a scrape. It is
+// optional: a Pool without one treats commit as a no-op (in-memory mode).
+type Rescheduler interface {
+	Reschedule(ctx context.Context, productID int64, tier Tier, nextRunAt time.Time) error
+}

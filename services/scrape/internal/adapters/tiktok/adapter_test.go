@@ -13,8 +13,12 @@ func TestTikTokAdapter_PlatformID(t *testing.T) {
 	}
 }
 
+type fakeRenderer struct{}
+
+func (fakeRenderer) Render(ctx context.Context, url string) error { return nil }
+
 func TestTikTokAdapter_Fetch(t *testing.T) {
-	adapter := NewTikTokAdapter()
+	adapter := NewTikTokAdapterWithRenderer(fakeRenderer{})
 	ctx := context.Background()
 	job := orchestrator.ScrapeJob{
 		ProductID:  123,

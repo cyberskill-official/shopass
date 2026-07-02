@@ -31,6 +31,12 @@ func (m mockGatewayClient) CheckStatus(ctx context.Context, orderRef string) (st
 	return "failed", "", nil
 }
 
+type mockSubActivatorRec struct{}
+
+func (mockSubActivatorRec) ActivateSubscription(ctx context.Context, subID int64, duration time.Duration) error {
+	return nil
+}
+
 func TestReconcile(t *testing.T) {
 	repo := &mockPaymentRepoRec{
 		stale: []PaymentRecord{
@@ -39,7 +45,7 @@ func TestReconcile(t *testing.T) {
 		},
 		paid: make(map[int64]string),
 	}
-	job := NewReconcileJob(repo, mockGatewayClient{})
+	job := NewReconcileJob(repo, mockSubActivatorRec{}, mockGatewayClient{})
 	job.Run(context.Background())
 
 	if repo.paid[1] != "tx1" {

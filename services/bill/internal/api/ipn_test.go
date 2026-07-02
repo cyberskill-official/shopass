@@ -45,12 +45,18 @@ func (f fakeSecrets) Get(ctx context.Context, path string) (string, error) {
 	return f[path], nil
 }
 
+type mockSubActivatorIPN struct{}
+
+func (mockSubActivatorIPN) ActivateSubscription(ctx context.Context, subID int64, duration time.Duration) error {
+	return nil
+}
+
 func setupIPN(t *testing.T) (*IPNHandler, *mockPaymentRepoIPN) {
 	repo := &mockPaymentRepoIPN{
 		payments: make(map[int64]*bill.PaymentRecord),
 		byOrderRef: make(map[string]int64),
 	}
-	h := NewIPNHandler(repo, fakeSecrets{})
+	h := NewIPNHandler(repo, mockSubActivatorIPN{}, fakeSecrets{})
 	return h, repo
 }
 

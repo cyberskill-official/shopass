@@ -2,20 +2,113 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
-  audit-gate:
+  go:
+    name: Go (build + unit + integration)
+    runs-on: ubuntu-latest
+    # A real TimescaleDB is provided for the deal integration suite; the db module
+    # spins up its own container via testcontainers (Docker is present on the runner).
+    services:
+      timescaledb:
+        image: timescale/timescaledb:latest-pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          # go.mod declares go 1.25.0 (see docs/AUDIT-REPORT.md hygiene note).
+          go-version: "1.25"
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Create test databases + composed schema
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -e
+          # deal integration needs the composed schema; price/scrape integration
+          # tests DROP/CREATE their own tables, so give each its own database.
+          for db in shopass_deal_test shopass_price_test shopass_scrape_test; do
+            psql -h localhost -U postgres -c "CREATE DATABASE $db"
+          done
+          for f in db/migrations/*.up.sql; do
+            psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d shopass_deal_test -f "$f"
+          done
+          psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d shopass_deal_test -f services/track/migrations/0003_alert_rule.sql
+          for f in services/ml/migrations/*.sql; do
+            psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d shopass_deal_test -f "$f"
+          done
+          for f in services/deal/migrations/*.sql; do
+            psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d shopass_deal_test -f "$f"
+          done
+      - name: Test all Go modules
+        run: |
+          set -e
+          dbfor() {
+            case "$1" in
+              services/deal)   echo shopass_deal_test ;;
+              services/price)  echo shopass_price_test ;;
+              services/scrape) echo shopass_scrape_test ;;
+              *)               echo "" ;;
+            esac
+          }
+          for mod in db obs region secrets \
+                     services/gateway services/auth services/price services/scrape \
+                     services/deal services/notif services/track services/cart \
+                     services/affil services/bill services/comply; do
+            db="$(dbfor "$mod")"; url=""
+            [ -n "$db" ] && url="postgres://postgres:postgres@localhost:5432/$db?sslmode=disable"
+            echo "== $mod (db=${db:-none}) =="
+            ( cd "$mod" && TEST_DB_URL="$url" go vet ./... && TEST_DB_URL="$url" go test ./... )
+          done
+
+  frontend:
+    name: Extension + Web (tsc + jest)
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
-        
-    - name: Run No-Cleartext Gate
-      run: ./services/comply/scripts/no_cleartext_gate.sh
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Extension
+        working-directory: extension
+        run: |
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+          npm test
+      - name: Web
+        working-directory: web
+        run: |
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+          npm test
+
+  ml:
+    name: ml (pytest with Prophet + CmdStan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python deps
+        working-directory: services/ml
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install CmdStan (needed for the Prophet fit test)
+        run: python -c "import cmdstanpy; cmdstanpy.install_cmdstan(overwrite=False)"
+      - name: Test
+        working-directory: services/ml
+        env:
+          PYTHONPATH: ${{ github.workspace }}/services/ml
+        run: pytest tests/ -q

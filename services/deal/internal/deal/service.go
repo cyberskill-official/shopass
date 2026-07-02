@@ -44,7 +44,7 @@ func (s *Service) DetectFakeSale(ctx context.Context, productID int64, currentPr
 	hist, err := s.price.QueryRange(ctx, productID, now-7776000, now)
 	if err != nil {
 		// Log error or fallback, but here we just return error if we can't fetch history
-		return fakesale.VerdictUndefined, err
+		return fakesale.Unknown, err
 	}
 	
 	rawVerdict := fakesale.DetectFakeSale(hist, currentPrice, lp)

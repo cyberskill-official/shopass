@@ -12,12 +12,47 @@ import (
 // PLATFORM_TIKTOK maps to platform_id = 2
 const PLATFORM_TIKTOK int16 = 2
 
-type TikTokAdapter struct {
-	// httpClient, farm config etc.
+// Renderer renders a TikTok product page. Production uses Playwright; unit tests
+// inject a fake so the adapter runs without launching a real browser.
+type Renderer interface {
+	Render(ctx context.Context, url string) error
 }
 
+type playwrightRenderer struct{}
+
+func (playwrightRenderer) Render(ctx context.Context, url string) error {
+	pw, err := playwright.Run()
+	if err != nil {
+		return fmt.Errorf("could not start playwright: %w", err)
+	}
+	defer pw.Stop()
+	browser, err := pw.Chromium.Launch()
+	if err != nil {
+		return fmt.Errorf("could not launch browser: %w", err)
+	}
+	defer browser.Close()
+	page, err := browser.NewPage()
+	if err != nil {
+		return fmt.Errorf("could not create page: %w", err)
+	}
+	if _, err := page.Goto(url); err != nil {
+		return fmt.Errorf("could not goto: %w", err)
+	}
+	return nil
+}
+
+type TikTokAdapter struct {
+	renderer Renderer
+}
+
+// NewTikTokAdapter builds a production adapter backed by Playwright.
 func NewTikTokAdapter() *TikTokAdapter {
-	return &TikTokAdapter{}
+	return &TikTokAdapter{renderer: playwrightRenderer{}}
+}
+
+// NewTikTokAdapterWithRenderer injects a custom renderer (used by unit tests).
+func NewTikTokAdapterWithRenderer(r Renderer) *TikTokAdapter {
+	return &TikTokAdapter{renderer: r}
 }
 
 func (a *TikTokAdapter) PlatformID() int16 {
@@ -25,36 +60,19 @@ func (a *TikTokAdapter) PlatformID() int16 {
 }
 
 func (a *TikTokAdapter) Fetch(ctx context.Context, job orchestrator.ScrapeJob) (orchestrator.PriceSnapshot, error) {
-	fmt.Printf("[TikTokAdapter] dispatching job %d using local Playwright (tier %s)...\n", job.ProductID, job.Tier)
-
-	pw, err := playwright.Run()
-	if err != nil {
-		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not start playwright: %w", err)
-	}
-	defer pw.Stop()
-
-	browser, err := pw.Chromium.Launch()
-	if err != nil {
-		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not launch browser: %w", err)
-	}
-	defer browser.Close()
-
-	page, err := browser.NewPage()
-	if err != nil {
-		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not create page: %w", err)
-	}
-
-	// This is just a conceptual script logic for tiktok products.
-	// Normally we would navigate to tiktok.com/product/job.ProductID
+	// TikTok Shop is a content-commerce SPA (FR-SCRAPE-004): render the product
+	// page in a browser, then read the price from the DOM. DOM parsing is a
+	// deferred integration step; the rendered price is stubbed for now.
 	targetURL := fmt.Sprintf("https://www.tiktok.com/t/%d", job.ProductID)
-	if _, err := page.Goto(targetURL); err != nil {
-		return orchestrator.PriceSnapshot{}, fmt.Errorf("could not goto: %w", err)
+	if a.renderer != nil {
+		if err := a.renderer.Render(ctx, targetURL); err != nil {
+			return orchestrator.PriceSnapshot{}, err
+		}
 	}
-
 	return orchestrator.PriceSnapshot{
 		ProductID: job.ProductID,
 		TS:        time.Now(),
-		Price:     99000, // Conceptually we would parse the DOM: page.Locator(".price").TextContent()
+		Price:     99000,
 		FlashSale: true,
 	}, nil
 }

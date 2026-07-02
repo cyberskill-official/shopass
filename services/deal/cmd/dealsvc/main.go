@@ -75,6 +75,22 @@ func main() {
 	// Initialize batches
 	b := batch.New(pool, log, &httpNotif{url: notifURL})
 
+	// RUN_ONCE=1 triggers a single nightly-score pass and exits (manual/smoke trigger).
+	if os.Getenv("RUN_ONCE") == "1" {
+		var acquired bool
+		if err := pool.QueryRow(ctx, "SELECT pg_try_advisory_lock($1)", nightlyScoreLockKey).Scan(&acquired); err != nil || !acquired {
+			log.Error("run-once: nightly score lock not acquired")
+			os.Exit(1)
+		}
+		defer pool.Exec(ctx, "SELECT pg_advisory_unlock($1)", nightlyScoreLockKey)
+		if err := b.RunNightlyScore(ctx, time.Now()); err != nil {
+			log.Error("run-once nightly score failed", "err", err)
+			os.Exit(1)
+		}
+		log.Info("run-once nightly score completed")
+		return
+	}
+
 	// Setup Cron with Asia/Ho_Chi_Minh timezone
 	loc, err := time.LoadLocation("Asia/Ho_Chi_Minh")
 	if err != nil {

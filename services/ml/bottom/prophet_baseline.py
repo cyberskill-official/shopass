@@ -7,8 +7,14 @@ REGRESSORS = ("is_double_date", "is_payday_window", "flash_sale")
 
 
 import os
-import cmdstanpy
-cmdstanpy.set_cmdstan_path(os.path.expanduser("~/.cmdstan/cmdstan-2.39.0"))
+
+# Use a system CmdStan install only if present; otherwise fall back to the
+# Stan backend bundled with the prophet wheel. Setting a non-existent path at
+# import time crashes every consumer of this package (portability bug).
+_cmdstan_dir = os.path.expanduser("~/.cmdstan/cmdstan-2.39.0")
+if os.path.isdir(_cmdstan_dir):
+    import cmdstanpy
+    cmdstanpy.set_cmdstan_path(_cmdstan_dir)
 
 def build_baseline(seed: int = 42) -> Prophet:
     """Prophet baseline: mùa vụ năm + tháng, regressor double-date/payday/flash (DEC-DEAL-30)."""

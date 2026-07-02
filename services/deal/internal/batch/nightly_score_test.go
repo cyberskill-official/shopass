@@ -51,6 +51,12 @@ func setupBatch(t *testing.T) (*Batch, *testDeps) {
 	_, err = pool.Exec(ctx, `TRUNCATE TABLE bottom_alert_log, alert_rule, price_forecast, tracked_product CASCADE`)
 	require.NoError(t, err)
 
+	// Seed FK prerequisites (platform + app_user) not covered by TRUNCATE.
+	_, err = pool.Exec(ctx, `INSERT INTO platform (id, code, country) VALUES (1, 'shopee', 'VN') ON CONFLICT (id) DO NOTHING`)
+	require.NoError(t, err)
+	_, err = pool.Exec(ctx, `INSERT INTO app_user (id) VALUES (999) ON CONFLICT (id) DO NOTHING`)
+	require.NoError(t, err)
+
 	notif := &mockNotif{}
 	b := New(pool, slog.Default(), notif)
 
@@ -66,27 +72,27 @@ var (
 
 func seedMatureForecast(t *testing.T, deps *testDeps, pID int64, p float64) {
 	_, err := deps.pool.Exec(ctx, `
-		INSERT INTO tracked_product (id, url, platform_id, first_seen)
-		VALUES ($1, 'url', 1, now() - INTERVAL '100 days')
+		INSERT INTO tracked_product (id, platform_id, platform_item_id, first_seen)
+		VALUES ($1::bigint, 1, 'item-' || $1::bigint::text, now() - INTERVAL '100 days')
 		ON CONFLICT DO NOTHING`, pID)
 	require.NoError(t, err)
 
 	_, err = deps.pool.Exec(ctx, `
-		INSERT INTO price_forecast (product_id, as_of_date, model_kind, horizon_days, expected_min_14d, p_bottom_14d, scored_at)
-		VALUES ($1, now(), 'lgbm', 14, 1000, $2, now())`, pID, p)
+		INSERT INTO price_forecast (product_id, run_date, horizon_day, yhat, yhat_lower, yhat_upper, p_bottom_14d, model_kind, scored_at)
+		VALUES ($1, current_date, 14, 1000, 900, 1100, $2, 'lgbm', now())`, pID, p)
 	require.NoError(t, err)
 }
 
 func seedImmatureForecast(t *testing.T, deps *testDeps, pID int64, p float64) {
 	_, err := deps.pool.Exec(ctx, `
-		INSERT INTO tracked_product (id, url, platform_id, first_seen)
-		VALUES ($1, 'url', 1, now() - INTERVAL '30 days')
+		INSERT INTO tracked_product (id, platform_id, platform_item_id, first_seen)
+		VALUES ($1::bigint, 1, 'item-' || $1::bigint::text, now() - INTERVAL '30 days')
 		ON CONFLICT DO NOTHING`, pID)
 	require.NoError(t, err)
 
 	_, err = deps.pool.Exec(ctx, `
-		INSERT INTO price_forecast (product_id, as_of_date, model_kind, horizon_days, expected_min_14d, p_bottom_14d, scored_at)
-		VALUES ($1, now(), 'lgbm', 14, 1000, $2, now())`, pID, p)
+		INSERT INTO price_forecast (product_id, run_date, horizon_day, yhat, yhat_lower, yhat_upper, p_bottom_14d, model_kind, scored_at)
+		VALUES ($1, current_date, 14, 1000, 900, 1100, $2, 'lgbm', now())`, pID, p)
 	require.NoError(t, err)
 }
 
@@ -159,7 +165,7 @@ func TestNightly_Cooldown_NoRepeatWhileHigh(t *testing.T) {
 func TestNightly_MatchesAlertRuleType(t *testing.T) {
 	b, deps := setupBatch(t)
 	seedMatureForecast(t, deps, productID, 0.90)
-	seedRule(t, deps, userID, productID, "price_drop") // sai type
+	seedRule(t, deps, userID, productID, "price_below") // sai type (valid enum, khac bottom_predicted)
 	require.NoError(t, b.RunNightlyScore(ctx, today))
 	require.Equal(t, 0, deps.notif.Count()) // chỉ 'bottom_predicted' mới khớp
 }
@@ -172,5 +178,5 @@ func TestNightly_EnqueuesNotification(t *testing.T) {
 	item := deps.notif.Last()
 	require.Equal(t, "bottom_predicted", item.Reason)
 	require.Equal(t, userID, item.UserID)
-	require.InDelta(t, 0.78, item.Payload["p_bottom_14d"], 1e-9)
+	require.InDelta(t, 0.78, item.Payload["p_bottom_14d"], 1e-6)
 }

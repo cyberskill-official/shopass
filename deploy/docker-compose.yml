@@ -1,0 +1,108 @@
+name: shopass
+
+# Core value loop: scrape a price -> price_snapshot -> forecast -> deal alert -> notify -> web chart.
+# Bring up:   docker compose -f deploy/docker-compose.yml up -d --build
+# Smoke:      SCRAPE_SEED=100:555:777 docker compose -f deploy/docker-compose.yml run --rm scrapesvc
+#             (then see deploy/README.md for the full end-to-end acceptance check)
+
+services:
+  db:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shopass
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shopass"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  migrate:
+    image: postgres:16-alpine
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/shopass?sslmode=disable
+    volumes:
+      - ../db/migrations:/migrations/db:ro
+      - ../services:/migrations/services:ro
+      - ./migrate.sh:/migrate.sh:ro
+    entrypoint: ["sh", "/migrate.sh"]
+    restart: "no"
+
+  notifsvc:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/notif, CMD: ./cmd/notifsvc }
+    environment:
+      PORT: "8082"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  pricesvc:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/price, CMD: ./cmd/pricesvc }
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/shopass?sslmode=disable
+      PRICE_ADDR: ":8081"
+    ports: ["8081:8081"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  dealsvc:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/deal, CMD: ./cmd/dealsvc }
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/shopass?sslmode=disable
+      NOTIFSVC_URL: http://notifsvc:8082/notify
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      notifsvc: { condition: service_started }
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    environment:
+      PRICE_API_BASE: http://pricesvc:8081
+    ports: ["3000:3000"]
+    depends_on:
+      pricesvc: { condition: service_started }
+
+  # --- one-shot jobs: docker compose run --rm <name> ---
+  scrapesvc:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/scrape, CMD: ./cmd/scrapesvc }
+    environment:
+      SHOPEE_BASE_URL: ${SHOPEE_BASE_URL:-https://shopee.vn}
+      PRICE_BASE_URL: http://pricesvc:8081
+      SCRAPE_SEED: ${SCRAPE_SEED:-}
+      DATABASE_URL: postgres://postgres:postgres@db:5432/shopass?sslmode=disable  # durable queue (FR-SCRAPE-001)
+    depends_on:
+      pricesvc: { condition: service_started }
+    restart: "no"
+
+  mlforecast:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.ml
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/shopass?sslmode=disable
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    restart: "no"
+
+volumes:
+  pgdata:
