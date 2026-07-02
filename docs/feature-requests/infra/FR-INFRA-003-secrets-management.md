@@ -3,7 +3,7 @@ id: FR-INFRA-003
 title: "Secrets management - Vault / AWS Secrets Manager, no-secret-in-env/code, rotation, lưu proxy creds + gateway tokens"
 module: INFRA
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P0
 milestone: P0 - slice 1
