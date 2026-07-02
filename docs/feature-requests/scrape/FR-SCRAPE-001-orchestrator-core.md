@@ -3,7 +3,7 @@ id: FR-SCRAPE-001
 title: "Scraping orchestrator lõi - job scheduler + scan-frequency tiering (flash sale: phút; SKU thường: giờ/ngày) + queue + worker pool"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

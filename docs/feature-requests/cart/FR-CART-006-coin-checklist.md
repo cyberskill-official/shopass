@@ -3,7 +3,7 @@ id: FR-CART-006
 title: "Checklist xu/coin - nhắc nhở nhiệm vụ xu hằng ngày (đọc trạng thái hiển thị + hiện checklist), KHÔNG auto-click (tự động hóa xu rủi ro ban High §3.9c); user tự bấm trên sàn"
 module: CART
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

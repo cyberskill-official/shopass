@@ -3,7 +3,7 @@ id: FR-COMPLY-008
 title: "Tuân thủ luật TMĐT VN - Nghị định 52/2013 + 85/2021 (đăng ký MOIT, trách nhiệm sàn, ngưỡng >100.000 giao dịch/năm cho foreign platform); dự thảo Luật TMĐT 2025 (livestream + affiliate)"
 module: COMPLY
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 1

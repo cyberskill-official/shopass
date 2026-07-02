@@ -3,7 +3,7 @@ id: FR-EXT-008
 title: "Content script Lazada - Akamai-aware, đọc DOM giỏ đã render; KHÔNG né/giả Akamai sensor từ client; tái dùng khung reader/normalize/health của FR-EXT-002"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

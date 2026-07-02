@@ -3,7 +3,7 @@ id: FR-TRUST-003
 title: "Hook security audit độc lập - chứng minh KHÔNG gửi cookie/mật khẩu (egress test, SBOM, verify reproducible build); báo cáo audit công khai có thể tái chạy bởi bên thứ ba"
 module: TRUST
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

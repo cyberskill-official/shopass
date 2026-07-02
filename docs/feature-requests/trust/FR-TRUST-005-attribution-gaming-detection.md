@@ -3,7 +3,7 @@ id: FR-TRUST-005
 title: "Phát hiện gaming affiliate attribution + delay payout affiliate để điều tra - giữ payout trong cửa sổ delay + chặn last-click bị thao túng; best practice ngành chống cookie-stuffing/self-referral"
 module: TRUST
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 1

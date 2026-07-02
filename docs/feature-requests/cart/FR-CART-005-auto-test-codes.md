@@ -3,7 +3,7 @@ id: FR-CART-005
 title: "testCodes - thử mã giảm an toàn client-side: sleep random(2.5s,5s) nhịp người, userInitiatedApply CHỈ khi user bấm thử mã (tuân Chrome policy), revert, KHÔNG tự chốt đơn, sort desc; bám pseudo-code §3.5(4)"
 module: CART
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

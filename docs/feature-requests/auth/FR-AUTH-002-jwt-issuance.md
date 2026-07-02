@@ -3,7 +3,7 @@ id: FR-AUTH-002
 title: "JWT access+refresh, claims (user_id, locale, tier), JWKS endpoint, BFF verify"
 module: AUTH
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

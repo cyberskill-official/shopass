@@ -3,7 +3,7 @@ id: FR-EXT-005
 title: "Đồng bộ extension <-> backend - auth bridge đính JWT SănDeal (KHÔNG token sàn), hàng đợi gửi OutboundPayload, WSS giữ SW sống khi cần realtime (không lạm dụng)"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

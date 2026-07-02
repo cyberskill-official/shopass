@@ -3,7 +3,7 @@ id: FR-AFFIL-004
 title: "Guardrails né Honey - KHÔNG cookie-stuffing/dropping/pop-under/auto-redirect/forced-install; bắt buộc hành động người dùng + disclosure; tuân Chrome Web Store policy (cập nhật 3/2025, thực thi 10/06/2025)"
 module: AFFIL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

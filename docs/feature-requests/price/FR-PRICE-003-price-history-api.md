@@ -3,7 +3,7 @@ id: FR-PRICE-003
 title: "GET /v1/products/{id}/price-history - REST trả time-series giá một SKU: đọc price_daily cho phần thân + stitch raw tail từ price_snapshot, p95 <500ms cho biểu đồ"
 module: PRICE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

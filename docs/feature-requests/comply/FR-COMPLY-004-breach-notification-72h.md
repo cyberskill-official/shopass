@@ -3,7 +3,7 @@ id: FR-COMPLY-004
 title: "Quy trình thông báo vi phạm trong 72 giờ - phát hiện -> phân loại -> thông báo cơ quan + chủ thể; đồng hồ đếm ngược từ thời điểm nhận biết (Luật 91/2025)"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

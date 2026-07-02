@@ -3,7 +3,7 @@ id: FR-MOBILE-003
 title: "Deep-link + share-on-sale virality + referral - sinh share link mang referral_code (FR-BILL-004) khi user chia sẻ deal đang sale; mở app từ link (universal/app link) gắn attribution lúc đăng ký; chống self-referral phía client"
 module: MOBILE
 priority: COULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 2

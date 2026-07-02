@@ -3,7 +3,7 @@ id: FR-NOTIF-003
 title: "Fan-out pipeline - producer -> Kafka/Redis Streams -> fan-out worker -> per-channel dispatcher, at-least-once + idempotent (claim/lease trên notification), backoff + jitter + dead-letter queue cho thông báo lỗi"
 module: NOTIF
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

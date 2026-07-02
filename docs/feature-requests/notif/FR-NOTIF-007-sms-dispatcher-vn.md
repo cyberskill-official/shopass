@@ -3,7 +3,7 @@ id: FR-NOTIF-007
 title: "SMS dispatcher cho Việt Nam - SMSProvider abstraction (SpeedSMS/eSMS/VietGuys/Mobifone) + Twilio fallback, brandname đăng ký Cục An toàn thông tin, guard chỉ gửi SMS cho high-value/OTP vì SMS là kênh đắt nhất (push > email > sms), cập nhật notification.status sent|failed"
 module: NOTIF
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

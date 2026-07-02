@@ -3,7 +3,7 @@ id: FR-EXT-003
 title: "Pipeline tối thiểu hóa dữ liệu client - chỉ gửi productId/price/qty về backend; KHÔNG cookie/token/PII; local-first, allowlist whitelist trường + lọc lần hai"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

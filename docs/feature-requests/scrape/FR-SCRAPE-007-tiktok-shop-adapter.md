@@ -3,7 +3,7 @@ id: FR-SCRAPE-007
 title: "TikTok Shop scraping adapter - ưu tiên đọc DOM-render, né API ký (msToken/_signature/X-Bogus), webview/SPA"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

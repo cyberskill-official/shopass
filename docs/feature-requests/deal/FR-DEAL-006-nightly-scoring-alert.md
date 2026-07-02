@@ -3,7 +3,7 @@ id: FR-DEAL-006
 title: "Batch chấm điểm đáy giá hằng đêm + cảnh báo khi P(bottom within 14d) > 0.7 - model-agnostic đọc price_forecast, idempotent 1 alert/SKU/ngày + cooldown chống spam, khớp alert_rule 'bottom_predicted' rồi enqueue notification"
 module: DEAL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

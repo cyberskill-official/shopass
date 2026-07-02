@@ -3,7 +3,7 @@ id: FR-COMPLY-002
 title: "Sổ đăng ký DPIA/TIA - nộp trong 60 ngày từ khi bắt đầu xử lý, cập nhật mỗi 6 tháng; lưu đánh giá tác động + chuyển dữ liệu xuyên biên giới (Luật 91/2025, NĐ 356/2025)"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

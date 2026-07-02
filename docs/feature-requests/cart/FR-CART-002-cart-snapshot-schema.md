@@ -3,7 +3,7 @@ id: FR-CART-002
 title: "Schema cart_snapshot + cart_item - ảnh chụp giỏ hàng nhận từ extension (qty, unit_price BIGINT VND, shop_id), gắn user + platform, là đầu vào optimizer; chỉ dữ liệu tối thiểu hóa, không cookie/token"
 module: CART
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

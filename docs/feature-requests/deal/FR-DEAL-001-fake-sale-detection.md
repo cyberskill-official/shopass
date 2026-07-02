@@ -3,7 +3,7 @@ id: FR-DEAL-001
 title: "Phát hiện sale ảo bằng thống kê - phân loại SALE_AO / SALE_XIN / TAM_DUOC / UNKNOWN từ 90 ngày price_snapshot (median90, p10, trailing_min)"
 module: DEAL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

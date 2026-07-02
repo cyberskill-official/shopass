@@ -3,7 +3,7 @@ id: FR-B2B-004
 title: "Premium API access cho dev/doanh nghiệp - API key có tier (free/pro/enterprise), rate-limit per-key qua gateway, phục vụ market_trend_daily đã ẩn danh, KHÔNG mở raw hay user-level qua API"
 module: B2B
 priority: COULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 2

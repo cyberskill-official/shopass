@@ -3,7 +3,7 @@ id: FR-WEB-005
 title: "GraphQL BFF cho web - một endpoint /graphql truy vấn linh hoạt wishlist + biểu đồ trong một round-trip, resolver ủy quyền cho service REST, DataLoader chống N+1, độ sâu/độ phức tạp có trần"
 module: WEB
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

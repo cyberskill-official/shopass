@@ -3,7 +3,7 @@ id: FR-PRICE-002
 title: "price_snapshot TimescaleDB hypertable - nén + continuous aggregate + delta-only + chunk 7 ngày cho time-series giá tỷ-dòng"
 module: PRICE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

@@ -3,7 +3,7 @@ id: FR-PRICE-005
 title: "Thuật toán matching canonical_key - chuẩn hóa title đa tầng + key xác định + fuzzy pg_trgm + hàng đợi manual-review cho dedup sản phẩm chéo 3 sàn"
 module: PRICE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

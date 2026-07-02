@@ -3,7 +3,7 @@ id: FR-EXT-007
 title: "Content script TikTok Shop - đọc DOM giỏ trong webview/SPA, tránh API ký msToken/_signature/X-Bogus + app attestation; tái dùng khung reader/normalize/health của FR-EXT-002"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

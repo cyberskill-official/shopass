@@ -3,7 +3,7 @@ id: FR-CART-003
 title: "optimizeCart - tối ưu giỏ/voucher/freeship (knapsack-like): filterByMinSpend + chooseBestShopVoucherPerShop + validStack + applyCaps -> combo giảm lớn nhất; bám pseudo-code §3.5(3)"
 module: CART
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

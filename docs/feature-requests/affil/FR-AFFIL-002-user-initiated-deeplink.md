@@ -3,7 +3,7 @@ id: FR-AFFIL-002
 title: "POST /v1/affiliate/link - deep link affiliate CHỈ tạo khi user chủ động bấm 'Mua qua SănDeal'; hiển thị link đích rõ + disclosure; KHÔNG auto-cookie nền (né Honey)"
 module: AFFIL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

@@ -3,7 +3,7 @@ id: FR-NOTIF-004
 title: "Midnight-spike scheduler - flatten the curve cho đỉnh 00:00: jitter [-90s,+180s] rải đều sự kiện, gom bucket theo phút, spread overflow sang phút kế, tránh dồn vào mốc tròn :00/:15/:30/:45, không bao giờ vượt giới hạn 600k/phút của FCM để khỏi ăn 429"
 module: NOTIF
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

@@ -3,7 +3,7 @@ id: FR-PRICE-004
 title: "GET /v1/compare?canonical_key=... - so sánh giá hiện tại cùng một sản phẩm trên 3 sàn (Shopee/TikTok/Lazada) + đánh dấu rẻ nhất phía server cho moat đa sàn"
 module: PRICE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

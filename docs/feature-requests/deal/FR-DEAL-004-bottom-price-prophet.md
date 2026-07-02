@@ -3,7 +3,7 @@ id: FR-DEAL-004
 title: "Dự đoán đáy giá - Prophet baseline với regressor double-date/payday/flash, đọc price_daily, fallback category prior khi cold-start, suy P(đáy trong 14 ngày) và lưu price_forecast cho batch/alert đọc"
 module: DEAL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

@@ -3,7 +3,7 @@ id: FR-NOTIF-002
 title: "FCM Web/Android dispatcher - gửi push qua FCM HTTP v1, token bucket 600k/phút, xử lý 429 RESOURCE_EXHAUSTED bằng backoff + Retry-After, đánh dấu token chết UNREGISTERED, cập nhật notification.status sent|failed"
 module: NOTIF
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

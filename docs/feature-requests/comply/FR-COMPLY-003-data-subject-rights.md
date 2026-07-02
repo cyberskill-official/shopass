@@ -3,7 +3,7 @@ id: FR-COMPLY-003
 title: "Quyền chủ thể dữ liệu (DSAR) - truy cập / sửa / xóa / di chuyển qua API + quy trình; SLA phản hồi, xác minh danh tính (Luật 91/2025)"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

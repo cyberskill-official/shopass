@@ -3,7 +3,7 @@ id: FR-AUTH-005
 title: "Account lifecycle - reset mật khẩu, status active/suspended/deleted, xóa tài khoản thỏa DSAR PDPL"
 module: AUTH
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

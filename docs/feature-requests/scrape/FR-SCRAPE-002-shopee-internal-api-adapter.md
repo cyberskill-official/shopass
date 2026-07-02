@@ -3,7 +3,7 @@ id: FR-SCRAPE-002
 title: "Shopee internal-API adapter - /api/v4/pdp/get_pc + /api/v4/recommend, truy cập is_login:false, parse JSON -> PriceSnapshot"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

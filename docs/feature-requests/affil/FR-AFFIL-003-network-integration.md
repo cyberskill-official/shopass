@@ -3,7 +3,7 @@ id: FR-AFFIL-003
 title: "Tích hợp affiliate network (Involve Asia / Accesstrade) - bảng cấu hình network template + sub_id tracking + last-click attribution + webhook postback ghi conversion (idempotent, có ký xác thực)"
 module: AFFIL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

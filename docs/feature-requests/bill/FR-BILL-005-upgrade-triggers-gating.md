@@ -3,7 +3,7 @@ id: FR-BILL-005
 title: "Trigger upgrade free->Premium (gamified) + feature gating theo tier - cổng kiểm tier ở backend (không tin client), điểm chạm gợi ý nâng cấp đúng lúc, không khóa cứng tính năng miễn phí lõi"
 module: BILL
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

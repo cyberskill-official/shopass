@@ -3,7 +3,7 @@ id: FR-BILL-002
 title: "Tích hợp cổng thanh toán (MoMo / ZaloPay / VNPay / VietQR) - tạo yêu cầu thanh toán theo gateway, ưu tiên QR rẻ hơn thẻ (~1,5-2,5%/giao dịch); adapter chung + ký request, không lưu thông tin thẻ"
 module: BILL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

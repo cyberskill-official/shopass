@@ -3,7 +3,7 @@ id: FR-SCRAPE-004
 title: "Residential proxy rotation + tiering + cost-guard - Bright Data/Oxylabs (enterprise) -> Decodo/SOAX/NetNut (mid) -> IPRoyal (budget); datacenter vô dụng với Cloudflare/Akamai"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

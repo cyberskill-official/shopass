@@ -3,7 +3,7 @@ id: FR-DEAL-003
 title: "GET /v1/products/{id}/chart - feed dữ liệu biểu đồ giá có chú giải tín hiệu deal: thân daily từ price_daily + overlay median90/trailing_min/verdict sale ảo + mốc ngày đôi, p95 <500ms"
 module: DEAL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

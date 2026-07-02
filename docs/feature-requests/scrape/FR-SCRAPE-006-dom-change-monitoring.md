@@ -3,7 +3,7 @@ id: FR-SCRAPE-006
 title: "Giám sát DOM/selector drift (Shopee A/B test) + adapter health + alert khi parse-failure tăng đột biến"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

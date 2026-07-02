@@ -3,7 +3,7 @@ id: FR-EXT-001
 title: "Scaffold extension Manifest V3 + vòng đời service worker ephemeral - state trong chrome.storage, chrome.alarms >=30s (KHÔNG setInterval), host_permissions per-domain sàn"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

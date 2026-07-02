@@ -3,7 +3,7 @@ id: FR-CART-004
 title: "Engine luật stacking per-country - VN cho stack 1 shop + 1 platform + freeship (vd 110k); MY/PH 2025 bỏ stacking, freeship gộp nhóm platform (vd 80k); hiện thực StackRules đọc CountryPolicy (FR-INFRA-005)"
 module: CART
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

@@ -3,7 +3,7 @@ id: FR-AUTH-004
 title: "Social login - OAuth Google/Facebook/Zalo + account linking"
 module: AUTH
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

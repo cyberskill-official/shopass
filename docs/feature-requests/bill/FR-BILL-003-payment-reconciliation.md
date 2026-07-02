@@ -3,7 +3,7 @@ id: FR-BILL-003
 title: "Bảng `payment` (gateway, amount, fee, paid_at, status) + webhook IPN + reconciliation - xác thực IPN, idempotent, khớp số tiền, kích hoạt subscription khi paid"
 module: BILL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

@@ -3,7 +3,7 @@ id: FR-AUTH-003
 title: "`platform_account` liên kết tài khoản sàn, ext_user_ref ẩn danh, UNIQUE(user_id, platform_id), KHÔNG BAO GIỜ lưu token phiên"
 module: AUTH
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

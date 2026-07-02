@@ -3,7 +3,7 @@ id: FR-TRUST-002
 title: "Chính sách minh bạch tối thiểu hóa dữ liệu + xử lý local-first - tài liệu hóa đúng dữ liệu thu thập (chỉ productId/price/qty), neo vào allowlist pipeline làm nguồn sự thật máy kiểm"
 module: TRUST
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

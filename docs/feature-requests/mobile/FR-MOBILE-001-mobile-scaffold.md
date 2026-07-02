@@ -3,7 +3,7 @@ id: FR-MOBILE-001
 title: "Scaffold mobile app (React Native) + auth (JWT của FR-AUTH-002, lưu token trong secure storage) + đăng ký push FCM/APNs (đăng device token về backend cho FR-NOTIF-002/005)"
 module: MOBILE
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 1

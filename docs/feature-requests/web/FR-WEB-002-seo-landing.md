@@ -3,7 +3,7 @@ id: FR-WEB-002
 title: "Landing SEO - trang keyword (cách săn xu Shopee, lịch sale, mã freeship, sale thật hay sale ảo) render SSG/SSR + meta tags + structured data, kéo traffic organic giải bài toán GTM Phase 1"
 module: WEB
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

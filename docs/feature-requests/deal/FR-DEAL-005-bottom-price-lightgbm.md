@@ -3,7 +3,7 @@ id: FR-DEAL-005
 title: "Dự đoán đáy giá bằng LightGBM - feature store thống nhất train/serve, nhãn future_min_price_14d dựng bằng forward-join, cổng >=180 ngày lịch sử (dưới ngưỡng fallback Prophet FR-DEAL-004), giữ chung hợp đồng tín hiệu P(bottom within 14d)"
 module: DEAL
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2

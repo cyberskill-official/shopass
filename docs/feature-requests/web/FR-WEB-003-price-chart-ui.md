@@ -3,7 +3,7 @@ id: FR-WEB-003
 title: "UI biểu đồ lịch sử giá - render p95 <500ms, tiêu thụ feed FR-DEAL-003 (price_daily + overlay median90/trailing_min/verdict sale ảo/mốc ngày đôi), trả lời câu hỏi lõi sale thật hay ảo"
 module: WEB
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

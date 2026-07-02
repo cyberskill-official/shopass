@@ -3,7 +3,7 @@ id: FR-BILL-001
 title: "Schema `subscription` + tier (Premium 29k/49k/79k VND/tháng) + vòng đời - started_at/renews_at, status; giá lưu BIGINT VND, một subscription active mỗi user"
 module: BILL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

@@ -3,7 +3,7 @@ id: FR-WEB-004
 title: "UI quản lý wishlist + alert - màn hình CRUD danh sách mong muốn (target_price) và luật cảnh báo (4 rule_type, channel push/email/sms), tiêu thụ API FR-TRACK-002/003 qua lib/api.ts"
 module: WEB
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

@@ -3,7 +3,7 @@ id: FR-SCRAPE-008
 title: "Lazada scraping adapter - xử lý Akamai (Alibaba), residential bắt buộc, đọc DOM-render"
 module: SCRAPE
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 1

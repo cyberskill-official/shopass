@@ -3,7 +3,7 @@ id: FR-DEAL-002
 title: "Xử lý cold-start cho sale ảo + biểu đồ giá - 3 trạng thái trưởng thành NEW/WARMING/MATURE, category priors làm fallback, cổng baseline 90 ngày trước khi bật tính năng công khai cho 1 SKU"
 module: DEAL
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1

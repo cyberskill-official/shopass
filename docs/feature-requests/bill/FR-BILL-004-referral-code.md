@@ -3,7 +3,7 @@ id: FR-BILL-004
 title: "`referral_code` (code unique, uses) + attribution + hook chống abuse - mỗi user một mã, gắn người được giới thiệu, chặn tự giới thiệu/farming qua hook anti-fraud"
 module: BILL
 priority: SHOULD
-status: ready_to_implement
+status: done
 verify: T
 phase: P2
 milestone: P2 - slice 2
