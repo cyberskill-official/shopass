@@ -3,7 +3,7 @@ id: FR-EXT-002
 title: "Content script Shopee đọc giỏ hàng/voucher trong tab đã đăng nhập (session piggyback) - gọi /api/v4/cart/get cùng cookie first-party; KHÔNG thu thập mật khẩu; token KHÔNG rời client"
 module: EXT
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1
