@@ -218,7 +218,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | FR-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **FR-DEAL-004** | Baseline dự đoán đáy (Prophet, regressor double-date/payday) | MUST | done | FR-PRICE-002, FR-DEAL-002 | 10h |
-| **FR-DEAL-005** | Model LightGBM (>=180d history, target future_min_price_14d) + feature store | SHOULD | ready_to_implement | FR-DEAL-004 | 12h |
+| **FR-DEAL-005** | Model LightGBM (>=180d history, target future_min_price_14d) + feature store | SHOULD | done | FR-DEAL-004 | 12h |
 | **FR-DEAL-006** | Batch scoring đêm + alert (P(bottom trong 14d) > 0.7) | MUST | ready_to_implement | FR-DEAL-004, FR-TRACK-003 | 6h |
 
 ### P2.7 - NOTIF - email + SMS + APNs
