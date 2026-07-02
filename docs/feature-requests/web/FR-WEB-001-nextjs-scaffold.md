@@ -3,7 +3,7 @@ id: FR-WEB-001
 title: "Scaffold Next.js (App Router) + tích hợp auth JWT + shell dashboard - khung web app nền cho mọi màn hình SănDeal, gọi BFF qua JWT của FR-AUTH-002, không tự lưu mật khẩu"
 module: WEB
 priority: MUST
-status: ready_to_implement
+status: done
 verify: T
 phase: P1
 milestone: P1 - slice 1
