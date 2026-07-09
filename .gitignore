@@ -29,3 +29,6 @@ coverage/
 # OS / editor
 .DS_Store
 *.swp
+
+# CyberOS vendored machine + local BRAIN at .cyberos/memory/store (regenerable via init; tenant data). Do not commit.
+.cyberos/

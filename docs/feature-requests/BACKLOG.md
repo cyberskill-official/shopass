@@ -333,3 +333,11 @@ NFR sống dưới [`../non-functional-requirements/<module>/`](../non-functiona
 ---
 
 *Hết BACKLOG SănDeal v0.1.0. Index này phục vụ 3 team song song (Kỹ thuật/Kiến trúc - Kinh doanh/Tài chính - Chiến lược/Rủi ro) và cần cập nhật khi FR đổi status hoặc khi các giả định ở §10 tài liệu nguồn được xác minh.*
+
+## Conventions (CyberOS)
+
+One backlog for both classes: rows are `- [status] FR-ID-slug - title`;
+`class: improvement` rows carry an `(improvement)` suffix, product rows are untagged.
+FR frontmatter `status` is the record of truth; this file is the index.
+
+- improvement programs: see `improvement/` (moved from `docs/improvement/`; class: improvement work - convert items to FRs on pickup)
