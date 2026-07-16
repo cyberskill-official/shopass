@@ -23,7 +23,7 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           # go.mod declares go 1.25.0 (see docs/AUDIT-REPORT.md hygiene note).
@@ -78,8 +78,8 @@ jobs:
     name: Extension + Web (tsc + jest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24.18.0"
       - name: Extension
@@ -99,8 +99,8 @@ jobs:
     name: ml (pytest with Prophet + CmdStan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install Python deps
