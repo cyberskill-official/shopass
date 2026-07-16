@@ -42,14 +42,28 @@ _configure_cmdstan()
 def build_baseline(seed: int = 42) -> Prophet:
     """Prophet baseline: mùa vụ năm + tháng, regressor double-date/payday/flash (DEC-DEAL-30)."""
     np.random.seed(seed)
-    m = Prophet(
-        seasonality_mode="multiplicative",
-        yearly_seasonality=True,
-        weekly_seasonality=False,
-        daily_seasonality=False,
-        mcmc_samples=0,
-        uncertainty_samples=1000,
-    )
+    _configure_cmdstan()
+    # Force CMDSTANPY so Prophet does not silently exhaust backends and crash
+    # with "no attribute 'stan_backend'" when default discovery fails.
+    try:
+        m = Prophet(
+            seasonality_mode="multiplicative",
+            yearly_seasonality=True,
+            weekly_seasonality=False,
+            daily_seasonality=False,
+            mcmc_samples=0,
+            uncertainty_samples=1000,
+            stan_backend="CMDSTANPY",
+        )
+    except Exception:
+        m = Prophet(
+            seasonality_mode="multiplicative",
+            yearly_seasonality=True,
+            weekly_seasonality=False,
+            daily_seasonality=False,
+            mcmc_samples=0,
+            uncertainty_samples=1000,
+        )
     m.add_seasonality(name="monthly", period=30.5, fourier_order=5)
     for r in REGRESSORS:
         m.add_regressor(r)

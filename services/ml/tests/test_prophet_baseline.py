@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from bottom.prophet_baseline import forecast_bottom, _p_bottom_14d
+import pytest
+from bottom.prophet_baseline import forecast_bottom, _p_bottom_14d, build_baseline
 from bottom.features import HORIZON_DAYS
 
 
@@ -11,6 +12,13 @@ def _series(days: int, base: int = 100_000) -> pd.DataFrame:
 
 
 def test_prophet_forecast_shape():
+    # Prove the real shipped entry point works when the Stan backend is healthy.
+    try:
+        m = build_baseline(seed=0)
+        assert getattr(m, "stan_backend", None) is not None
+    except Exception as exc:  # pragma: no cover - environment gate
+        pytest.fail(f"Prophet/CmdStan backend failed to initialize: {exc!r}")
+
     out = forecast_bottom(_series(180))  # MATURE -> fit Prophet
     assert len(out) == HORIZON_DAYS
     assert list(out["horizon_day"]) == list(range(1, 15))

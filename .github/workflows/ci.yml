@@ -113,11 +113,16 @@ jobs:
           python - <<'PY'
           import os
           import cmdstanpy
+          from prophet import Prophet
+
           cmdstanpy.install_cmdstan(overwrite=False)
           path = cmdstanpy.cmdstan_path()
           print(f"CMDSTAN={path}")
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:
               fh.write(f"CMDSTAN={path}\n")
+          # Fail the install step early if Prophet cannot bind CMDSTANPY.
+          m = Prophet(stan_backend="CMDSTANPY")
+          print("prophet_backend", type(m.stan_backend).__name__)
           PY
       - name: Test
         working-directory: services/ml
