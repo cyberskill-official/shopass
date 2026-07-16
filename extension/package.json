@@ -21,5 +21,8 @@
     "jest-environment-jsdom": "^30.4.1",
     "typescript": "^5.9.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "engines": {
+    "node": ">=24"
+  }
 }
