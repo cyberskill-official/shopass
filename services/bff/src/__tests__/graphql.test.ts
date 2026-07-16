@@ -45,7 +45,7 @@ test("anonymous request is rejected on every root field (§1 #7)", async () => {
   assert.equal(rest.chartCalls, 0, "no backend calls for an anonymous request");
 });
 
-test("resolvers delegate to REST and forward the FR-DEAL-003 chart feed shape", async () => {
+test("resolvers delegate to REST and forward the TASK-DEAL-003 chart feed shape", async () => {
   const rest = new FakeRest({ wishlists: twoWishlists() });
   const ctx = contextFromRest("u1", rest);
   const source = `{

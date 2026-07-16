@@ -18,7 +18,7 @@ func NewSnapshotHandler(repo *cart.SnapshotRepo) *SnapshotHandler {
 }
 
 func (h *SnapshotHandler) CreateSnapshot(w http.ResponseWriter, r *http.Request) {
-	// Read user_id from Gateway injected header (FR-CART-002)
+	// Read user_id from Gateway injected header (TASK-CART-002)
 	userIDStr := r.Header.Get("X-User-Id")
 	if userIDStr == "" {
 		http.Error(w, "Unauthorized: missing user_id", http.StatusUnauthorized)
@@ -40,7 +40,7 @@ func (h *SnapshotHandler) CreateSnapshot(w http.ResponseWriter, r *http.Request)
 	// Reject if payload has cookie/token fields via raw unmarshal check
 	// Because we strict unmarshal normally, but to be sure:
 	// In production, we can decode into map[string]interface{} to check forbidden keys first.
-	// But let's trust the struct strictness. Actually the FR says "từ chối hoặc loại bỏ".
+	// But let's trust the struct strictness. Actually the TASK says "từ chối hoặc loại bỏ".
 	// The strict struct `SnapshotPayload` naturally drops unknown fields, which satisfies "loại bỏ".
 
 	snap := &cart.CartSnapshot{

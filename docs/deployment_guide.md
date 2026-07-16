@@ -9,8 +9,8 @@ Tài liệu này cung cấp các bước chi tiết (step-by-step) để bạn c
 Hệ thống yêu cầu các thành phần nền tảng sau:
 
 1. **PostgreSQL 16 + TimescaleDB**: Dùng cho `app_user`, `price_snapshot`, `wishlist`, `cart_snapshot`, v.v. (Nên dùng AWS RDS hoặc dịch vụ managed DB tương tự để dễ cấu hình TimescaleDB).
-2. **Redis & Kafka (hoặc Redis Streams)**: Làm Message Queue cho hệ thống Fan-out notification (FR-NOTIF-003) và caching.
-3. **HashiCorp Vault / AWS Secrets Manager**: Dùng để quản lý secrets (FR-INFRA-003). KHÔNG được lưu cleartext mật khẩu trong mã nguồn hay biến môi trường thông thường.
+2. **Redis & Kafka (hoặc Redis Streams)**: Làm Message Queue cho hệ thống Fan-out notification (TASK-NOTIF-003) và caching.
+3. **HashiCorp Vault / AWS Secrets Manager**: Dùng để quản lý secrets (TASK-INFRA-003). KHÔNG được lưu cleartext mật khẩu trong mã nguồn hay biến môi trường thông thường.
 
 ### Bước 1.1: Chạy Migrations (Khởi tạo Database)
 
@@ -83,7 +83,7 @@ uv sync # Cài đặt dependencies từ requirements.txt / pyproject.toml
 ```
 
 ### Bước 3.2: Cronjob (Batch Scoring)
-Cấu hình Cronjob (hoặc Apache Airflow) chạy vào 00:00 mỗi đêm (FR-DEAL-006):
+Cấu hình Cronjob (hoặc Apache Airflow) chạy vào 00:00 mỗi đêm (TASK-DEAL-006):
 
 ```bash
 # Trong crontab -e của server:
@@ -144,7 +144,7 @@ npm run build
    - Tích chọn: *"This item only uses data for its core functionality"*.
    - Khẳng định KHÔNG bán dữ liệu cá nhân cho bên thứ ba.
 4. **Affiliate Disclosure (Khai báo Tiếp thị liên kết):**
-   - Trong mô tả Cửa hàng, **PHẢI GHI RÕ**: "SănDeal có thể nhận được hoa hồng khi bạn mua sắm qua các liên kết (hoàn toàn do người dùng chủ động click tạo link)". Không dùng auto-cookie-stuffing (chính sách FR-AFFIL-004 đã enforce ở code, nhưng bạn phải ghi rõ trên text).
+   - Trong mô tả Cửa hàng, **PHẢI GHI RÕ**: "SănDeal có thể nhận được hoa hồng khi bạn mua sắm qua các liên kết (hoàn toàn do người dùng chủ động click tạo link)". Không dùng auto-cookie-stuffing (chính sách TASK-AFFIL-004 đã enforce ở code, nhưng bạn phải ghi rõ trên text).
 
 ### Bước 5.4: Nộp duyệt (Publish)
 Nhấn **Submit for Review**. Quá trình review có thể mất từ 1-3 ngày cho lần đầu tiên. Do extension có host permissions rộng, Google có thể review thủ công khá kỹ.
@@ -154,8 +154,8 @@ Nhấn **Submit for Review**. Quá trình review có thể mất từ 1-3 ngày 
 ## Phần 6: Tuân thủ Pháp lý PDPL (Luật 91/2025/QH15)
 
 Trước khi đón user thật, bạn cần đảm bảo các hành động pháp lý thủ công (ngoài code):
-1. **DPIA (Đánh giá Tác động Xử lý Dữ liệu Cá nhân):** Lập hồ sơ DPIA (theo mẫu của Bộ Công An / Cơ quan Bảo vệ Dữ liệu) và nộp trong vòng 60 ngày kể từ khi hệ thống bắt đầu xử lý dữ liệu người dùng (FR-COMPLY-002).
-2. **Quy định 72h:** Chuẩn bị sẵn một kịch bản/quy trình báo cáo khi phát hiện lộ lọt dữ liệu (FR-COMPLY-004).
+1. **DPIA (Đánh giá Tác động Xử lý Dữ liệu Cá nhân):** Lập hồ sơ DPIA (theo mẫu của Bộ Công An / Cơ quan Bảo vệ Dữ liệu) và nộp trong vòng 60 ngày kể từ khi hệ thống bắt đầu xử lý dữ liệu người dùng (TASK-COMPLY-002).
+2. **Quy định 72h:** Chuẩn bị sẵn một kịch bản/quy trình báo cáo khi phát hiện lộ lọt dữ liệu (TASK-COMPLY-004).
 
 ---
 *Chúc bạn triển khai SănDeal thành công! Các bài toán khó nhất về Data model, Anti-bot, Affiliate Compliance và Cấu trúc mã đã được giải quyết triệt để trong source code.*

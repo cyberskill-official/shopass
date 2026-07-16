@@ -9,7 +9,7 @@ phase: P1
 slo: "0 lỗi 'mất state khi SW kill' trong test suite; 0 setInterval/setTimeout-lập-lịch trong service worker; mọi tác vụ trong SW kết thúc <5 phút và mọi fetch <30s; alarm polling >=30s"
 owner: Stephen Cheng (Founder)
 created: 2026-06-27
-related_frs: [FR-EXT-001, FR-EXT-002, FR-EXT-004, FR-EXT-005, FR-EXT-006, FR-EXT-007, FR-EXT-008]
+related_tasks: [TASK-EXT-001, TASK-EXT-002, TASK-EXT-004, TASK-EXT-005, TASK-EXT-006, TASK-EXT-007, TASK-EXT-008]
 source: "docs/... §3.2 (Ràng buộc Manifest V3 & cách kiến trúc vòng quanh: SW ephemeral, chrome.alarms >=30s, no global state, tác vụ nặng đẩy backend)"
 ---
 
@@ -21,31 +21,31 @@ source: "docs/... §3.2 (Ràng buộc Manifest V3 & cách kiến trúc vòng qua
 4. Tác vụ nặng hoặc dài (đọc nhiều tab, đồng bộ khối lượng lớn, tính toán) **MUST** đẩy lên backend; service worker **MUST** giữ vai "đầu đọc nhẹ" và **MUST NOT** chạy vòng lặp làm một sự kiện vượt ngưỡng 5 phút.
 5. Listener sự kiện (`onInstalled`, `onAlarm`, `onMessage`...) **MUST** đăng ký ở top-level đồng bộ khi SW khởi động - **MUST NOT** đăng ký bên trong callback bất đồng bộ (MV3 chỉ giao sự kiện wake cho listener đã đăng ký synchronously).
 6. Mọi `fetch()` trong service worker **MUST** đặt timeout < 30 giây (AbortController) để một request treo không kéo SW bị kill liên đới và mất kết quả.
-7. Tài liệu offscreen (FR-EXT-004) và WebSocket (FR-EXT-005) **MUST** có vòng đời ngắn (mở theo nhu cầu, đóng khi xong); **MUST NOT** mở thường trực để né cơ chế kill - điều đó phá chính ràng buộc ephemeral và lạm dụng tài nguyên.
+7. Tài liệu offscreen (TASK-EXT-004) và WebSocket (TASK-EXT-005) **MUST** có vòng đời ngắn (mở theo nhu cầu, đóng khi xong); **MUST NOT** mở thường trực để né cơ chế kill - điều đó phá chính ràng buộc ephemeral và lạm dụng tài nguyên.
 
 ## §2 - Vì sao ràng buộc này
 
-Vòng đời service worker ephemeral là khác biệt nền tảng lớn nhất giữa Manifest V3 và V2, và là nguồn lỗi extension phổ biến nhất. Code chạy đúng lúc dev (SW còn sống) rồi hỏng trong thực tế khi SW bị kill: state trong biến global mất sạch, `setInterval` chết khi SW ngủ, listener đăng ký trễ bỏ lỡ sự kiện wake. Những lỗi này không tái hiện được trong dev và chỉ lộ ra ở máy người dùng - đắt để phát hiện và sửa. Ràng buộc này biến các quy ước MV3 (state ở chrome.storage, alarms thay setInterval, việc nặng off-device, listener top-level) thành bất biến kiểm chứng được bằng test, áp cho mọi FR-EXT (scaffold, content scripts 3 sàn, offscreen, đồng bộ, consent). Nó là điều kiện độ tin cậy: nếu vi phạm, toàn bộ vòng đọc giỏ - đồng bộ của extension hỏng âm thầm, kéo theo trải nghiệm và niềm tin (§5.4).
+Vòng đời service worker ephemeral là khác biệt nền tảng lớn nhất giữa Manifest V3 và V2, và là nguồn lỗi extension phổ biến nhất. Code chạy đúng lúc dev (SW còn sống) rồi hỏng trong thực tế khi SW bị kill: state trong biến global mất sạch, `setInterval` chết khi SW ngủ, listener đăng ký trễ bỏ lỡ sự kiện wake. Những lỗi này không tái hiện được trong dev và chỉ lộ ra ở máy người dùng - đắt để phát hiện và sửa. Ràng buộc này biến các quy ước MV3 (state ở chrome.storage, alarms thay setInterval, việc nặng off-device, listener top-level) thành bất biến kiểm chứng được bằng test, áp cho mọi TASK-EXT (scaffold, content scripts 3 sàn, offscreen, đồng bộ, consent). Nó là điều kiện độ tin cậy: nếu vi phạm, toàn bộ vòng đọc giỏ - đồng bộ của extension hỏng âm thầm, kéo theo trải nghiệm và niềm tin (§5.4).
 
 ## §3 - Đo lường (measurement)
 
 - Test suite (CI): grep/AST khẳng định không có biến module-global mang state trong `src/background/**`; không có `setInterval(`/`setTimeout(`-lập-lịch trong service worker; listener đăng ký top-level.
 - Test "kill-survive": mô phỏng SW restart (reset module) sau khi ghi state, khẳng định state đọc lại từ `chrome.storage` còn nguyên - đếm số case mất state (mục tiêu 0).
 - Lint rule: cấm `setInterval`/`setTimeout` chu kỳ dài trong thư mục service worker; cấm import API DOM-only vào SW.
-- Metric runtime (tùy chọn, qua FR-EXT-005): đếm số fetch bị abort do timeout (>30s) và số sự kiện gần ngưỡng 5 phút - cảnh báo nếu khác 0.
+- Metric runtime (tùy chọn, qua TASK-EXT-005): đếm số fetch bị abort do timeout (>30s) và số sự kiện gần ngưỡng 5 phút - cảnh báo nếu khác 0.
 - Kiểm alarm: mọi `chrome.alarms.create` có `periodInMinutes >= 0.5` (test đọc tham số).
 
 ## §4 - Verification
 
 - Static test (T): grep/AST trên `src/background/**` + thư mục SW - không global state, không setInterval/setTimeout-lập-lịch, listener top-level, alarm >=30s. Đây là cổng CI bắt buộc cho mọi PR đụng extension.
-- Kill-survive test (T): với mỗi state bền (hàng đợi đồng bộ FR-EXT-005, consent FR-EXT-006, state scaffold FR-EXT-001), `jest.resetModules()` rồi đọc lại từ storage - phải khớp giá trị đã ghi.
-- Timeout test (T): fetch giả treo >30s -> bị AbortController hủy, không kéo SW; kết quả xử lý qua retry (FR-EXT-005).
-- Lifecycle test (T): offscreen (FR-EXT-004) đóng sau khi xong; WSS (FR-EXT-005) không mở top-level thường trực.
-- Cross-FR audit: mỗi FR-EXT có ít nhất một test bám một mệnh đề của NFR này (traceability trong audit từng FR).
+- Kill-survive test (T): với mỗi state bền (hàng đợi đồng bộ TASK-EXT-005, consent TASK-EXT-006, state scaffold TASK-EXT-001), `jest.resetModules()` rồi đọc lại từ storage - phải khớp giá trị đã ghi.
+- Timeout test (T): fetch giả treo >30s -> bị AbortController hủy, không kéo SW; kết quả xử lý qua retry (TASK-EXT-005).
+- Lifecycle test (T): offscreen (TASK-EXT-004) đóng sau khi xong; WSS (TASK-EXT-005) không mở top-level thường trực.
+- Cross-FR audit: mỗi TASK-EXT có ít nhất một test bám một mệnh đề của NFR này (traceability trong audit từng task).
 
 ## §5 - Xử lý khi vi phạm
 
-- Phát hiện global state trong SW (static test đỏ) -> chặn merge; chuyển state sang `storage.ts` (FR-EXT-001) trước khi qua cổng.
+- Phát hiện global state trong SW (static test đỏ) -> chặn merge; chuyển state sang `storage.ts` (TASK-EXT-001) trước khi qua cổng.
 - Phát hiện `setInterval`/`setTimeout`-lập-lịch trong SW -> chặn merge; thay bằng `chrome.alarms` >=30s; nếu cần nhịp <30s, xem lại thiết kế (trần là ràng buộc nền tảng, không vượt được).
 - Kill-survive test đỏ (mất state) -> sev-2; truy module giữ state trong biến global; chuyển qua storage + thêm rehydrate khi wake.
 - Fetch không timeout / sự kiện gần 5 phút -> sev-3; thêm AbortController <30s; tách việc nặng đẩy backend (DEC-EXT-05).

@@ -1,7 +1,7 @@
 {
   "name": "shopass-bff",
   "version": "1.0.0",
-  "description": "GraphQL BFF cho web (FR-WEB-005) - đọc-only, đứng sau gateway, ủy quyền REST",
+  "description": "GraphQL BFF cho web (TASK-WEB-005) - đọc-only, đứng sau gateway, ủy quyền REST",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",

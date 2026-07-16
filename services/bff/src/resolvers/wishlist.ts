@@ -3,7 +3,7 @@ import type { GqlContext } from "../context";
 import type { WishlistItem } from "../types";
 
 function requireUser(ctx: GqlContext): void {
-  // Every resolver requires a user context from the gateway (FR-WEB-005 §1 #7):
+  // Every resolver requires a user context from the gateway (TASK-WEB-005 §1 #7):
   // no personal data for an anonymous request (one that never passed the gateway).
   if (!ctx.userId) {
     throw new GraphQLError("UNAUTHENTICATED", { extensions: { code: "UNAUTHENTICATED" } });

@@ -1,7 +1,7 @@
 // extension/test/test-codes-pacing.test.ts
 import { randomDelayMs } from "../src/content/shared/pacing";
 
-describe("FR-CART-005 Pacing constraint", () => {
+describe("TASK-CART-005 Pacing constraint", () => {
   it("delay nằm trong [2500, 5000)", () => {
     for (let k = 0; k < 100; k++) {
       const d = randomDelayMs();

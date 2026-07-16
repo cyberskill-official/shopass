@@ -8,7 +8,7 @@ type Route struct {
 	IncludesDisclosure   bool
 }
 
-// AssertSingleAffiliatePath khẳng định đúng MỘT route tạo affiliate link (FR-AFFIL-002)
+// AssertSingleAffiliatePath khẳng định đúng MỘT route tạo affiliate link (TASK-AFFIL-002)
 // và mọi response link đều kèm disclosure không rỗng.
 func AssertSingleAffiliatePath(routes []Route) error {
 	linkRoutes := 0

@@ -51,7 +51,7 @@ describe("Lazada Cart Reader", () => {
     expect(msg.items[1].qty).toBe(1);
   });
 
-  test("reader tái dùng normalize/health FR-EXT-002", () => {
+  test("reader tái dùng normalize/health TASK-EXT-002", () => {
     const src = readFileSync(join(__dirname, "../src/content/lazada/cart-reader.ts"), "utf8");
     expect(src).toMatch(/from ["']\.\.\/\.\.\/shared\/normalize["']/);
     expect(src).toMatch(/from ["']\.\.\/\.\.\/shared\/health["']/);

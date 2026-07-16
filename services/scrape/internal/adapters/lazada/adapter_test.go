@@ -9,7 +9,7 @@ import (
 )
 
 // fakeFarm records the job it was handed and returns a canned result, standing
-// in for the real Playwright farm (FR-SCRAPE-003) in unit tests.
+// in for the real Playwright farm (TASK-SCRAPE-003) in unit tests.
 type fakeFarm struct {
 	snap orchestrator.PriceSnapshot
 	err  error

@@ -32,7 +32,7 @@ export async function setJwt(jwt: string | undefined): Promise<void> {
 }
 
 export async function refreshJwt(): Promise<void> {
-  // Logic to refresh JWT using refresh token (from FR-AUTH-002)
+  // Logic to refresh JWT using refresh token (from TASK-AUTH-002)
   // Mocked for now
 }
 

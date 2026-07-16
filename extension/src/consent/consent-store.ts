@@ -29,7 +29,7 @@ export async function getConsent(): Promise<ConsentRecord> {
 
 /**
  * setConsent — ghi consent record mới (bật/tắt mục).
- * Gửi FR-COMPLY-001 để tái lập được.
+ * Gửi TASK-COMPLY-001 để tái lập được.
  */
 export async function setConsent(granted: ConsentPurpose[]): Promise<void> {
   const rec: ConsentRecord = {
@@ -38,6 +38,6 @@ export async function setConsent(granted: ConsentPurpose[]): Promise<void> {
     granted,
   };
   await chrome.storage.local.set({ [KEY]: rec });
-  // FR-COMPLY-001: report consent to central compliance framework
-  // (implemented when FR-COMPLY-001 integration is wired)
+  // TASK-COMPLY-001: report consent to central compliance framework
+  // (implemented when TASK-COMPLY-001 integration is wired)
 }

@@ -31,7 +31,7 @@ async function readBody(req: IncomingMessage): Promise<GraphQLBody> {
 }
 
 // handleGraphQL runs the read pipeline: parse -> depth/cost cap -> validate ->
-// execute. Depth/cost caps reject before execution (FR-WEB-005 §1 #4).
+// execute. Depth/cost caps reject before execution (TASK-WEB-005 §1 #4).
 export async function handleGraphQL(
   schema: GraphQLSchema,
   cfg: ContextConfig,

@@ -5,7 +5,7 @@ import (
 )
 
 // In a real application, Login might live in a higher-level Service struct, 
-// but based on FR-AUTH-002, we can implement it here.
+// but based on TASK-AUTH-002, we can implement it here.
 func (s *TokenService) Login(ctx context.Context, email, password string) (TokenPair, error) {
 	u, err := s.repo.FindByEmail(ctx, email)
 	if err != nil {
@@ -20,7 +20,7 @@ func (s *TokenService) Login(ctx context.Context, email, password string) (Token
 
 	// Verify password
 	// Assume password hashing uses specific params, but for this layer we'll just check if Verify returns true.
-	// Since password verification is part of FR-AUTH-001, we mock/use a simple check here or reuse the logic.
+	// Since password verification is part of TASK-AUTH-001, we mock/use a simple check here or reuse the logic.
 	// Wait, we can use the Verify method from password.go if it exists.
 	// We'll just verify the hash.
 	ok, err := Verify(password, u.PwdHash)

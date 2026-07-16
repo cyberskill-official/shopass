@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-PRICE-001 đặt SLO định lượng cho lớp time-series: query 90 ngày 1 SKU p95 < 500ms ở quy mô >=1 tỷ dòng (qua continuous aggregate `price_daily`), raw 7 ngày p95 < 300ms, storage biến phí <= ~0,1-0,2 USD/user/tháng, throughput ghi >=5.000 INSERT-quyết-định/s, nén >=8x. 6 mệnh đề §1 đều đo được và có verify (load/compression/throughput test). Số khớp §3.8 (mở rộng tỷ-dòng) + §4.1 (unit economics 0,1-0,2 USD). related_frs (FR-PRICE-002/003, FR-DEAL-001, FR-SCRAPE-005) đều resolve. Đạt 10/10 sau một sửa surgical.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-PRICE-001 đặt SLO định lượng cho lớp time-series: query 90 ngày 1 SKU p95 < 500ms ở quy mô >=1 tỷ dòng (qua continuous aggregate `price_daily`), raw 7 ngày p95 < 300ms, storage biến phí <= ~0,1-0,2 USD/user/tháng, throughput ghi >=5.000 INSERT-quyết-định/s, nén >=8x. 6 mệnh đề §1 đều đo được và có verify (load/compression/throughput test). Số khớp §3.8 (mở rộng tỷ-dòng) + §4.1 (unit economics 0,1-0,2 USD). related_tasks (TASK-PRICE-002/003, TASK-DEAL-001, TASK-SCRAPE-005) đều resolve. Đạt 10/10 sau một sửa surgical.
 
 ## §2 - Findings (đã kiểm)
 
@@ -31,7 +31,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm.
 
 ## §3 - Kết luận
 
-SLO đo được, verify được, gắn cơ chế FR-PRICE-002 (hypertable + delta-only + nén) và số nguồn §4.1. Một mâu thuẫn nội bộ frontmatter đã sửa surgical. Score = 10/10. Verdict: PASS.
+SLO đo được, verify được, gắn cơ chế TASK-PRICE-002 (hypertable + delta-only + nén) và số nguồn §4.1. Một mâu thuẫn nội bộ frontmatter đã sửa surgical. Score = 10/10. Verdict: PASS.
 
 ---
 

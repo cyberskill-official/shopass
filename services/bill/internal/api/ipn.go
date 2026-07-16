@@ -103,7 +103,7 @@ func (h *IPNHandler) HandleIPN(w http.ResponseWriter, req *http.Request) {
 	case "paid":
 		h.payments.MarkPaid(req.Context(), p.ID, ipn.TransactionID)
 		if p.SubscriptionID != nil && h.subs != nil {
-			// Activate Subscription (FR-BILL-001) for 1 month
+			// Activate Subscription (TASK-BILL-001) for 1 month
 			if err := h.subs.ActivateSubscription(req.Context(), *p.SubscriptionID, 30*24*time.Hour); err != nil {
 				log.Printf("ERROR: failed to activate subscription id=%d: %v", *p.SubscriptionID, err)
 			}

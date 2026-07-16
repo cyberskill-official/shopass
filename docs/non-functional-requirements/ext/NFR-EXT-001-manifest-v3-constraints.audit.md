@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-EXT-001 khóa cứng ràng buộc Manifest V3 (§3.2 nguồn) thành bất biến độ tin cậy cho toàn module EXT: service worker ephemeral, no global state (dùng chrome.storage), chrome.alarms periodInMinutes >=0.5 (>=30s) thay setInterval, tác vụ nặng đẩy backend, listener top-level đồng bộ, fetch timeout <30s, offscreen/WSS vòng đời ngắn. 7 mệnh đề §1 đều đo được (static/AST grep, kill-survive test, đọc periodInMinutes) và có verify. SLO định lượng rõ (0 mất-state, 0 setInterval-lập-lịch, fetch <30s, sự kiện <5 phút). related_frs (FR-EXT-001/002/004/005/006/007/008) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-EXT-001 khóa cứng ràng buộc Manifest V3 (§3.2 nguồn) thành bất biến độ tin cậy cho toàn module EXT: service worker ephemeral, no global state (dùng chrome.storage), chrome.alarms periodInMinutes >=0.5 (>=30s) thay setInterval, tác vụ nặng đẩy backend, listener top-level đồng bộ, fetch timeout <30s, offscreen/WSS vòng đời ngắn. 7 mệnh đề §1 đều đo được (static/AST grep, kill-survive test, đọc periodInMinutes) và có verify. SLO định lượng rõ (0 mất-state, 0 setInterval-lập-lịch, fetch <30s, sự kiện <5 phút). related_tasks (TASK-EXT-001/002/004/005/006/007/008) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm;
 
 ## §3 - Kết luận
 
-NFR phủ đúng §3.2 và áp xuyên 7 FR-EXT (scaffold -> content scripts 3 sàn -> offscreen -> đồng bộ -> consent). Mỗi clause đo được + verify được bằng static + kill-survive test; SLO định lượng; §5 phân sev rõ. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+NFR phủ đúng §3.2 và áp xuyên 7 TASK-EXT (scaffold -> content scripts 3 sàn -> offscreen -> đồng bộ -> consent). Mỗi clause đo được + verify được bằng static + kill-survive test; SLO định lượng; §5 phân sev rõ. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

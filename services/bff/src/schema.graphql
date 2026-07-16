@@ -1,5 +1,5 @@
-# GraphQL BFF cho web (FR-WEB-005) - chỉ Query (đọc). Ghi vẫn qua REST của
-# FR-TRACK-002/003 (DEC-WEB-25). schema.ts đọc file này lúc khởi động.
+# GraphQL BFF cho web (TASK-WEB-005) - chỉ Query (đọc). Ghi vẫn qua REST của
+# TASK-TRACK-002/003 (DEC-WEB-25). schema.ts đọc file này lúc khởi động.
 
 type Query {
   me: User!
@@ -24,7 +24,7 @@ type WishlistItem {
   chart(range: String = "90d"): ChartData # nạp qua DataLoader (chống N+1)
 }
 
-# mirror feed FR-DEAL-003 (BFF chỉ chuyển tiếp, không tự tính verdict/median)
+# mirror feed TASK-DEAL-003 (BFF chỉ chuyển tiếp, không tự tính verdict/median)
 type ChartData {
   maturity: String!
   daily: [DailyPoint!]!

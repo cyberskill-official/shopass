@@ -17,7 +17,7 @@ func OptimizeCart(items []CartItem, vouchers Vouchers, rules StackRules) Optimiz
 	for _, pv := range platformOptions { // platformVoucher + [none]
 		for _, fs := range freeshipOptions { // freeship + [none]
 			shopCombo := chooseBestShopVoucherPerShop(applicableShop, items) // tốt nhất per shop
-			if !rules.ValidStack(pv, fs, shopCombo) {                        // luật per-country (FR-CART-004)
+			if !rules.ValidStack(pv, fs, shopCombo) {                        // luật per-country (TASK-CART-004)
 				continue
 			}
 			if !meetsMinSpend(shopCombo, pv, fs, items) { // ngưỡng đơn

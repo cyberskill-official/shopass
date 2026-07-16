@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại, không dựa audit co-author cũ. NFR-INFRA-001 đặt SLO hiệu năng định lượng và đo được: p95 < 300ms cho đọc cache, p95 < 500ms cho dữ liệu biểu đồ giá, đo tại gateway và tách theo route-class. 6 mệnh đề §1 đều có ngưỡng số (300ms, 500ms, 600ms write, cảnh báo khi vượt > 5 phút) và mỗi mệnh đề khóa có phương pháp verify (load test seed >=1 tỷ dòng, regression gate CI, alert production). Con số khớp §3.8 nguồn (p95 < 300ms đọc cache; biểu đồ < 500ms). related_frs (FR-INFRA-001/004, FR-PRICE-003, FR-DEAL-003, FR-WEB-003) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại, không dựa audit co-author cũ. NFR-INFRA-001 đặt SLO hiệu năng định lượng và đo được: p95 < 300ms cho đọc cache, p95 < 500ms cho dữ liệu biểu đồ giá, đo tại gateway và tách theo route-class. 6 mệnh đề §1 đều có ngưỡng số (300ms, 500ms, 600ms write, cảnh báo khi vượt > 5 phút) và mỗi mệnh đề khóa có phương pháp verify (load test seed >=1 tỷ dòng, regression gate CI, alert production). Con số khớp §3.8 nguồn (p95 < 300ms đọc cache; biểu đồ < 500ms). related_tasks (TASK-INFRA-001/004, TASK-PRICE-003, TASK-DEAL-003, TASK-WEB-003) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần (hyphen, "->", ">="), tiếng Việt đủ dấ
 
 ## §3 - Kết luận
 
-SLO định lượng, đo được, có gate CI + alert production, nối FR-INFRA-004 (đo) và FR-PRICE-002 (đạt ngưỡng biểu đồ qua continuous aggregate). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+SLO định lượng, đo được, có gate CI + alert production, nối TASK-INFRA-004 (đo) và TASK-PRICE-002 (đạt ngưỡng biểu đồ qua continuous aggregate). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

@@ -1,6 +1,6 @@
 // Command scrapesvc wires the real Shopee adapter to the price ingest endpoint.
 //
-// With DATABASE_URL set it uses the durable Postgres queue (FR-SCRAPE-001):
+// With DATABASE_URL set it uses the durable Postgres queue (TASK-SCRAPE-001):
 // SCRAPE_SEED jobs are enqueued, then all due jobs for the platform are drained.
 // Without a database it falls back to an in-memory one-shot over SCRAPE_SEED.
 package main
@@ -41,7 +41,7 @@ func main() {
 	ctx := context.Background()
 
 	// http.Transport uses ProxyFromEnvironment, so HTTPS_PROXY wires the
-	// residential proxy required by FR-SCRAPE-002.
+	// residential proxy required by TASK-SCRAPE-002.
 	httpClient := &http.Client{Timeout: 15 * time.Second}
 	adapter := shopee.NewShopeeAdapter(shopeeBase, httpClient, nil)
 	pc := priceclient.New(priceBase, 10*time.Second)

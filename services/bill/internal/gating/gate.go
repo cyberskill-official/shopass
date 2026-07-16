@@ -9,7 +9,7 @@ import (
 
 var ErrLimitReached = errors.New("feature limit reached")
 
-// We mock SubscriptionService interface for now to rely on FR-BILL-001 concepts
+// We mock SubscriptionService interface for now to rely on TASK-BILL-001 concepts
 type SubscriptionService interface {
 	GetActive(ctx context.Context, userID int64) (bill.Subscription, bool, error)
 }

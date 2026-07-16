@@ -22,7 +22,7 @@ type PaymentRepo interface {
 	InsertPending(ctx context.Context, orderRef string, userID int64, amount int64, gateway string)
 }
 
-// Dummy auth until FR-INFRA-001 integration
+// Dummy auth until TASK-INFRA-001 integration
 func userIDFromContext(ctx context.Context) int64 {
 	return 1
 }
@@ -59,7 +59,7 @@ func NewHandler(plans PlanCatalog, gateways *pay.Registry, payments PaymentRepo)
 }
 
 func (h *Handler) HandleCheckout(w http.ResponseWriter, req *http.Request) {
-	userID := userIDFromContext(req.Context()) // mock FR-INFRA-001
+	userID := userIDFromContext(req.Context()) // mock TASK-INFRA-001
 	var body struct {
 		PlanTier string `json:"plan_tier"`
 		Gateway  string `json:"gateway"`
@@ -68,7 +68,7 @@ func (h *Handler) HandleCheckout(w http.ResponseWriter, req *http.Request) {
 		writeErr(w, 400, "invalid body")
 		return
 	}
-	plan, ok := h.plans.ByTier(req.Context(), body.PlanTier) // FR-BILL-001
+	plan, ok := h.plans.ByTier(req.Context(), body.PlanTier) // TASK-BILL-001
 	if !ok {
 		writeErr(w, 400, "unknown plan")
 		return

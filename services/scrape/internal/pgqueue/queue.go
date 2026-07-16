@@ -1,4 +1,4 @@
-// Package pgqueue is a durable Postgres-backed work queue (FR-SCRAPE-001)
+// Package pgqueue is a durable Postgres-backed work queue (TASK-SCRAPE-001)
 // implementing orchestrator.Queue via SELECT ... FOR UPDATE SKIP LOCKED and a
 // lease (scrape_job.locked_until). It replaces the in-memory queue in production.
 package pgqueue

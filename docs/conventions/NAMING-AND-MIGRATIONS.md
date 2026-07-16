@@ -1,4 +1,4 @@
-# Naming Conventions and Migrations (FR-INFRA-002)
+# Naming Conventions and Migrations (TASK-INFRA-002)
 
 ## Naming Conventions
 - Table names must be `snake_case`, singular (e.g., `app_user`, not `app_users`).

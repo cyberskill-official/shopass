@@ -32,8 +32,8 @@ export interface Annotations {
   doubleDates: string[];
 }
 
-// Mirror of the FR-DEAL-003 chart feed. The BFF forwards this shape unchanged;
-// it does not compute verdict/median itself (FR-WEB-005 §1 #9).
+// Mirror of the TASK-DEAL-003 chart feed. The BFF forwards this shape unchanged;
+// it does not compute verdict/median itself (TASK-WEB-005 §1 #9).
 export interface ChartData {
   maturity: string;
   daily: DailyPoint[];

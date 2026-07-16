@@ -98,7 +98,7 @@ func TestGetByCanonicalKey(t *testing.T) {
 	ctx := context.Background()
 	a, _ := r.Upsert(ctx, TrackedProduct{PlatformID: plat, PlatformItemID: "i-1"})
 	c, _ := r.Upsert(ctx, TrackedProduct{PlatformID: plat, PlatformItemID: "i-2"})
-	// mô phỏng FR-PRICE-005 gán cùng canonical_key
+	// mô phỏng TASK-PRICE-005 gán cùng canonical_key
 	r.pool.Exec(ctx, `UPDATE tracked_product SET canonical_key='k-xyz' WHERE id = ANY($1)`,
 		[]int64{a.ID, c.ID})
 	rows, err := r.GetByCanonicalKey(ctx, "k-xyz")
@@ -113,7 +113,7 @@ func TestCanonicalKey_NullOnInsert(t *testing.T) {
 	r, plat := setupRepoWithPlatform(t)
 	ctx := context.Background()
 	out, _ := r.Upsert(ctx, TrackedProduct{PlatformID: plat, PlatformItemID: "i-9"})
-	require.Nil(t, out.CanonicalKey) // FR này KHÔNG điền canonical_key
+	require.Nil(t, out.CanonicalKey) // TASK này KHÔNG điền canonical_key
 }
 
 func TestGetByIDAndFindByPlatformItem(t *testing.T) {

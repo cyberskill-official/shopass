@@ -13,7 +13,7 @@ export const chartResolvers = {
       }
       // Through the same DataLoader as WishlistItem.chart, so a dashboard query
       // that asks for a wishlist and a standalone chart of the same product hits
-      // the backend once (FR-WEB-005 §1 #3). The BFF forwards the FR-DEAL-003 feed
+      // the backend once (TASK-WEB-005 §1 #3). The BFF forwards the TASK-DEAL-003 feed
       // shape unchanged - it does not compute verdict/median (§1 #9).
       return ctx.loaders.chart.load({ productId: args.productId, range: args.range ?? "90d" });
     },

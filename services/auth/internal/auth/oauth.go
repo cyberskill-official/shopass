@@ -36,7 +36,7 @@ type SocialRepo interface {
 	CreateSocialUser(ctx context.Context, email, locale string) (int64, error)
 }
 
-// TokenIssuer issues the shared TokenPair of FR-AUTH-002 (DEC-AUTH-20): social
+// TokenIssuer issues the shared TokenPair of TASK-AUTH-002 (DEC-AUTH-20): social
 // login goes down the same session path as password login. *TokenService fits.
 type TokenIssuer interface {
 	IssueTokenPair(ctx context.Context, userID int64) (TokenPair, error)

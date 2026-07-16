@@ -2,8 +2,8 @@ import { GraphQLError } from "graphql";
 import type { ChartData, User, Wishlist } from "./types";
 
 // RestClient is the only way resolvers reach data. Resolvers MUST NOT touch the
-// DB directly (FR-WEB-005 §1 #2 / DEC-WEB-22): ownership checks (anti-IDOR) live
-// in track-svc (FR-TRACK-002/003), and the chart feed in deal-svc (FR-DEAL-003).
+// DB directly (TASK-WEB-005 §1 #2 / DEC-WEB-22): ownership checks (anti-IDOR) live
+// in track-svc (TASK-TRACK-002/003), and the chart feed in deal-svc (TASK-DEAL-003).
 // One interface so tests inject a fake and the server injects an HTTP client.
 export interface RestClient {
   getMe(): Promise<User>;
@@ -12,7 +12,7 @@ export interface RestClient {
 }
 
 // neutralError maps an upstream failure to a GraphQL error that never leaks
-// another user's resource (FR-WEB-005 §1 #10). A 403/404 from a REST service
+// another user's resource (TASK-WEB-005 §1 #10). A 403/404 from a REST service
 // (e.g. an IDOR attempt caught by track-svc) becomes an opaque NOT_FOUND; a
 // network/5xx failure becomes a generic server error, not swallowed silently.
 function neutralError(status: number | null, what: string): GraphQLError {
@@ -25,8 +25,8 @@ function neutralError(status: number | null, what: string): GraphQLError {
 }
 
 // HttpRestClient forwards the gateway-provided identity and request id downstream
-// (FR-WEB-005 §1 #1, #8): x-user-id lets each REST service enforce ownership,
-// x-request-id keeps one trace across services (FR-INFRA-004).
+// (TASK-WEB-005 §1 #1, #8): x-user-id lets each REST service enforce ownership,
+// x-request-id keeps one trace across services (TASK-INFRA-004).
 export class HttpRestClient implements RestClient {
   constructor(
     private readonly userId: string | null,

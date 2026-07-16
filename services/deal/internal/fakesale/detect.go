@@ -5,7 +5,7 @@ package fakesale
 // Mọi so ngưỡng dùng integer-safe math trên int64 (DEC-DEAL-03).
 func DetectFakeSale(hist []int64, current, list int64) Verdict {
     if len(hist) < minHistoryPoints {
-        return Unknown // cold-start, bàn giao FR-DEAL-002
+        return Unknown // cold-start, bàn giao TASK-DEAL-002
     }
     median90 := percentile(hist, 50)
     p10 := percentile(hist, 10)

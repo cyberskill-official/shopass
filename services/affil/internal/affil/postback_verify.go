@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-// SecretReader is an interface for reading secrets from Vault (FR-INFRA-003).
+// SecretReader is an interface for reading secrets from Vault (TASK-INFRA-003).
 type SecretReader interface {
 	Get(ctx context.Context, keyPath string) (string, error)
 }

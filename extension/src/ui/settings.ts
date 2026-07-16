@@ -33,7 +33,7 @@ for (const t of TOGGLES) {
   document.getElementById(t.id)?.addEventListener("change", save);
 }
 
-// DSAR link (FR-COMPLY-003)
+// DSAR link (TASK-COMPLY-003)
 document.getElementById("link-dsar")?.addEventListener("click", (e) => {
   e.preventDefault();
   // Opens DSAR request page (URL configured when backend is deployed)

@@ -60,7 +60,7 @@ func (a *TikTokAdapter) PlatformID() int16 {
 }
 
 func (a *TikTokAdapter) Fetch(ctx context.Context, job orchestrator.ScrapeJob) (orchestrator.PriceSnapshot, error) {
-	// TikTok Shop is a content-commerce SPA (FR-SCRAPE-004): render the product
+	// TikTok Shop is a content-commerce SPA (TASK-SCRAPE-004): render the product
 	// page in a browser, then read the price from the DOM. DOM parsing is a
 	// deferred integration step; the rendered price is stubbed for now.
 	targetURL := fmt.Sprintf("https://www.tiktok.com/t/%d", job.ProductID)

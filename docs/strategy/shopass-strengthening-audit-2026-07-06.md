@@ -2,7 +2,7 @@
 
 Date: 2026-07-06. Scope: full repo (services, db, secrets, obs, region, web, extension, deploy, CI, docs) plus market research. Goal: make the product production-ready and turn it into a client/lead machine. 58 recommendations (R1-R58), each with evidence, action, effort (S = under a day, M = days, L = a week or more), and impact.
 
-Companion docs: `docs/AUDIT-REPORT.md` (code quality, honest), `docs/FR-COVERAGE.md` (74/90 FRs have code; every external touchpoint is a stub). This report does not repeat them; it tells you what to do next and why.
+Companion docs: `docs/AUDIT-REPORT.md` (code quality, honest), `docs/TASK-COVERAGE.md` (74/90 tasks have code; every external touchpoint is a stub). This report does not repeat them; it tells you what to do next and why.
 
 ---
 
@@ -34,7 +34,7 @@ Confirmed by direct inspection, correcting a few subagent claims:
 | Backups manual only | `deploy/README.md` §6 documents hand-run pg_dump; no schedule, no WAL archiving, no restore drill |
 | Go version drift | code on Go 1.25 while `SHIP-GUIDE.md` mandates 1.22 |
 
-Strengths worth keeping and marketing: Argon2 password hashing and OAuth PKCE in authsvc, per-tenant-safe parameterized SQL, TimescaleDB hypertable + continuous aggregate + compression-after-30d, durable Postgres scrape queue with lease/reclaim, honest FR-status discipline, and the extension's consent model - which is exactly the artifact the post-Honey market wants to see.
+Strengths worth keeping and marketing: Argon2 password hashing and OAuth PKCE in authsvc, per-tenant-safe parameterized SQL, TimescaleDB hypertable + continuous aggregate + compression-after-30d, durable Postgres scrape queue with lease/reclaim, honest TASK-status discipline, and the extension's consent model - which is exactly the artifact the post-Honey market wants to see.
 
 ## 3. Market context (research, 2026-07)
 
@@ -157,7 +157,7 @@ R50. Zalo OA + Telegram deal channels: publish the top-N daily "real drops" from
 
 R51. TikTok content engine: short videos of "sale thật hay ảo" verdicts during sale events (7.7, 8.8, 9.9, 11.11, 12.12) using your own charts as the visual; deal-hunting content is native to the exact audience TikTok Shop grew on. Effort M ongoing, impact high.
 
-R52. Referral program surface: FR-BILL-004 referral logic exists server-side; expose codes + reward status in the dashboard and in alert footers ("mời bạn, cả hai nhận Premium"). Effort M, impact medium-high.
+R52. Referral program surface: TASK-BILL-004 referral logic exists server-side; expose codes + reward status in the dashboard and in alert footers ("mời bạn, cả hai nhận Premium"). Effort M, impact medium-high.
 
 R53. Launch calendar: press kit for GenK/Tinh tế/Tiên Phong (they all covered BeeCost), VOZ + Reddit r/Vietnam + Facebook deal-hunting groups, an English Product Hunt launch for the open-source extension, timed to the next big sale day (next double-day after readiness: 8.8 or 9.9). Effort M, impact high.
 

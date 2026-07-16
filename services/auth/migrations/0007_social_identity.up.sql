@@ -1,5 +1,5 @@
 -- services/auth/migrations/0007_social_identity.up.sql
--- Links an OAuth/OIDC identity provider subject to an app_user (FR-AUTH-004).
+-- Links an OAuth/OIDC identity provider subject to an app_user (TASK-AUTH-004).
 CREATE TABLE social_identity (
   id         BIGSERIAL   PRIMARY KEY,
   user_id    BIGINT      NOT NULL REFERENCES app_user(id),

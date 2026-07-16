@@ -92,7 +92,7 @@ func main() {
 		return
 	}
 
-	// Serve the chart feed over HTTP (FR-DEAL-003), read by the web BFF. This
+	// Serve the chart feed over HTTP (TASK-DEAL-003), read by the web BFF. This
 	// runs alongside the nightly cron below.
 	dealAddr := os.Getenv("DEAL_ADDR")
 	if dealAddr == "" {
@@ -121,7 +121,7 @@ func main() {
 	}
 	c := cron.New(cron.WithLocation(loc))
 
-	// Register nightly score (FR-DEAL-006): runs at 02:00
+	// Register nightly score (TASK-DEAL-006): runs at 02:00
 	_, err = c.AddFunc("0 2 * * *", func() {
 		// Use advisory lock to prevent overlapping
 		var acquired bool

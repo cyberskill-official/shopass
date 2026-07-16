@@ -84,7 +84,7 @@ make test-web     # extension + web (jest)
 make test-ml      # ml (pytest)
 ```
 
-Các test tích hợp cần database sẽ tự bỏ qua khi biến `TEST_DB_URL` chưa được đặt. Để chạy chúng, trỏ `TEST_DB_URL` vào một database test riêng cho từng nhóm (deal, price, scrape, auth), vì các test này tự tạo/xóa bảng của chúng. Cách CI làm là tạo `shopass_deal_test`, `shopass_price_test`, `shopass_scrape_test` riêng - xem `.github/workflows/ci.yml`. Social login (FR-AUTH-004) có test tích hợp trong module `auth`; trỏ `TEST_DB_URL` vào một database auth riêng để chạy.
+Các test tích hợp cần database sẽ tự bỏ qua khi biến `TEST_DB_URL` chưa được đặt. Để chạy chúng, trỏ `TEST_DB_URL` vào một database test riêng cho từng nhóm (deal, price, scrape, auth), vì các test này tự tạo/xóa bảng của chúng. Cách CI làm là tạo `shopass_deal_test`, `shopass_price_test`, `shopass_scrape_test` riêng - xem `.github/workflows/ci.yml`. Social login (TASK-AUTH-004) có test tích hợp trong module `auth`; trỏ `TEST_DB_URL` vào một database auth riêng để chạy.
 
 GraphQL BFF (`services/bff`) là service Node, không nằm trong `make test`. Chạy test riêng: `cd services/bff && npm install && npm test` (chạy `tsc` rồi `node --test`).
 
@@ -104,4 +104,4 @@ Sửa code nhưng không thấy đổi: build lại image bằng `make up` (đã
 
 Muốn làm sạch hoàn toàn (kể cả dữ liệu): `make clean` rồi `make up`.
 
-Kiến trúc và phạm vi tính năng hiện có: xem `docs/AUDIT-REPORT.md` và `docs/FR-COVERAGE.md`. Triển khai lên server: xem `deploy/README.md`.
+Kiến trúc và phạm vi tính năng hiện có: xem `docs/AUDIT-REPORT.md` và `docs/TASK-COVERAGE.md`. Triển khai lên server: xem `deploy/README.md`.

@@ -392,7 +392,7 @@ Extension đọc cookie phiên Shopee/TikTok/Lazada dễ bị nghi là scam. -> 
 ---
 
 ## 7. SRS (yêu cầu chức năng & phi chức năng - tóm tắt)
-- **FR**: track sản phẩm; lịch sử giá; alert đa kênh; phát hiện sale ảo; dự đoán đáy; tối ưu giỏ/voucher; auto-test mã; checklist xu; so sánh chéo sàn; affiliate deep link (user-initiated); cashback; B2B reports.
+- **task**: track sản phẩm; lịch sử giá; alert đa kênh; phát hiện sale ảo; dự đoán đáy; tối ưu giỏ/voucher; auto-test mã; checklist xu; so sánh chéo sàn; affiliate deep link (user-initiated); cashback; B2B reports.
 - **NFR**: xem mục 3.8 (p95 < 300ms, 99,5% SLA, bảo mật no-cleartext, PDPL compliance, observability).
 - **Architecture/Data model/Algorithms/API**: mục 3.1-3.7.
 

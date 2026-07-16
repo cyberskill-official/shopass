@@ -23,7 +23,7 @@ type NotifRepo interface {
 }
 
 // Dispatcher consumes queued push notifications and sends them via FCM.
-// It is a downstream consumer of the fan-out pipeline (FR-NOTIF-003).
+// It is a downstream consumer of the fan-out pipeline (TASK-NOTIF-003).
 type Dispatcher struct {
 	client     *Client
 	repo       NotifRepo

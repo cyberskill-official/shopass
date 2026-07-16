@@ -13,7 +13,7 @@ import (
 type ChartResponse struct {
     ProductID   int64              `json:"product_id"`
     Range       string             `json:"range"`
-    Maturity    string             `json:"maturity"` // MATURE | WARMING | NEW (FR-DEAL-002)
+    Maturity    string             `json:"maturity"` // MATURE | WARMING | NEW (TASK-DEAL-002)
     Daily       []chart.DailyPoint `json:"daily"`
     Annotations chart.Annotations  `json:"annotations"`
 }
@@ -86,9 +86,9 @@ func (h *Handler) HandleChart(w http.ResponseWriter, req *http.Request) {
         daily = []chart.DailyPoint{}
     }
     ann := chart.Build(daily, from, to)
-    mat := h.deal.Maturity(req.Context(), id)        // FR-DEAL-002
+    mat := h.deal.Maturity(req.Context(), id)        // TASK-DEAL-002
     ann.Accumulating = mat == "WARMING"
-    ann.Verdict = h.deal.Verdict(req.Context(), id)  // FR-DEAL-001
+    ann.Verdict = h.deal.Verdict(req.Context(), id)  // TASK-DEAL-001
     if mat == "NEW" {
         ann.Verdict = "UNKNOWN" // <14 ngày: không kết luận (DEC-DEAL-23)
     }

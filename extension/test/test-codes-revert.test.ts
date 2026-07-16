@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as pacing from "../src/content/shared/pacing";
 
-describe("FR-CART-005 Revert constraint", () => {
+describe("TASK-CART-005 Revert constraint", () => {
   beforeEach(() => {
     jest.spyOn(pacing, "sleep").mockResolvedValue(); // don't sleep in revert tests
   });

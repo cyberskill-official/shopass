@@ -40,7 +40,7 @@ func TestSnapshotHandler_CreateSnapshot_Auth(t *testing.T) {
 	body, _ := json.Marshal(payload)
 
 	req := httptest.NewRequest("POST", "/v1/cart/snapshot", bytes.NewReader(body))
-	// Gateway injects the authenticated user via header (FR-CART-002).
+	// Gateway injects the authenticated user via header (TASK-CART-002).
 	req.Header.Set("X-User-Id", "999")
 
 	rr := httptest.NewRecorder()

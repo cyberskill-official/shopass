@@ -12,7 +12,7 @@ Tài liệu này hướng dẫn triển khai SănDeal bằng Docker Compose, t�
 
 ## 2. Các thành phần trong stack
 
-Luôn bật: `db` (Postgres 16 + TimescaleDB), `migrate` (chạy 1 lần rồi thoát), `pricesvc` (API giá + so sánh chéo sàn, cổng 8081), `dealsvc` (cron chấm điểm đáy 02:00 Asia/Ho_Chi_Minh + phục vụ biểu đồ FR-DEAL-003 ở cổng 8082), `notifsvc` (nhận thông báo), `web` (giao diện, cổng 3000), `authsvc` (đăng nhập/refresh + social login, cổng 8084), `tracksvc` (wishlist, cổng 8083), `bff` (GraphQL cho web, cổng 8085).
+Luôn bật: `db` (Postgres 16 + TimescaleDB), `migrate` (chạy 1 lần rồi thoát), `pricesvc` (API giá + so sánh chéo sàn, cổng 8081), `dealsvc` (cron chấm điểm đáy 02:00 Asia/Ho_Chi_Minh + phục vụ biểu đồ TASK-DEAL-003 ở cổng 8082), `notifsvc` (nhận thông báo), `web` (giao diện, cổng 3000), `authsvc` (đăng nhập/refresh + social login, cổng 8084), `tracksvc` (wishlist, cổng 8083), `bff` (GraphQL cho web, cổng 8085).
 
 Job chạy theo yêu cầu (profile `jobs`): `scrapesvc` (scrape + hàng đợi bền vững), `mlforecast` (dự báo, có cài CmdStan để chạy Prophet).
 
@@ -31,7 +31,7 @@ Mở `deploy/.env` và đặt giá trị thật trước khi lên staging/produc
 - `POSTGRES_PASSWORD`: bắt buộc đổi khỏi giá trị mặc định.
 - `POSTGRES_USER`, `POSTGRES_DB`: đổi nếu cần.
 - `DB_PORT`, `PRICE_PORT`, `WEB_PORT`: cổng mở ra host; đổi nếu trùng.
-- `SHOPEE_BASE_URL`, `SCRAPE_SEED`, `HTTPS_PROXY`: cấu hình cho job scrape (proxy dân cư theo FR-SCRAPE-002).
+- `SHOPEE_BASE_URL`, `SCRAPE_SEED`, `HTTPS_PROXY`: cấu hình cho job scrape (proxy dân cư theo TASK-SCRAPE-002).
 
 File `deploy/.env` đã nằm trong `.gitignore` - không commit. `docker compose` tự nạp file này.
 
@@ -114,7 +114,7 @@ make clean               # dừng và XÓA volume dữ liệu (mất toàn bộ 
 - Không mở cổng `db` (5432) ra Internet công cộng; chỉ mở cho mạng nội bộ hoặc bỏ ánh xạ cổng nếu không cần truy cập từ host.
 - Đặt một reverse proxy có TLS (Caddy/Nginx/Traefik) trước `web` và `pricesvc`; không phục vụ HTTP trần ra ngoài.
 - Bí mật thật (khóa cổng thanh toán, token proxy) nên đưa qua trình quản lý bí mật hoặc biến môi trường của môi trường triển khai, không ghi vào file trong repo.
-- Tôn trọng các bất biến ở `docs/feature-requests/SHIP-GUIDE.md` (không lưu token phiên sàn phía server, tuân thủ PDPL).
+- Tôn trọng các bất biến ở `docs/tasks/SHIP-GUIDE.md` (không lưu token phiên sàn phía server, tuân thủ PDPL).
 
 ## 8. Ghi chú và giới hạn hiện tại
 
@@ -123,4 +123,4 @@ make clean               # dừng và XÓA volume dữ liệu (mất toàn bộ 
 - Chưa nằm trong stack: API gateway đứng trước các service (xác thực JWT tập trung). Hiện `authsvc`, `tracksvc`, `bff` tin `X-User-Id` do gateway chuyển xuống; khi chưa có gateway thật, đặt gateway/reverse-proxy tự gắn header này, hoặc chỉ mở các service qua mạng nội bộ.
 - `authsvc`, `tracksvc`, `bff` nay đã nằm trong compose và build được (đã kiểm bằng `go build`/`npm run build`), nhưng `docker compose up` chưa chạy thử ở môi trường xây dựng vì không có Docker. Còn hai điểm chưa trọn: `bff` trả wishlist nhưng chưa kèm item (cần `tracksvc` nhúng item vào response `GET /v1/wishlists`), và social login chỉ bật khi có `GOOGLE_CLIENT_ID/SECRET` thật.
 - Chuỗi migration `deploy/migrate.sh` (gồm cả `0007_social_identity`) đã được kiểm trên một Postgres thật và áp dụng sạch; `make migrate` tạo cả `social_identity`.
-- Đọc thêm: `docs/AUDIT-REPORT.md` (chất lượng và cách chạy test), `docs/FR-COVERAGE.md` (tính năng thật và phần còn stub).
+- Đọc thêm: `docs/AUDIT-REPORT.md` (chất lượng và cách chạy test), `docs/TASK-COVERAGE.md` (tính năng thật và phần còn stub).

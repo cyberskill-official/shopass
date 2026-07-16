@@ -9,7 +9,7 @@ phase: P1
 slo: "Query lịch sử 90 ngày 1 SKU p95 < 500ms ở quy mô >=1 tỷ dòng; storage time-series <= ~0,1-0,2 USD/user/tháng (biến phí, §4.1)"
 owner: Stephen Cheng (Founder)
 created: 2026-06-27
-related_frs: [FR-PRICE-002, FR-PRICE-003, FR-DEAL-001, FR-SCRAPE-005]
+related_tasks: [TASK-PRICE-002, TASK-PRICE-003, TASK-DEAL-001, TASK-SCRAPE-005]
 source: "docs/... §3.8 (NFR khả năng mở rộng), §3.4 (lý do hypertable/partitioning), §4.1 (unit economics)"
 ---
 
@@ -17,7 +17,7 @@ source: "docs/... §3.8 (NFR khả năng mở rộng), §3.4 (lý do hypertable/
 
 1. Ở quy mô >=1 tỷ dòng `price_snapshot` (hàng triệu SKU x snapshot delta-only), query lịch sử 90 ngày của 1 SKU qua continuous aggregate `price_daily` **MUST** đạt p95 < 500ms.
 2. Query raw `price_snapshot` cho 1 SKU trong 7 ngày gần nhất **MUST** đạt p95 < 300ms (chạm tối đa ~1-2 chunk).
-3. Storage time-series (sau nén) **MUST** giữ biến phí <= ~0,1-0,2 USD/user/tháng theo unit economics §4.1 - đạt qua delta-only (FR-PRICE-002 #4) + nén columnar 30 ngày (#5).
+3. Storage time-series (sau nén) **MUST** giữ biến phí <= ~0,1-0,2 USD/user/tháng theo unit economics §4.1 - đạt qua delta-only (TASK-PRICE-002 #4) + nén columnar 30 ngày (#5).
 4. Tỷ lệ nén trên chunk cũ hơn 30 ngày **SHOULD** đạt >= 8x (segmentby `product_id`, giá tương quan cao).
 5. Ghi snapshot (delta-only path) **MUST** đạt throughput >= 5.000 INSERT-quyết-định/giây/node để theo kịp scraping farm 3 sàn lúc flash sale.
 6. Retention + compression policy **MUST** chạy tự động; không có chunk raw nào tồn tại quá 18 tháng.

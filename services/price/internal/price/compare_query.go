@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// CompareRow is one platform's current price for a canonical_key (FR-PRICE-004).
-// platform has only a `code` column (FR-INFRA-002 owns id/code/country/base_url) -
+// CompareRow is one platform's current price for a canonical_key (TASK-PRICE-004).
+// platform has only a `code` column (TASK-INFRA-002 owns id/code/country/base_url) -
 // there is no `name`, so the display name is derived from `code` server-side.
 type CompareRow struct {
 	PlatformCode string
@@ -61,7 +61,7 @@ func scanCompareRows(rows pgx.Rows) ([]CompareRow, error) {
 }
 
 // DisplayName derives the human-facing platform name from platform.code, since
-// the schema (FR-INFRA-002) has no name column. Server-side so web and app show
+// the schema (TASK-INFRA-002) has no name column. Server-side so web and app show
 // the same label (DEC-PRICE-42 spirit: one source of truth).
 func DisplayName(code string) string {
 	switch code {

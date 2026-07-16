@@ -53,7 +53,7 @@ func (r *pgRepo) InsertUser(ctx context.Context, u AppUser) (int64, error) {
 }
 
 func (r *pgRepo) FindByEmail(ctx context.Context, email string) (AppUser, error) {
-	// COALESCE phone/pwd_hash so a social-only account (FR-AUTH-004: pwd_hash NULL,
+	// COALESCE phone/pwd_hash so a social-only account (TASK-AUTH-004: pwd_hash NULL,
 	// no phone yet) reads back cleanly into the string fields of AppUser.
 	query := `
 		SELECT id, email, COALESCE(phone, ''), locale, status, COALESCE(pwd_hash, ''), referral_code_id

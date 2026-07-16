@@ -22,7 +22,7 @@ func (r *Repo) UnexportedPoolForTest() *pgxpool.Pool {
 }
 
 // Upsert chèn SKU mới hoặc cập nhật metadata khi (platform_id, platform_item_id) đã có.
-// canonical_key KHÔNG được ghi ở đây - để NULL, FR-PRICE-005 điền sau.
+// canonical_key KHÔNG được ghi ở đây - để NULL, TASK-PRICE-005 điền sau.
 // first_seen KHÔNG bị nhánh DO UPDATE ghi đè (giữ mốc cold-start).
 func (r *Repo) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduct, error) {
 	var out TrackedProduct
@@ -95,7 +95,7 @@ func (r *Repo) GetByCanonicalKey(ctx context.Context, key string) ([]TrackedProd
 	return scanProducts(rows)
 }
 
-// SetCanonicalKey ghi canonical_key ngược, idempotent. (FR-PRICE-005)
+// SetCanonicalKey ghi canonical_key ngược, idempotent. (TASK-PRICE-005)
 func (r *Repo) SetCanonicalKey(ctx context.Context, productID int64, key string) error {
 	if key == "" {
 		return fmt.Errorf("canonical_key cannot be empty")

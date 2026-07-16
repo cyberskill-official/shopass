@@ -11,6 +11,6 @@ type TrackedProduct struct {
 	ShopID         *string   `db:"shop_id"`
 	Title          *string   `db:"title"`
 	CategoryID     *int64    `db:"category_id"`
-	CanonicalKey   *string   `db:"canonical_key"` // nil khi chưa so khớp (FR-PRICE-005 điền)
+	CanonicalKey   *string   `db:"canonical_key"` // nil khi chưa so khớp (TASK-PRICE-005 điền)
 	FirstSeen      time.Time `db:"first_seen"`
 }

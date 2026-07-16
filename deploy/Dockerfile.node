@@ -1,5 +1,5 @@
 # Node service image (build context = repo root). Used by the GraphQL BFF
-# (services/bff, FR-WEB-005). ARG SERVICE selects which service under services/.
+# (services/bff, TASK-WEB-005). ARG SERVICE selects which service under services/.
 ARG SERVICE=bff
 
 FROM node:22-slim AS build

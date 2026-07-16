@@ -1,4 +1,4 @@
--- Dead-letter queue for notifications (FR-NOTIF-003)
+-- Dead-letter queue for notifications (TASK-NOTIF-003)
 CREATE TABLE notification_dlq (
   id              BIGSERIAL   PRIMARY KEY,
   notification_id BIGINT      NOT NULL REFERENCES notification(id),

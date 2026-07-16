@@ -68,7 +68,7 @@ func (p *Pool) runOne(ctx context.Context, job ScrapeJob) error {
 	if err != nil {
 		return p.scheduleRetry(ctx, job, err) // tăng attempts + backoff
 	}
-	written, err := p.price.InsertSnapshot(ctx, snap) // delta-only (FR-PRICE-002)
+	written, err := p.price.InsertSnapshot(ctx, snap) // delta-only (TASK-PRICE-002)
 	if err != nil {
 		return p.scheduleRetry(ctx, job, err)
 	}

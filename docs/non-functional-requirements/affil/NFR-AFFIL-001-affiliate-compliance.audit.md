@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-AFFIL-001 đặt ràng buộc compliance định lượng và kiểm được: mô hình affiliate hợp lệ DUY NHẤT là user chủ động bấm -> deep link disclosure (URL đích hiển thị), và mọi hành vi kiểu Honey (cookie-stuffing/dropping, pop-under, auto-redirect, forced-install, extension-scraping-affiliate) bị cấm tuyệt đối qua guardrail CI. 8 mệnh đề §1 đều có cơ chế đo (tỷ lệ link user-initiated 100%, disclosure khác rỗng, guardrail vi phạm bị chặn, manifest audit) và verify (compliance gate test, user-initiated test, ToS-mapping). Số/sự kiện khớp §4.2 nguồn (Shopee ToS robots/scraping; cookie chỉ khi link hiển thị + click voluntarily and consciously; Chrome policy 3/2025 thực thi 10/06/2025; Honey ~3 triệu trong ~20 triệu user 2 tuần). related_frs (FR-AFFIL-001/002/003/004, FR-EXT-003, FR-TRUST-001) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-AFFIL-001 đặt ràng buộc compliance định lượng và kiểm được: mô hình affiliate hợp lệ DUY NHẤT là user chủ động bấm -> deep link disclosure (URL đích hiển thị), và mọi hành vi kiểu Honey (cookie-stuffing/dropping, pop-under, auto-redirect, forced-install, extension-scraping-affiliate) bị cấm tuyệt đối qua guardrail CI. 8 mệnh đề §1 đều có cơ chế đo (tỷ lệ link user-initiated 100%, disclosure khác rỗng, guardrail vi phạm bị chặn, manifest audit) và verify (compliance gate test, user-initiated test, ToS-mapping). Số/sự kiện khớp §4.2 nguồn (Shopee ToS robots/scraping; cookie chỉ khi link hiển thị + click voluntarily and consciously; Chrome policy 3/2025 thực thi 10/06/2025; Honey ~3 triệu trong ~20 triệu user 2 tuần). related_tasks (TASK-AFFIL-001/002/003/004, TASK-EXT-003, TASK-TRUST-001) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm.
 
 ## §3 - Kết luận
 
-Ràng buộc compliance đo được (user-initiated, disclosure, guardrail, manifest), verify được (gate test + ToS-mapping + open-source proof), gắn đúng ToS Shopee + Chrome policy + bài học Honey, cưỡng chế ở mức kỹ thuật qua FR-AFFIL-002/004. Xử lý vi phạm đặt đúng sev-1 cho rủi ro tồn vong. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+Ràng buộc compliance đo được (user-initiated, disclosure, guardrail, manifest), verify được (gate test + ToS-mapping + open-source proof), gắn đúng ToS Shopee + Chrome policy + bài học Honey, cưỡng chế ở mức kỹ thuật qua TASK-AFFIL-002/004. Xử lý vi phạm đặt đúng sev-1 cho rủi ro tồn vong. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

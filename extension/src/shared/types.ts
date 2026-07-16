@@ -29,7 +29,7 @@ export type Message =
   | ParseDomResult
   | TestCodesRequest;
 
-// FR-EXT-006: Consent types (PDPL §5.5 compliance)
+// TASK-EXT-006: Consent types (PDPL §5.5 compliance)
 export type ConsentPurpose = "read_cart" | "read_voucher" | "sync_backend";
 
 export interface ConsentRecord {
@@ -38,7 +38,7 @@ export interface ConsentRecord {
   granted: ConsentPurpose[]; // mục đã đồng ý - tái lập được (DEC-EXT-31)
 }
 
-// FR-CART-005: Auto test codes
+// TASK-CART-005: Auto test codes
 export interface CodeTestResult {
   code: string;
   discount: number;
@@ -50,7 +50,7 @@ export interface TestCodesRequest {
   userInitiated: boolean;
 }
 
-// FR-CART-006: Coin Checklist
+// TASK-CART-006: Coin Checklist
 export interface CoinTask {
   taskType: string;
   done: boolean;

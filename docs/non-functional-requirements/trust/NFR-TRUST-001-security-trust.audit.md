@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-TRUST-001 đặt ngưỡng bảo mật và niềm tin cụ thể đo được: 0 cleartext finding mọi tầng; 0 token/cookie phiên sàn rời client hoặc tồn tại ở backend; 100% mật khẩu argon2id; 100% secrets ứng dụng trong Vault/AWS Secrets Manager; bộ hook security audit (egress + SBOM + reproducible) tái chạy được PASS trên mọi bản ship. Mỗi mệnh đề §1 nối một FR thực thi và một phép đo (counter/gauge/boolean). Số khớp §3.8 + §5.4 nguồn (no-cleartext, token không rời client, argon2id, Vault/AWS SM, ~45% người tiêu dùng VN lo lộ dữ liệu - Ken Research). related_frs (FR-EXT-003, FR-COMPLY-005, FR-TRUST-001/002/003, FR-AUTH-001, FR-INFRA-003) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-TRUST-001 đặt ngưỡng bảo mật và niềm tin cụ thể đo được: 0 cleartext finding mọi tầng; 0 token/cookie phiên sàn rời client hoặc tồn tại ở backend; 100% mật khẩu argon2id; 100% secrets ứng dụng trong Vault/AWS Secrets Manager; bộ hook security audit (egress + SBOM + reproducible) tái chạy được PASS trên mọi bản ship. Mỗi mệnh đề §1 nối một task thực thi và một phép đo (counter/gauge/boolean). Số khớp §3.8 + §5.4 nguồn (no-cleartext, token không rời client, argon2id, Vault/AWS SM, ~45% người tiêu dùng VN lo lộ dữ liệu - Ken Research). related_tasks (TASK-EXT-003, TASK-COMPLY-005, TASK-TRUST-001/002/003, TASK-AUTH-001, TASK-INFRA-003) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm;
 
 ## §3 - Kết luận
 
-Toàn bộ statement có phép đo và FR backing; ngưỡng số cụ thể (0 / 100%) thay cam kết chung; cưỡng chế ba lớp tái chạy được (tĩnh + động + reproducible), không dựa kỷ luật thủ công. Mức nghiêm ngặt neo vào rủi ro thật (~45% lo lộ dữ liệu, Honey, PDPL High). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+Toàn bộ statement có phép đo và task backing; ngưỡng số cụ thể (0 / 100%) thay cam kết chung; cưỡng chế ba lớp tái chạy được (tĩnh + động + reproducible), không dựa kỷ luật thủ công. Mức nghiêm ngặt neo vào rủi ro thật (~45% lo lộ dữ liệu, Honey, PDPL High). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

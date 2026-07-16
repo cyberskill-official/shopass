@@ -14,7 +14,7 @@ interface CartReadMessage {
   vouchers: Array<Record<string, unknown>>;
 }
 
-// Simple metrics counter (in-memory, for FR-TRUST-003 audit)
+// Simple metrics counter (in-memory, for TASK-TRUST-003 audit)
 const metrics = {
   passed: 0,
   droppedFields: 0,

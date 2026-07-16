@@ -3,7 +3,7 @@ import { ensureConsent } from "../../consent/consent-gate";
 
 async function main() {
   if (!(await ensureConsent("read_cart"))) {
-    return; // FR-EXT-006: Do not read cart if not opted in
+    return; // TASK-EXT-006: Do not read cart if not opted in
   }
 
   const msg = await readCart();

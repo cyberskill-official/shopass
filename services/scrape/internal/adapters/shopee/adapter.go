@@ -17,7 +17,7 @@ const (
 	shopeePlatformID int16 = 1 // platform.id for Shopee
 )
 
-// Farm is the Playwright fallback interface (FR-SCRAPE-003).
+// Farm is the Playwright fallback interface (TASK-SCRAPE-003).
 // Stubbed here as an interface so this adapter compiles without the farm package.
 type Farm interface {
 	RenderPrice(ctx context.Context, job orchestrator.ScrapeJob) (orchestrator.PriceSnapshot, error)
@@ -88,7 +88,7 @@ func (a *ShopeeAdapter) Fetch(ctx context.Context, job orchestrator.ScrapeJob) (
 	return snap, nil
 }
 
-// fallback gọi Playwright farm (FR-SCRAPE-003). Nếu farm cũng fail → trả error.
+// fallback gọi Playwright farm (TASK-SCRAPE-003). Nếu farm cũng fail → trả error.
 func (a *ShopeeAdapter) fallback(ctx context.Context, job orchestrator.ScrapeJob, reason string) (orchestrator.PriceSnapshot, error) {
 	if a.farm == nil {
 		return orchestrator.PriceSnapshot{}, fmt.Errorf("shopee: %s and no farm configured", reason)

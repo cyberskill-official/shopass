@@ -3,7 +3,7 @@ import { testCodes } from "../src/content/shared/test-codes";
 import * as fs from "fs";
 import * as path from "path";
 
-describe("FR-CART-005 User Initiated constraint", () => {
+describe("TASK-CART-005 User Initiated constraint", () => {
   it("KHÔNG chạy khi không phải user-initiated", async () => {
     await expect(testCodes(["A", "B"], { userInitiated: false, cancelled: () => false }))
       .rejects.toThrow(/user chủ động/);

@@ -15,7 +15,7 @@ const (
 	ClassPermanent                 // DLQ immediately: bad token, invalid payload
 )
 
-// ChannelDispatcher is the interface for per-channel senders (FR-NOTIF-002, 005, 006, 007).
+// ChannelDispatcher is the interface for per-channel senders (TASK-NOTIF-002, 005, 006, 007).
 type ChannelDispatcher interface {
 	Dispatch(ctx context.Context, n notif.Notification) (ErrClass, error)
 	Channel() string // e.g. "push", "email", "sms"

@@ -13,7 +13,7 @@ var bannedRules = []Rule{
 	{
 		Name:    "cleartext_password",
 		Pattern: regexp.MustCompile(`(?i)\b(plain_?password|password)\s+TEXT\b`),
-		Hint:    "Mat khau phai la pwd_hash argon2id (FR-AUTH-001)",
+		Hint:    "Mat khau phai la pwd_hash argon2id (TASK-AUTH-001)",
 	},
 	{
 		Name:    "platform_session_token",
@@ -23,7 +23,7 @@ var bannedRules = []Rule{
 	{
 		Name:    "hardcoded_secret",
 		Pattern: regexp.MustCompile(`(?i)(api_?key|db_?password)\s*[:=]\s*["'][A-Za-z0-9/+]{12,}["']`),
-		Hint:    "Secret phai doc tu Vault (FR-INFRA-003)",
+		Hint:    "Secret phai doc tu Vault (TASK-INFRA-003)",
 	},
 	{
 		Name:    "weak_password_hash",

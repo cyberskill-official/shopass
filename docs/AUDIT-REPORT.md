@@ -39,7 +39,7 @@ Test-versus-implementation drift (the tests were never run):
 
 - `bill` - `NewReconcileJob` (2 args vs 3) and `NewIPNHandler` (2 vs 3); added the missing `SubscriptionActivator` mocks.
 - `comply/ecom` - the tests wanted a seedable in-memory repo but the impl was Postgres-only. Introduced a `store` interface: production keeps the pgx `*Repo`, the unit test uses an in-memory fake seeded to match migration `0008`.
-- `cart/api` - the handler correctly reads the gateway-injected `X-User-Id` header (FR-CART-002), but the tests passed the user via a request context value that cannot cross an HTTP boundary. Fixed the tests to use the header.
+- `cart/api` - the handler correctly reads the gateway-injected `X-User-Id` header (TASK-CART-002), but the tests passed the user via a request context value that cannot cross an HTTP boundary. Fixed the tests to use the header.
 
 Integration-test defects (`deal/batch`):
 
@@ -99,10 +99,10 @@ cd services/ml && pytest tests/
 
 ## Feature build (2026-07-03) - the three P1 gaps + Lazada
 
-After the rework, four features were built and verified with the same real toolchain. Details and per-feature test counts are in `docs/FR-COVERAGE.md`; this is how to run them.
+After the rework, four features were built and verified with the same real toolchain. Details and per-feature test counts are in `docs/TASK-COVERAGE.md`; this is how to run them.
 
 ```
-# FR-PRICE-004 cross-platform compare (5 integration tests) - part of pricesvc
+# TASK-PRICE-004 cross-platform compare (5 integration tests) - part of pricesvc
 cd services/price && TEST_DB_URL="postgres://.../shopass_price_test?sslmode=disable" go test -p 1 ./...
 
 # Lazada: Go orchestrator adapter now dispatches to the farm (4 unit tests)
@@ -110,10 +110,10 @@ cd services/scrape && go test ./internal/adapters/lazada/...
 # Lazada/TikTok farm extraction (TypeScript): tsc --noEmit clean; extraction logic verified.
 # The browser-backed farm adapter.test.ts needs Playwright Chromium (not in this sandbox).
 
-# FR-WEB-005 GraphQL BFF (10 tests on Node's built-in runner)
+# TASK-WEB-005 GraphQL BFF (10 tests on Node's built-in runner)
 cd services/bff && npm install && npm test        # runs tsc then node --test
 
-# FR-AUTH-004 social login core (auth unit + Postgres integration)
+# TASK-AUTH-004 social login core (auth unit + Postgres integration)
 cd services/auth && TEST_DB_URL="postgres://.../shopass_auth_test?sslmode=disable" go test -p 1 ./...
 ```
 

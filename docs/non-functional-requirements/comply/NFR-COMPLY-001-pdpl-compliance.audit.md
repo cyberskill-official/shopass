@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-COMPLY-001 đặt ngưỡng tuân thủ PDPL cụ thể đo được: coverage consent = 100% trên mọi bề mặt xử lý dữ liệu cá nhân; 0 DPIA quá hạn 60 ngày (cập nhật mỗi 6 tháng); 0 breach quá hạn 72 giờ; 0 cleartext/token-on-server; 0 rò cross-user trong DSAR. Mỗi mệnh đề §1 nối một FR-COMPLY thực thi và một phép đo/verify (counter, gauge, audit gate, property test). Statement gắn rõ chế tài PDPL (tới 5% doanh thu năm trước / 10 lần lợi nhuận bất chính / 3 tỷ VND). Số khớp §5.5 nguồn. related_frs (FR-COMPLY-001..008) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-COMPLY-001 đặt ngưỡng tuân thủ PDPL cụ thể đo được: coverage consent = 100% trên mọi bề mặt xử lý dữ liệu cá nhân; 0 DPIA quá hạn 60 ngày (cập nhật mỗi 6 tháng); 0 breach quá hạn 72 giờ; 0 cleartext/token-on-server; 0 rò cross-user trong DSAR. Mỗi mệnh đề §1 nối một TASK-COMPLY thực thi và một phép đo/verify (counter, gauge, audit gate, property test). Statement gắn rõ chế tài PDPL (tới 5% doanh thu năm trước / 10 lần lợi nhuận bất chính / 3 tỷ VND). Số khớp §5.5 nguồn. related_tasks (TASK-COMPLY-001..008) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -31,7 +31,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm.
 
 ## §3 - Kết luận
 
-Toàn bộ statement có phép đo và FR backing; ngưỡng số cụ thể (100% / 0) thay cam kết chung; mức nghiêm ngặt neo vào chế tài thật §5.5. Xử lý vi phạm phân sev hợp lý. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+Toàn bộ statement có phép đo và task backing; ngưỡng số cụ thể (100% / 0) thay cam kết chung; mức nghiêm ngặt neo vào chế tài thật §5.5. Xử lý vi phạm phân sev hợp lý. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

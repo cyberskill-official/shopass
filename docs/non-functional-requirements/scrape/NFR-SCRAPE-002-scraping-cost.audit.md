@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-SCRAPE-002 đặt SLO chi phí định lượng: tổng biến phí scraping (proxy + headless farm) <= ~0,1-0,2 USD/user/tháng ở cả mốc 1.000 và 100.000 users, cùng cơ chế giảm chi phí cận biên qua chia sẻ SKU. 7 mệnh đề §1 đều đo được (`proxy_cost_usd_total`, `sku_shared_ratio`, skip-rate delta-only, phân bổ theo tier proxy) và verify (cost-model/sharing/tiering/cost-guard test). Số khớp §4.1 nguồn (proxy ~$30-60 + farm ~$20-40 /1.000 users -> ~0,1-0,2 USD/user). related_frs (FR-SCRAPE-001/003/004/005, FR-PRICE-002) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-SCRAPE-002 đặt SLO chi phí định lượng: tổng biến phí scraping (proxy + headless farm) <= ~0,1-0,2 USD/user/tháng ở cả mốc 1.000 và 100.000 users, cùng cơ chế giảm chi phí cận biên qua chia sẻ SKU. 7 mệnh đề §1 đều đo được (`proxy_cost_usd_total`, `sku_shared_ratio`, skip-rate delta-only, phân bổ theo tier proxy) và verify (cost-model/sharing/tiering/cost-guard test). Số khớp §4.1 nguồn (proxy ~$30-60 + farm ~$20-40 /1.000 users -> ~0,1-0,2 USD/user). related_tasks (TASK-SCRAPE-001/003/004/005, TASK-PRICE-002) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 

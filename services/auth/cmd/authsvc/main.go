@@ -1,8 +1,8 @@
 // Command authsvc serves the auth HTTP endpoints: password register/login/refresh
-// (FR-AUTH-001/002), JWKS for the gateway, and social login (FR-AUTH-004). It
+// (TASK-AUTH-001/002), JWKS for the gateway, and social login (TASK-AUTH-004). It
 // sits behind the API gateway. Social login is enabled only when a provider
 // client id is configured; the client secret comes from the environment / secret
-// manager, never a code literal (FR-AUTH-004 §1 #9).
+// manager, never a code literal (TASK-AUTH-004 §1 #9).
 package main
 
 import (
@@ -43,7 +43,7 @@ func main() {
 	repo := auth.NewRepo(db)
 
 	// Access-token signing key. In production, load from the secrets manager
-	// (FR-INFRA-003); for a standalone run, generate one at boot.
+	// (TASK-INFRA-003); for a standalone run, generate one at boot.
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		log.Error("keygen", "err", err)

@@ -15,7 +15,7 @@
 
 ## Vì sao cần từng quyền
 - host_permissions (shopee.vn, tiktok.com, lazada.vn): đọc giá/giỏ trên đúng trang sàn
-- storage: lưu cấu hình + state cục bộ (service worker ephemeral, FR-EXT-001)
+- storage: lưu cấu hình + state cục bộ (service worker ephemeral, TASK-EXT-001)
 - alarms: lập lịch quét định kỳ (>=30s) thay cho setInterval
 
 Mã nguồn: <https://github.com/shopass/sandeal-extension>

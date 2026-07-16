@@ -15,13 +15,13 @@ type DailyPoint struct {
 type Annotations struct {
     Median90     int64    `json:"median90"`     // VND, trung vị close_p 90 ngày
     TrailingMin  int64    `json:"trailing_min"` // VND, đáy min_p trong khoảng
-    Verdict      string   `json:"verdict"`      // từ FR-DEAL-001
+    Verdict      string   `json:"verdict"`      // từ TASK-DEAL-001
     Accumulating bool     `json:"accumulating"` // true khi maturity=WARMING
     DoubleDates  []string `json:"double_dates"` // YYYY-MM-DD trong khoảng
 }
 
 // Build tính median90 + trailing_min từ chuỗi daily và sinh mốc ngày đôi (DEC-DEAL-21).
-// verdict + accumulating được nhồi bởi caller (chart.go) từ FR-DEAL-001/002.
+// verdict + accumulating được nhồi bởi caller (chart.go) từ TASK-DEAL-001/002.
 func Build(daily []DailyPoint, from, to time.Time) Annotations {
     return Annotations{
         Median90:    median90(daily),

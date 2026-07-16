@@ -38,7 +38,7 @@ func main() {
 			"product_id", payload.ProductID,
 			"reason", payload.Reason)
 
-		// FR-NOTIF-003 fanout. Here we would push to Redis Streams or RabbitMQ.
+		// TASK-NOTIF-003 fanout. Here we would push to Redis Streams or RabbitMQ.
 		w.WriteHeader(http.StatusAccepted)
 	})
 

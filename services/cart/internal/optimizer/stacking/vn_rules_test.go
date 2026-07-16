@@ -65,7 +65,7 @@ func TestVN_AllowsStack_ShopPlatformFreeship(t *testing.T) {
 	require.True(t, r.ValidStack(&pv, &fs, shop)) // VN cho stack cả ba (DEC-CART-20)
 }
 
-// Ví dụ §3.5(3) VN -> 110k (qua optimizer FR-CART-003).
+// Ví dụ §3.5(3) VN -> 110k (qua optimizer TASK-CART-003).
 func TestVN_OptimizeExample_110k(t *testing.T) {
 	items := exampleCart() // shop A 300k, shop B 250k
 	v := exampleVouchers() // shop A -30k, platform -50k>=500k, freeship 30k

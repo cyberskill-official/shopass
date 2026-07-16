@@ -17,7 +17,7 @@ func TestNormalize_StripsMarketingNoise(t *testing.T) {
 	got := Normalize("[CHÍNH HÃNG] Tai nghe Sony WH-1000XM5 Freeship Giảm Sốc \U0001F525 - Shop ABC")
 	require.Equal(t, "tai nghe sony wh 1000xm5", got)
 
-	// FR-PRICE-005 AC #1
+	// TASK-PRICE-005 AC #1
 	got2 := Normalize("[CHÍNH HÃNG] Điện Thoại iPhone 15 Freeship ")
 	require.Equal(t, "dien thoai iphone 15", got2)
 }

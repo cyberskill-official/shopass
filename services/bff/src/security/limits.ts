@@ -1,6 +1,6 @@
 import { GraphQLError, type DocumentNode, type SelectionSetNode, type FragmentDefinitionNode } from "graphql";
 
-// Query depth and cost caps (FR-WEB-005 §1 #4 / DEC-WEB-24). GraphQL lets a
+// Query depth and cost caps (TASK-WEB-005 §1 #4 / DEC-WEB-24). GraphQL lets a
 // client shape its own query, including deeply nested or wildly aliased queries
 // that exhaust resources - the classic GraphQL DoS surface. These caps reject
 // such a query before any resolver runs.

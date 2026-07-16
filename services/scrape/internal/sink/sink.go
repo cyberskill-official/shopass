@@ -33,7 +33,7 @@ func NewSink(price PriceRepo, metrics Metrics) *Sink {
 
 // Write đẩy snapshot vào PRICE qua delta-only; trả tín hiệu re-tier cho orchestrator.
 func (s *Sink) Write(ctx context.Context, snap PriceSnapshot) (written, flashSale bool, err error) {
-	written, err = s.price.InsertSnapshot(ctx, snap) // FR-PRICE-002 delta-only, ON CONFLICT DO NOTHING
+	written, err = s.price.InsertSnapshot(ctx, snap) // TASK-PRICE-002 delta-only, ON CONFLICT DO NOTHING
 	if err != nil {
 		return false, snap.FlashSale, err
 	}

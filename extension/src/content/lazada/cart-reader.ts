@@ -13,7 +13,7 @@ export function readCartFromDom(): CartItem[] | null {
   if (itemEls.length === 0) {
     // Return null if cart is broken, empty array if just no items?
     // Wait, if no items are found, we don't know if the cart is broken or just empty.
-    // In FR-EXT-008 tests, if the root is not found/broken, return null. 
+    // In TASK-EXT-008 tests, if the root is not found/broken, return null. 
     // To distinguish empty vs broken, check if there's a cart container or empty state.
     // But per test "parse hỏng hẳn → health signal + items rỗng", 
     // we return null when broken.

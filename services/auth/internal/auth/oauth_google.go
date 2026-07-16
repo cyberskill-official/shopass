@@ -22,7 +22,7 @@ const (
 type httpDoer func(*http.Request) (*http.Response, error)
 
 // GoogleProvider implements OAuthProvider for Google (OIDC). The client secret
-// and config come from the secrets manager (FR-INFRA-003), never from code/env
+// and config come from the secrets manager (TASK-INFRA-003), never from code/env
 // literals (§1 #9). The HTTP doer is injectable so the exchange is testable; a
 // real token exchange is the only part that needs live Google credentials.
 type GoogleProvider struct {

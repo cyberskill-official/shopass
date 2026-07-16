@@ -22,7 +22,7 @@ func (h *WishlistHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/wishlists/{id}/items", h.HandleAddItem)
 	mux.HandleFunc("DELETE /v1/wishlists/{id}/items/{product_id}", h.HandleRemoveItem)
 	mux.HandleFunc("DELETE /v1/wishlists/{id}", h.HandleDelete)
-	mux.HandleFunc("GET /v1/wishlists/{id}/items", h.HandleListItems) // Not explicitly in FR but needed for testing/reading
+	mux.HandleFunc("GET /v1/wishlists/{id}/items", h.HandleListItems) // Not explicitly in TASK but needed for testing/reading
 }
 
 func (h *WishlistHandler) HandleCreate(w http.ResponseWriter, req *http.Request) {

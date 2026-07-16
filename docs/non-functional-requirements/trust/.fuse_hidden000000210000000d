@@ -9,38 +9,38 @@ authoring_compliance: "khớp house style NFR CyberOS (§1 statement BCP-14 -> �
 
 ## §1 - Tóm tắt verdict
 
-NFR-TRUST-001 đặt ngưỡng bảo mật & niềm tin cụ thể, đo được: 0 cleartext finding, 0 token/cookie rời client, 100% mật khẩu argon2id, 100% secrets trong Vault, audit hook tái chạy được PASS trên mọi bản ship. Mỗi mệnh đề statement nối với một FR thực thi (FR-COMPLY-005 kiểm tĩnh, FR-TRUST-003 egress động, FR-TRUST-001 reproducible, FR-AUTH-001 argon2id, FR-INFRA-003 Vault) và một phép đo (counter/gauge/boolean). Mức nghiêm ngặt neo vào rủi ro thật: ~45% người tiêu dùng VN lo lộ dữ liệu (Ken Research) + Chrome gỡ extension kiểu Honey + PDPL hạng High. Đo lường, verification, xử lý vi phạm đầy đủ và phân sev hợp lý (rò/cleartext/token = sev-1). Đạt 10/10.
+NFR-TRUST-001 đặt ngưỡng bảo mật & niềm tin cụ thể, đo được: 0 cleartext finding, 0 token/cookie rời client, 100% mật khẩu argon2id, 100% secrets trong Vault, audit hook tái chạy được PASS trên mọi bản ship. Mỗi mệnh đề statement nối với một TASK thực thi (TASK-COMPLY-005 kiểm tĩnh, TASK-TRUST-003 egress động, TASK-TRUST-001 reproducible, TASK-AUTH-001 argon2id, TASK-INFRA-003 Vault) và một phép đo (counter/gauge/boolean). Mức nghiêm ngặt neo vào rủi ro thật: ~45% người tiêu dùng VN lo lộ dữ liệu (Ken Research) + Chrome gỡ extension kiểu Honey + PDPL hạng High. Đo lường, verification, xử lý vi phạm đầy đủ và phân sev hợp lý (rò/cleartext/token = sev-1). Đạt 10/10.
 
 ## §2 - Findings (đã giải quyết)
 
 ### ISS-001 - Cam kết bảo mật "trên giấy" không đo được
-"Không lưu cleartext, token không rời client" chung chung không kiểm chứng. Giải: §1 quy ngưỡng số (các đếm = 0, 100% argon2id/Vault) + §3 đo qua counter/gauge/boolean nối từng FR; §4 verification tĩnh + động + reproducible.
+"Không lưu cleartext, token không rời client" chung chung không kiểm chứng. Giải: §1 quy ngưỡng số (các đếm = 0, 100% argon2id/Vault) + §3 đo qua counter/gauge/boolean nối từng TASK; §4 verification tĩnh + động + reproducible.
 
 ### ISS-002 - Lời hứa không cưỡng chế bị phá âm thầm
 Một commit sơ ý lưu token là vi phạm lặng. Giải: §1 #6 + §4 - cưỡng chế tự động ba lớp (CI gate tĩnh + egress động + reproducible verify); bản ship không qua đủ ba lớp bị từ chối.
 
 ### ISS-003 - Rò runtime mà kiểm tĩnh không thấy
-Grep không thấy request mang cookie. Giải: §1 #2 + §3 `egress_credential_leak_total` + §4 egress test ở biên mạng với phiên đăng nhập (FR-TRUST-003); negative control phải FAIL.
+Grep không thấy request mang cookie. Giải: §1 #2 + §3 `egress_credential_leak_total` + §4 egress test ở biên mạng với phiên đăng nhập (TASK-TRUST-003); negative control phải FAIL.
 
 ### ISS-004 - Mức nghiêm ngặt không có neo
 Không rõ vì sao phải chặt đến vậy. Giải: §1 #2 + §2 - neo vào rủi ro thật (~45% lo lộ dữ liệu Ken Research, Honey mất ~3 triệu user trong 2 tuần, PDPL hạng High); niềm tin là điều kiện sống còn.
 
-## §3 - Traceability statement -> đo lường -> FR
+## §3 - Traceability statement -> đo lường -> TASK
 
-| Statement | Đo lường (§3/§4) | FR thực thi |
+| Statement | Đo lường (§3/§4) | TASK thực thi |
 |---|---|---|
-| #1 no-cleartext | counter cleartext_finding=0 + CI gate | FR-COMPLY-005 |
-| #2 token không rời client | egress_credential_leak=0 + egress test | FR-TRUST-003 |
-| #3 argon2id | gauge non_argon2id=0 + test băm | FR-AUTH-001 |
-| #1 secrets Vault | gauge secrets_outside_vault=0 | FR-INFRA-003 |
-| #4 tối thiểu hóa local-first | outbound_to_unknown_host=0 + payload assert | FR-EXT-003 / FR-TRUST-002 |
-| #5 ship cần 3 điều kiện | reproducible_match + audit_pass boolean | FR-TRUST-001/002/003 |
-| #6 cưỡng chế ba lớp | tĩnh + động + reproducible verify | FR-COMPLY-005 + FR-TRUST-001/003 |
-| #7 chống gian lận không PII | fraud_signal_pii_finding=0 | FR-TRUST-004/005/006 |
+| #1 no-cleartext | counter cleartext_finding=0 + CI gate | TASK-COMPLY-005 |
+| #2 token không rời client | egress_credential_leak=0 + egress test | TASK-TRUST-003 |
+| #3 argon2id | gauge non_argon2id=0 + test băm | TASK-AUTH-001 |
+| #1 secrets Vault | gauge secrets_outside_vault=0 | TASK-INFRA-003 |
+| #4 tối thiểu hóa local-first | outbound_to_unknown_host=0 + payload assert | TASK-EXT-003 / TASK-TRUST-002 |
+| #5 ship cần 3 điều kiện | reproducible_match + audit_pass boolean | TASK-TRUST-001/002/003 |
+| #6 cưỡng chế ba lớp | tĩnh + động + reproducible verify | TASK-COMPLY-005 + TASK-TRUST-001/003 |
+| #7 chống gian lận không PII | fraud_signal_pii_finding=0 | TASK-TRUST-004/005/006 |
 
 ## §4 - Kết luận
 
-Toàn bộ statement có phép đo và FR backing; ngưỡng số cụ thể (0 / 100%) thay cho cam kết chung. Cưỡng chế là ba lớp tái chạy được (tĩnh + động + reproducible), không dựa kỷ luật thủ công. Xử lý vi phạm phân sev hợp lý (rò/cleartext/token-on-server = sev-1; reproducible/Vault/argon2id = sev-2). Mức nghiêm ngặt neo vào rủi ro thật và định vị niềm tin sống còn. Score = 10/10. Verdict: PASS.
+Toàn bộ statement có phép đo và TASK backing; ngưỡng số cụ thể (0 / 100%) thay cho cam kết chung. Cưỡng chế là ba lớp tái chạy được (tĩnh + động + reproducible), không dựa kỷ luật thủ công. Xử lý vi phạm phân sev hợp lý (rò/cleartext/token-on-server = sev-1; reproducible/Vault/argon2id = sev-2). Mức nghiêm ngặt neo vào rủi ro thật và định vị niềm tin sống còn. Score = 10/10. Verdict: PASS.
 
 ---
 

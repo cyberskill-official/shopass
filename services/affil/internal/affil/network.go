@@ -3,7 +3,7 @@ package affil
 import "context"
 
 // TemplateFor returns the NetworkTemplate for the given platform ID.
-// This is a stub for FR-AFFIL-003. In a real scenario, this would query the DB.
+// This is a stub for TASK-AFFIL-003. In a real scenario, this would query the DB.
 func (r *Repo) TemplateFor(ctx context.Context, platformID int16) (string, NetworkTemplate, bool) {
 	// Query the affiliate_network table
 	var network string

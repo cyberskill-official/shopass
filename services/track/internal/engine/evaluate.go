@@ -14,7 +14,7 @@ type Snapshot struct {
 	ListPrice *int64
 }
 
-// DealVerdict matches the type expected from FR-DEAL-001
+// DealVerdict matches the type expected from TASK-DEAL-001
 type DealVerdict string
 
 const (
@@ -92,7 +92,7 @@ func (e *Engine) conditionMet(ctx context.Context, r track.AlertRule, s Snapshot
 		}
 		return verdict == SaleXin, map[string]any{"price": s.Price, "verdict": verdict}, nil
 	case "bottom_predicted":
-		return false, nil, nil // DEC-TRACK-31: do FR-DEAL-006 lo
+		return false, nil, nil // DEC-TRACK-31: do TASK-DEAL-006 lo
 	default:
 		return false, nil, fmt.Errorf("rule_type lạ: %s", r.RuleType)
 	}

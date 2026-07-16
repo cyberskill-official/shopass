@@ -9,7 +9,7 @@ phase: P0
 slo: "Uptime hằng tháng >= 99,5% cho bề mặt lõi (gateway + đọc giá/theo dõi/biểu đồ); ngân sách lỗi ~3h39m/tháng"
 owner: Stephen Cheng (Founder)
 created: 2026-06-27
-related_frs: [FR-INFRA-001, FR-INFRA-004, FR-AUTH-002, FR-PRICE-003, FR-NOTIF-002]
+related_tasks: [TASK-INFRA-001, TASK-INFRA-004, TASK-AUTH-002, TASK-PRICE-003, TASK-NOTIF-002]
 source: "docs/TÀI LIỆU NỀN TẢNG SẢN PHẨM SănDeal §3.8 (NFR khả dụng: SLA 99,5%)"
 ---
 
@@ -28,7 +28,7 @@ Người dùng dựa vào SănDeal đúng lúc quyết định mua: khi sàn fla
 
 ## §3 - Đo lường (measurement)
 
-- SLI success-rate: `sum(rate(http_requests_total{status!~"5.."}[5m])) / sum(rate(http_requests_total[5m]))` tại gateway (FR-INFRA-004).
+- SLI success-rate: `sum(rate(http_requests_total{status!~"5.."}[5m])) / sum(rate(http_requests_total[5m]))` tại gateway (TASK-INFRA-004).
 - Error-budget burn-rate alert: cảnh báo nhiều cửa sổ (ví dụ burn nhanh 1h và burn chậm 6h) để bắt cả sự cố cấp tính lẫn rò rỉ chậm.
 - Uptime hằng tháng tổng hợp trên Grafana, đối chiếu ngưỡng 99,5% và phần ngân sách lỗi đã tiêu.
 - Probe tổng hợp (synthetic) định kỳ trên vài hành trình lõi (đăng nhập, đọc biểu đồ) như tín hiệu bổ trợ cho SLI thực.
@@ -42,7 +42,7 @@ Người dùng dựa vào SănDeal đúng lúc quyết định mua: khi sàn fla
 
 ## §5 - Xử lý khi vi phạm
 
-- Burn-rate nhanh (sự cố cấp tính) -> sev-2; kích hoạt điều tra qua trace/log (FR-INFRA-004); ưu tiên khôi phục đường đọc lõi trước.
+- Burn-rate nhanh (sự cố cấp tính) -> sev-2; kích hoạt điều tra qua trace/log (TASK-INFRA-004); ưu tiên khôi phục đường đọc lõi trước.
 - Ngân sách lỗi tháng cạn -> freeze tính năng, dồn vào ổn định tới chu kỳ mới (§1 #6).
 - 5xx tăng nhưng ping vẫn xanh -> tin SLI success-rate, không tin ping; tìm service trả lỗi qua metric per-service.
 - Downtime do bảo trì ngoài kế hoạch lặp lại -> chuyển sang rolling deploy + migration tương thích ngược (§1 #5) để ngừng tiêu ngân sách vào việc dự đoán được.

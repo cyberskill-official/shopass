@@ -34,7 +34,7 @@ function sendWithTimeout(
 /**
  * parseDomOffscreen — tạo offscreen nếu chưa có, gửi HTML thô, nhận kết quả,
  * rồi đóng offscreen NGAY (DEC-EXT-19).
- * Kết quả cần qua minimize (FR-EXT-003) trước khi rời client.
+ * Kết quả cần qua minimize (TASK-EXT-003) trước khi rời client.
  */
 export async function parseDomOffscreen(
   req: ParseDomRequest

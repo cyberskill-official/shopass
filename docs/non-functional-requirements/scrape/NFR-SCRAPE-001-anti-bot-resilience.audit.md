@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-SCRAPE-001 gắn resilience anti-bot trực tiếp vào bảng xếp hạng rủi ro ban §3.9: scraping read-only Shopee Medium-High / TikTok High / Lazada Medium-High; đọc giỏ qua extension Low; tự động xu/voucher High. 7 mệnh đề §1 đều có cơ chế đo (`scrape_ban_rate`, `scrape_success_rate`, `adapter_health_state`, MTTR adapter) và verify (resilience/tiering/DOM-drift/risk-boundary/multi-platform test). Bảng §1 #1 khớp đúng §3.9 nguồn (line 295-297). related_frs (FR-SCRAPE-001..008) đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-SCRAPE-001 gắn resilience anti-bot trực tiếp vào bảng xếp hạng rủi ro ban §3.9: scraping read-only Shopee Medium-High / TikTok High / Lazada Medium-High; đọc giỏ qua extension Low; tự động xu/voucher High. 7 mệnh đề §1 đều có cơ chế đo (`scrape_ban_rate`, `scrape_success_rate`, `adapter_health_state`, MTTR adapter) và verify (resilience/tiering/DOM-drift/risk-boundary/multi-platform test). Bảng §1 #1 khớp đúng §3.9 nguồn (line 295-297). related_tasks (TASK-SCRAPE-001..008) đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần ("->", ">="), tiếng Việt đủ dấu, khôn
 
 ## §3 - Kết luận
 
-SLO đo được (ban-rate, success-rate, health-state, MTTR), verify được, gắn cơ chế FR-SCRAPE-003/004/005/006 và bảng rủi ro §3.9. Ranh giới Low/High (extension vs scraping vs xu-voucher) rõ và có test. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+SLO đo được (ban-rate, success-rate, health-state, MTTR), verify được, gắn cơ chế TASK-SCRAPE-003/004/005/006 và bảng rủi ro §3.9. Ranh giới Low/High (extension vs scraping vs xu-voucher) rõ và có test. Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

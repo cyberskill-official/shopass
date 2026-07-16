@@ -9,7 +9,7 @@ auditor: independent
 
 ## §1 - Tóm tắt verdict
 
-Tái thẩm độc lập từ file NFR hiện tại. NFR-INFRA-002 đặt SLO khả dụng 99,5%/tháng cho bề mặt lõi, gắn ngân sách lỗi định lượng ~3h39m và SLI success-rate (không phải ping). 6 mệnh đề §1 phủ uptime, cách đo, graceful degradation, no-SPOF, bảo trì không downtime, và chính sách error-budget. Mỗi mệnh đề khóa có verify (đo SLI production, chaos test, deploy test). Con số 99,5% khớp §3.8 nguồn; ngân sách lỗi ~3h39m đúng (0,5% của tháng trung bình ~730h). related_frs đều resolve. Đạt 10/10.
+Tái thẩm độc lập từ file NFR hiện tại. NFR-INFRA-002 đặt SLO khả dụng 99,5%/tháng cho bề mặt lõi, gắn ngân sách lỗi định lượng ~3h39m và SLI success-rate (không phải ping). 6 mệnh đề §1 phủ uptime, cách đo, graceful degradation, no-SPOF, bảo trì không downtime, và chính sách error-budget. Mỗi mệnh đề khóa có verify (đo SLI production, chaos test, deploy test). Con số 99,5% khớp §3.8 nguồn; ngân sách lỗi ~3h39m đúng (0,5% của tháng trung bình ~730h). related_tasks đều resolve. Đạt 10/10.
 
 ## §2 - Findings (đã kiểm)
 
@@ -29,7 +29,7 @@ Kiểm typo: prose ASCII thuần, tiếng Việt đủ dấu, không từ cấm.
 
 ## §3 - Kết luận
 
-SLO định lượng với error budget tính đúng, SLI đo đúng (success-rate), chính sách burn-rate + degradation rõ, nối FR-INFRA-004 (đo). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
+SLO định lượng với error budget tính đúng, SLI đo đúng (success-rate), chính sách burn-rate + degradation rõ, nối TASK-INFRA-004 (đo). Không tìm thấy defect cần sửa. Score = 10/10. Verdict: PASS.
 
 ---
 

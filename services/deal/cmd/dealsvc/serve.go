@@ -12,7 +12,7 @@ import (
 )
 
 // chartRepo implements api.Repo for the chart endpoint over price_daily and
-// tracked_product (the FR-DEAL-003 feed the BFF reads).
+// tracked_product (the TASK-DEAL-003 feed the BFF reads).
 type chartRepo struct{ pool *pgxpool.Pool }
 
 func (r *chartRepo) ProductExists(ctx context.Context, productID int64) (bool, error) {
@@ -44,7 +44,7 @@ func (r *chartRepo) QueryDaily(ctx context.Context, productID int64, from time.T
 }
 
 // dealService implements api.DealService: maturity from days of history
-// (FR-DEAL-002) and the fake-sale verdict from the daily series (FR-DEAL-001).
+// (TASK-DEAL-002) and the fake-sale verdict from the daily series (TASK-DEAL-001).
 type dealService struct{ pool *pgxpool.Pool }
 
 func (s *dealService) daysOfHistory(ctx context.Context, productID int64) int {

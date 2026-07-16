@@ -27,7 +27,7 @@ type CompareResponse struct {
 	Items        []CompareItem `json:"items"`
 }
 
-// HandleCompare serves GET /v1/compare?canonical_key=... (FR-PRICE-004): the
+// HandleCompare serves GET /v1/compare?canonical_key=... (TASK-PRICE-004): the
 // current price of the same physical product across Shopee/TikTok/Lazada, with a
 // server-computed cheapest flag. Auth is centralized at the gateway; this handler
 // does not verify tokens itself (§1 #1).

@@ -14,7 +14,7 @@ export interface Loaders {
 // so batching/caching never leaks across requests or users.
 export interface GqlContext {
   userId: string | null; // sub, forwarded by the gateway (already verified)
-  requestId: string; // forwarded by the gateway (FR-INFRA-001)
+  requestId: string; // forwarded by the gateway (TASK-INFRA-001)
   rest: RestClient;
   loaders: Loaders;
 }

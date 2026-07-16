@@ -1,4 +1,4 @@
-# Path Layout & Least Privilege Policy (FR-INFRA-003)
+# Path Layout & Least Privilege Policy (TASK-INFRA-003)
 
 ## Path Layout
 Secrets are isolated into logical namespaces using path prefixes. This guarantees separation of concerns and limits blast radius in case of a service compromise.

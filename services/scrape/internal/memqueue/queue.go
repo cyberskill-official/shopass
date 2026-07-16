@@ -9,7 +9,7 @@ import (
 )
 
 // Queue is a minimal in-memory orchestrator.Queue for dev and one-shot runs.
-// Production uses a durable queue (Redis Streams / DB) per FR-SCRAPE-001.
+// Production uses a durable queue (Redis Streams / DB) per TASK-SCRAPE-001.
 type Queue struct {
 	mu   sync.Mutex
 	jobs map[int16][]orchestrator.ScrapeJob
