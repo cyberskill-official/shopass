@@ -7,14 +7,37 @@ REGRESSORS = ("is_double_date", "is_payday_window", "flash_sale")
 
 
 import os
+from pathlib import Path
 
-# Use a system CmdStan install only if present; otherwise fall back to the
-# Stan backend bundled with the prophet wheel. Setting a non-existent path at
-# import time crashes every consumer of this package (portability bug).
-_cmdstan_dir = os.path.expanduser("~/.cmdstan/cmdstan-2.39.0")
-if os.path.isdir(_cmdstan_dir):
-    import cmdstanpy
-    cmdstanpy.set_cmdstan_path(_cmdstan_dir)
+# Prefer an existing CmdStan install (any version under ~/.cmdstan/cmdstan-*).
+# CI installs via cmdstanpy.install_cmdstan() which is not pinned to 2.39.0;
+# hard-coding that version left Prophet without a stan_backend on runners.
+def _configure_cmdstan() -> None:
+    try:
+        import cmdstanpy
+    except ImportError:
+        return
+    env = os.environ.get("CMDSTAN")
+    if env and Path(env).is_dir():
+        cmdstanpy.set_cmdstan_path(env)
+        return
+    try:
+        # Already configured (e.g. after install_cmdstan in CI).
+        if cmdstanpy.cmdstan_path():
+            return
+    except Exception:
+        pass
+    home = Path.home() / ".cmdstan"
+    if not home.is_dir():
+        return
+    candidates = sorted(home.glob("cmdstan-*"), reverse=True)
+    for cand in candidates:
+        if cand.is_dir():
+            cmdstanpy.set_cmdstan_path(str(cand))
+            return
+
+
+_configure_cmdstan()
 
 def build_baseline(seed: int = 42) -> Prophet:
     """Prophet baseline: mùa vụ năm + tháng, regressor double-date/payday/flash (DEC-DEAL-30)."""

@@ -109,7 +109,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Install CmdStan (needed for the Prophet fit test)
-        run: python -c "import cmdstanpy; cmdstanpy.install_cmdstan(overwrite=False)"
+        run: |
+          python - <<'PY'
+          import os
+          import cmdstanpy
+          cmdstanpy.install_cmdstan(overwrite=False)
+          path = cmdstanpy.cmdstan_path()
+          print(f"CMDSTAN={path}")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:
+              fh.write(f"CMDSTAN={path}\n")
+          PY
       - name: Test
         working-directory: services/ml
         env:
