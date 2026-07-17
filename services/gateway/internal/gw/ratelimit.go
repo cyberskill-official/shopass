@@ -2,6 +2,7 @@ package gw
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -41,14 +42,24 @@ func rateLimit(rdb RedisClient) func(http.Handler) http.Handler {
 			cmd := rdb.Eval(r.Context(), tokenBucketScript, []string{key}, limit, window)
 			res, err := cmd.Result()
 			if err != nil {
-				// Fail-open strategy if Redis fails
-				next.ServeHTTP(w, r)
+				// Login throttling is a security boundary. A broken limiter must not
+				// silently turn into unlimited credential guessing.
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "rate limiter unavailable"})
 				return
 			}
 
-			vals := res.([]interface{})
-			allowed := vals[0].(int64) == 1
-			retryAfter := vals[1].(int64)
+			vals, ok := res.([]interface{})
+			if !ok || len(vals) != 2 {
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "rate limiter unavailable"})
+				return
+			}
+			allowedValue, allowedOK := vals[0].(int64)
+			retryAfter, retryOK := vals[1].(int64)
+			if !allowedOK || !retryOK {
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "rate limiter unavailable"})
+				return
+			}
+			allowed := allowedValue == 1
 
 			if !allowed {
 				w.Header().Set("Retry-After", strconv.FormatInt(retryAfter, 10))
@@ -72,9 +83,23 @@ func bucketKeyAndLimit(r *http.Request) (string, int) {
 		return "rl:user:" + strconv.FormatInt(claims.UserID, 10), limit
 	}
 
-	ip := r.RemoteAddr
-	if colon := strings.LastIndex(ip, ":"); colon != -1 {
-		ip = ip[:colon]
+	return "rl:ip:" + clientIP(r), limit
+}
+
+// clientIP accepts X-Real-IP only after the request has crossed the private
+// Caddy -> web/gateway boundary. Caddy overwrites this header with
+// {remote_host}; the gateway itself has no public port. A syntactically invalid
+// header is ignored so a malformed value cannot splinter rate-limit buckets.
+func clientIP(r *http.Request) string {
+	if forwarded := strings.TrimSpace(r.Header.Get("X-Real-IP")); net.ParseIP(forwarded) != nil {
+		return forwarded
 	}
-	return "rl:ip:" + ip, limit
+
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return host
+	}
+	if net.ParseIP(r.RemoteAddr) != nil {
+		return r.RemoteAddr
+	}
+	return "unknown"
 }

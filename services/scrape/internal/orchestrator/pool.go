@@ -2,7 +2,14 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"time"
+)
+
+const (
+	defaultMaxAttempts = 5
+	defaultBackoffBase = 500 * time.Millisecond
+	maxRetryBackoff    = 24 * time.Hour
 )
 
 type Config struct {
@@ -18,6 +25,7 @@ type Pool struct {
 	queue    Queue
 	resched  Rescheduler
 	inflight map[int16]chan struct{}
+	now      func() time.Time
 }
 
 // SetRescheduler enables persisted tier-based rescheduling on successful scrapes.
@@ -30,6 +38,7 @@ func NewPool(cfg Config, price PriceRepo, q Queue) *Pool {
 		price:    price,
 		queue:    q,
 		inflight: make(map[int16]chan struct{}),
+		now:      time.Now,
 	}
 	for pid, cap := range cfg.MaxConcurrency {
 		p.inflight[pid] = make(chan struct{}, cap)
@@ -41,28 +50,37 @@ func (p *Pool) RegisterAdapter(a PlatformAdapter) {
 	p.adapters[a.PlatformID()] = a
 }
 
-func (p *Pool) ProcessJob(ctx context.Context, job ScrapeJob) error {
+// ProcessJob persists one of three outcomes: success (and Ack), a deferred
+// retry, or terminal failure. A non-nil error means that outcome itself could
+// not be persisted; callers must not log it as a successfully handled job.
+func (p *Pool) ProcessJob(ctx context.Context, job ScrapeJob) (ProcessResult, error) {
 	sem := p.inflight[job.PlatformID]
 	if sem != nil {
 		select {
 		case sem <- struct{}{}:
 			defer func() { <-sem }()
 		case <-ctx.Done():
-			return ctx.Err()
+			return ProcessResult{}, ctx.Err()
 		}
 	}
 
-	err := p.runOne(ctx, job)
-	if err == nil {
-		return p.queue.Ack(ctx, job.ProductID)
+	result, err := p.runOne(ctx, job)
+	if err != nil {
+		return result, err
 	}
-	return err
+	if result.Outcome != JobSucceeded {
+		return result, nil
+	}
+	if err := p.queue.Ack(ctx, job.ProductID); err != nil {
+		return result, fmt.Errorf("ack scrape job %d: %w", job.ProductID, err)
+	}
+	return result, nil
 }
 
-func (p *Pool) runOne(ctx context.Context, job ScrapeJob) error {
+func (p *Pool) runOne(ctx context.Context, job ScrapeJob) (ProcessResult, error) {
 	a := p.adapters[job.PlatformID]
 	if a == nil {
-		return p.scheduleRetry(ctx, job, nil) // or error no adapter
+		return p.scheduleRetry(ctx, job, fmt.Errorf("no adapter registered for platform %d", job.PlatformID))
 	}
 	snap, err := a.Fetch(ctx, job)
 	if err != nil {
@@ -73,12 +91,72 @@ func (p *Pool) runOne(ctx context.Context, job ScrapeJob) error {
 		return p.scheduleRetry(ctx, job, err)
 	}
 	nextTier := ReTier(job.Tier, written, snap.FlashSale)
-	return p.commit(ctx, job.ProductID, nextTier, NextRunAt(nextTier, time.Now()))
+	if err := p.commit(ctx, job.ProductID, nextTier, NextRunAt(nextTier, p.now())); err != nil {
+		return p.scheduleRetry(ctx, job, fmt.Errorf("reschedule scrape job: %w", err))
+	}
+	return ProcessResult{Outcome: JobSucceeded, Attempts: job.Attempts}, nil
 }
 
-func (p *Pool) scheduleRetry(ctx context.Context, job ScrapeJob, err error) error {
-	// In a real implementation this would write to DB/Queue to delay next execution
-	return nil
+func (p *Pool) scheduleRetry(ctx context.Context, job ScrapeJob, cause error) (ProcessResult, error) {
+	attempts := job.Attempts
+	if attempts < 1 {
+		attempts = 1
+	}
+	job.Attempts = attempts
+	result := ProcessResult{Attempts: attempts, Cause: cause}
+
+	if attempts >= p.maxAttempts() {
+		if err := p.queue.Fail(ctx, job); err != nil {
+			return result, fmt.Errorf("mark scrape job %d failed: %w", job.ProductID, err)
+		}
+		result.Outcome = JobFailed
+		return result, nil
+	}
+
+	nextRunAt := p.now().Add(p.retryBackoff(attempts))
+	if err := p.queue.Retry(ctx, job, nextRunAt); err != nil {
+		return result, fmt.Errorf("defer scrape job %d: %w", job.ProductID, err)
+	}
+	result.Outcome = JobDeferred
+	result.RetryAt = nextRunAt
+	return result, nil
+}
+
+func (p *Pool) maxAttempts() int {
+	if p.cfg.MaxAttempts > 0 {
+		return p.cfg.MaxAttempts
+	}
+	return defaultMaxAttempts
+}
+
+// retryBackoff is exponential and capped both by MaxAttempts and a practical
+// upper bound, so malformed configuration cannot produce an overflowing delay.
+func (p *Pool) retryBackoff(attempts int) time.Duration {
+	base := defaultBackoffBase
+	if p.cfg.BackoffBaseMs > 0 {
+		if p.cfg.BackoffBaseMs > int(maxRetryBackoff/time.Millisecond) {
+			return maxRetryBackoff
+		}
+		base = time.Duration(p.cfg.BackoffBaseMs) * time.Millisecond
+	}
+	if base > maxRetryBackoff {
+		return maxRetryBackoff
+	}
+	if attempts < 1 {
+		attempts = 1
+	}
+	if maxAttempts := p.maxAttempts(); attempts > maxAttempts {
+		attempts = maxAttempts
+	}
+
+	backoff := base
+	for i := 1; i < attempts; i++ {
+		if backoff >= maxRetryBackoff/2 {
+			return maxRetryBackoff
+		}
+		backoff *= 2
+	}
+	return backoff
 }
 
 func (p *Pool) commit(ctx context.Context, productID int64, tier Tier, nextRun time.Time) error {

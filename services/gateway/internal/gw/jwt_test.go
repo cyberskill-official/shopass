@@ -3,6 +3,7 @@ package gw
 import (
 	"context"
 	"errors"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -71,7 +72,11 @@ func TestJWT_BadAudience_401(t *testing.T) {
 }
 
 func TestJWT_Valid_PropagatesUserID(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}}
+	upstream := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-User-Id-Echo", r.Header.Get("X-User-Id"))
+		w.WriteHeader(http.StatusOK)
+	})
+	deps := Deps{JWKS: &mockJWKS{}, Upstreams: Upstreams{TrackHandler: upstream}}
 	h := NewHandler(deps)
 
 	req := httptest.NewRequest("GET", "/v1/track", nil)
@@ -87,7 +92,7 @@ func TestJWT_PublicRoute_PassesWithoutToken(t *testing.T) {
 	deps := Deps{JWKS: &mockJWKS{}}
 	h := NewHandler(deps)
 
-	req := httptest.NewRequest("GET", "/v1/health", nil)
+	req := httptest.NewRequest("GET", "/healthz", nil)
 	rr := httptest.NewRecorder()
 
 	h.ServeHTTP(rr, req)

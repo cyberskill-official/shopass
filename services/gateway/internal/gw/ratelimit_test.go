@@ -2,6 +2,7 @@ package gw
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -29,7 +30,8 @@ func (m *mockRedis) Eval(ctx context.Context, script string, keys []string, args
 }
 
 func TestRateLimit_PerIP_429(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}, Redis: &mockRedis{}}
+	auth := testUpstream(t, "auth")
+	deps := Deps{JWKS: &mockJWKS{}, Redis: &mockRedis{}, Upstreams: Upstreams{AuthHandler: auth}}
 	h := NewHandler(deps)
 
 	for i := 0; i < 5; i++ {
@@ -50,12 +52,13 @@ func TestRateLimit_PerIP_429(t *testing.T) {
 }
 
 func TestRateLimit_PerUser_Isolated(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}, Redis: &mockRedis{}}
+	track := testUpstream(t, "track")
+	deps := Deps{JWKS: &mockJWKS{}, Redis: &mockRedis{}, Upstreams: Upstreams{TrackHandler: track}}
 	h := NewHandler(deps)
 
 	// User 1 uses all 100 limit on /v1/track
 	for i := 0; i < 100; i++ {
-		req := httptest.NewRequest("GET", "/v1/track", nil)
+		req := httptest.NewRequest(http.MethodGet, "/v1/track", nil)
 		req.Header.Set("Authorization", "Bearer valid-1")
 		rr := httptest.NewRecorder()
 		h.ServeHTTP(rr, req)
@@ -75,4 +78,23 @@ func TestRateLimit_PerUser_Isolated(t *testing.T) {
 	rr2 := httptest.NewRecorder()
 	h.ServeHTTP(rr2, req2)
 	require.Equal(t, 200, rr2.Code)
+}
+
+func TestBucketKeyUsesCaddyInjectedRealIP(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", nil)
+	req.RemoteAddr = "172.20.0.5:4321" // web container, not the browser
+	req.Header.Set("X-Real-IP", "203.0.113.9")
+
+	key, limit := bucketKeyAndLimit(req)
+	require.Equal(t, "rl:ip:203.0.113.9", key)
+	require.Equal(t, 5, limit)
+}
+
+func TestBucketKeyRejectsMalformedRealIP(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", nil)
+	req.RemoteAddr = "172.20.0.5:4321"
+	req.Header.Set("X-Real-IP", "203.0.113.9, 198.51.100.1")
+
+	key, _ := bucketKeyAndLimit(req)
+	require.Equal(t, "rl:ip:172.20.0.5", key)
 }

@@ -1,0 +1,12 @@
+[Unit]
+Description=Schedule the SănDeal scrape queue every five minutes
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+RandomizedDelaySec=45s
+AccuracySec=15s
+Unit=shopass-scrape.service
+
+[Install]
+WantedBy=timers.target

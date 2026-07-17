@@ -51,6 +51,9 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
       PRICE_ADDR: ":8081"
+      # Local-only shared token for tracksvc -> pricesvc. Production requires
+      # a distinct secret through docker-compose.production.yml.
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
     ports: ["${PRICE_PORT:-8081}:8081"]
     depends_on:
       migrate: { condition: service_completed_successfully }
@@ -63,7 +66,7 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
       NOTIFSVC_URL: http://notifsvc:8082/notify
-      DEAL_ADDR: ":8082"  # serves the chart feed (TASK-DEAL-003) read by the bff
+      DEAL_ADDR: ":8082"  # serves the chart feed (FR-DEAL-003) read by the bff
     ports: ["${DEAL_PORT:-8082}:8082"]
     depends_on:
       migrate: { condition: service_completed_successfully }
@@ -89,8 +92,9 @@ services:
       AUTH_ADDR: ":8084"
       AUTH_ISS: ${AUTH_ISS:-shopass-auth}
       AUTH_AUD: ${AUTH_AUD:-shopass-gateway}
-      # Social login (TASK-AUTH-004) turns on only when GOOGLE_CLIENT_ID is set.
-      # The secret comes from deploy/.env, never a code literal.
+      # Local-only social login requires an explicit opt-in. It is disabled in
+      # the production topology until the BFF handles its callback.
+      ENABLE_GOOGLE_OAUTH: ${ENABLE_GOOGLE_OAUTH:-false}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
@@ -106,6 +110,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
       TRACK_ADDR: ":8083"
+      PRICE_INTERNAL_URL: http://pricesvc:8081
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
     ports: ["${TRACK_PORT:-8083}:8083"]
     depends_on:
       migrate: { condition: service_completed_successfully }
@@ -135,7 +141,7 @@ services:
       SHOPEE_BASE_URL: ${SHOPEE_BASE_URL:-https://shopee.vn}
       PRICE_BASE_URL: http://pricesvc:8081
       SCRAPE_SEED: ${SCRAPE_SEED:-}
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable  # durable queue (TASK-SCRAPE-001)
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable  # durable queue (FR-SCRAPE-001)
     depends_on:
       pricesvc: { condition: service_started }
     restart: "no"

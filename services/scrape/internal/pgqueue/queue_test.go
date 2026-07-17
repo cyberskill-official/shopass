@@ -109,3 +109,65 @@ func TestReclaimExpiredLease(t *testing.T) {
 	require.True(t, ok)
 	require.EqualValues(t, 100, got.ProductID)
 }
+
+func TestRetryPersistsDeferredState(t *testing.T) {
+	pool := setup(t)
+	defer pool.Close()
+	q := New(pool, time.Minute)
+	ctx := context.Background()
+	require.NoError(t, q.Enqueue(ctx, job(100)))
+
+	claimed, ok, err := q.Claim(ctx, 1)
+	require.NoError(t, err)
+	require.True(t, ok)
+	require.Equal(t, 1, claimed.Attempts)
+
+	retryAt := time.Now().Add(time.Hour)
+	require.NoError(t, q.Retry(ctx, claimed, retryAt))
+
+	var status string
+	var attempts int
+	var storedRetryAt time.Time
+	var unlocked bool
+	require.NoError(t, pool.QueryRow(ctx, `
+		SELECT last_status, attempts, next_run_at, locked_until IS NULL
+		FROM scrape_job WHERE product_id = 100`,
+	).Scan(&status, &attempts, &storedRetryAt, &unlocked))
+	require.Equal(t, "retry", status)
+	require.Equal(t, 1, attempts)
+	require.True(t, unlocked)
+	require.WithinDuration(t, retryAt, storedRetryAt, time.Second)
+
+	_, ok, err = q.Claim(ctx, 1)
+	require.NoError(t, err)
+	require.False(t, ok, "deferred job must not be claimed before its retry time")
+}
+
+func TestFailPersistsTerminalState(t *testing.T) {
+	pool := setup(t)
+	defer pool.Close()
+	q := New(pool, time.Minute)
+	ctx := context.Background()
+	require.NoError(t, q.Enqueue(ctx, job(100)))
+
+	claimed, ok, err := q.Claim(ctx, 1)
+	require.NoError(t, err)
+	require.True(t, ok)
+	claimed.Attempts = 3
+	require.NoError(t, q.Fail(ctx, claimed))
+
+	var status string
+	var attempts int
+	var unlocked bool
+	require.NoError(t, pool.QueryRow(ctx, `
+		SELECT last_status, attempts, locked_until IS NULL
+		FROM scrape_job WHERE product_id = 100`,
+	).Scan(&status, &attempts, &unlocked))
+	require.Equal(t, "failed", status)
+	require.Equal(t, 3, attempts)
+	require.True(t, unlocked)
+
+	_, ok, err = q.Claim(ctx, 1)
+	require.NoError(t, err)
+	require.False(t, ok, "terminally failed job must not be claimed again")
+}

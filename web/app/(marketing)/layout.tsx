@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function MarketingLayout({
   children,
 }: Readonly<{
@@ -8,7 +10,7 @@ export default function MarketingLayout({
       <header className="bg-blue-600 text-white shadow-sm px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">SănDeal</h1>
         <nav>
-          <a href="/login" className="hover:underline">Đăng nhập</a>
+          <Link href="/login" className="hover:underline">Đăng nhập</Link>
         </nav>
       </header>
       <main className="flex-1">

@@ -7,6 +7,9 @@ import (
 	"errors"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	trackdomain "shopass/services/track/internal/track"
 )
 
 type mockPlatforms struct{}
@@ -27,9 +30,11 @@ func (m mockPlatforms) IDByCode(code string) (int16, bool) {
 type mockPrice struct {
 	products map[string]int64
 	nextID   int64
+	got      []TrackedProduct
 }
 
 func (m *mockPrice) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduct, error) {
+	m.got = append(m.got, p)
 	if m.products == nil {
 		m.products = make(map[string]int64)
 	}
@@ -45,7 +50,8 @@ func (m *mockPrice) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduc
 }
 
 type mockRepo struct {
-	links map[int64]map[int64]bool
+	links          map[int64]map[int64]bool
+	productsByUser map[int64][]trackdomain.UserTrackedProduct
 }
 
 func (m *mockRepo) LinkUserProduct(ctx context.Context, userID, productID int64) (bool, error) {
@@ -60,6 +66,11 @@ func (m *mockRepo) LinkUserProduct(ctx context.Context, userID, productID int64)
 	}
 	m.links[userID][productID] = true
 	return true, nil
+}
+
+func (m *mockRepo) ListUserTrackedProducts(_ context.Context, userID int64) ([]trackdomain.UserTrackedProduct, error) {
+	products := m.productsByUser[userID]
+	return append([]trackdomain.UserTrackedProduct(nil), products...), nil
 }
 
 type mockQueue struct {
@@ -100,6 +111,18 @@ func doPOST(t *testing.T, h *Handler, path string, bodyStr string) *httptest.Res
 	return rec
 }
 
+func doGET(t *testing.T, h *Handler, path string, userID int64) *httptest.ResponseRecorder {
+	t.Helper()
+	req := httptest.NewRequest("GET", path, nil)
+	if userID > 0 {
+		req = req.WithContext(context.WithValue(req.Context(), "user_id", userID))
+	}
+
+	rec := httptest.NewRecorder()
+	h.HandleListTrackedProducts(rec, req)
+	return rec
+}
+
 func decode(t *testing.T, rec *httptest.ResponseRecorder, v interface{}) {
 	if err := json.NewDecoder(rec.Body).Decode(v); err != nil {
 		t.Fatalf("Failed to decode response: %v", err)
@@ -124,6 +147,22 @@ func TestTrack_NewProduct_201(t *testing.T) {
 	}
 	if q.PrimingCount() != 1 {
 		t.Errorf("Expected 1, got %d", q.PrimingCount())
+	}
+}
+
+func TestTrack_ShopeeUsesCompositePlatformItemID(t *testing.T) {
+	h, _ := setupHandler(t)
+	rec := doPOST(t, h, "/v1/track",
+		`{"platform":"shopee","item_url":"https://shopee.vn/x-i.88123.20114455667"}`)
+	if rec.Code != 201 {
+		t.Fatalf("Expected 201, got %d", rec.Code)
+	}
+	price := h.price.(*mockPrice)
+	if len(price.got) != 1 {
+		t.Fatalf("Expected one upsert, got %d", len(price.got))
+	}
+	if got := price.got[0].PlatformItemID; got != "20114455667:88123" {
+		t.Errorf("PlatformItemID = %q, want itemID:shopID", got)
 	}
 }
 
@@ -163,5 +202,41 @@ func TestTrack_EnqueueFails_Still201(t *testing.T) {
 	}
 	if countLinks(t, h) != 1 {
 		t.Errorf("Expected 1 link, got %d", countLinks(t, h))
+	}
+}
+
+func TestListTrackedProductsIsOwnerScoped(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.productsByUser = map[int64][]trackdomain.UserTrackedProduct{
+		123: {{
+			ProductID:      88,
+			Platform:       "shopee",
+			PlatformItemID: "20114455667:88123",
+			FirstSeen:      time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC),
+			TrackedAt:      time.Date(2026, 7, 2, 0, 0, 0, 0, time.UTC),
+		}},
+		456: {{ProductID: 99, Platform: "shopee"}},
+	}
+
+	rec := doGET(t, h, "/v1/tracked-products", 123)
+	if rec.Code != 200 {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+	var got []trackdomain.UserTrackedProduct
+	decode(t, rec, &got)
+	if len(got) != 1 || got[0].ProductID != 88 {
+		t.Fatalf("products = %#v, want only user 123's product", got)
+	}
+	if got[0].Platform != "shopee" || got[0].PlatformItemID != "20114455667:88123" {
+		t.Fatalf("unexpected product payload: %#v", got[0])
+	}
+}
+
+func TestListTrackedProductsRequiresAuthenticatedUser(t *testing.T) {
+	h, _ := setupHandler(t)
+	rec := doGET(t, h, "/v1/tracked-products", 0)
+	if rec.Code != 401 {
+		t.Fatalf("status = %d, want 401", rec.Code)
 	}
 }

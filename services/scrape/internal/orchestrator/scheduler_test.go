@@ -31,6 +31,10 @@ func (m *mockQueue) Claim(ctx context.Context, platformID int16) (ScrapeJob, boo
 	return ScrapeJob{}, false, nil
 }
 func (m *mockQueue) Ack(ctx context.Context, productID int64) error { return nil }
+func (m *mockQueue) Retry(ctx context.Context, job ScrapeJob, nextRunAt time.Time) error {
+	return nil
+}
+func (m *mockQueue) Fail(ctx context.Context, job ScrapeJob) error { return nil }
 func (m *mockQueue) Reclaim(ctx context.Context, platformID int16, timeout time.Duration) (ScrapeJob, bool, error) {
 	return ScrapeJob{}, false, nil
 }

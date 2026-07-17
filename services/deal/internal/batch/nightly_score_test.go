@@ -46,6 +46,10 @@ func setupBatch(t *testing.T) (*Batch, *testDeps) {
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, dbURL)
 	require.NoError(t, err)
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
+		t.Skipf("Postgres unavailable for batch integration test: %v", err)
+	}
 
 	// Clean up tables
 	_, err = pool.Exec(ctx, `TRUNCATE TABLE bottom_alert_log, alert_rule, price_forecast, tracked_product CASCADE`)
@@ -156,7 +160,7 @@ func TestNightly_Cooldown_NoRepeatWhileHigh(t *testing.T) {
 	require.NoError(t, b.RunNightlyScore(ctx, today))            // ngày 0: bắn
 	require.NoError(t, b.RunNightlyScore(ctx, today.AddDate(0, 0, 3))) // ngày 3, P vẫn cao
 	require.Equal(t, 1, deps.notif.Count()) // trong cooldown 7 ngày -> không bắn lại
-	
+
 	// sau cooldown (ngày 8) thì cạnh lên lại -> bắn.
 	require.NoError(t, b.RunNightlyScore(ctx, today.AddDate(0, 0, 8)))
 	require.Equal(t, 2, deps.notif.Count())

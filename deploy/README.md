@@ -1,126 +1,230 @@
-# SănDeal - Hướng dẫn triển khai (DevOps)
+# SănDeal production deployment
 
-Tài liệu này hướng dẫn triển khai SănDeal bằng Docker Compose, từng bước, cho môi trường staging/production. Stack chạy vòng lặp lõi trên một Postgres/TimescaleDB thật: scrape giá, lưu, dự báo đáy, bắn cảnh báo, hiển thị biểu đồ.
+`docker-compose.production.yml` is the production topology. It is separate
+from `docker-compose.yml`, which remains a local development/demo stack and
+publishes service ports for convenience. Do not expose that demo stack to the
+Internet.
 
-Đối tượng: DevOps/SRE. Kỹ sư dev local xem `docs/DEVELOPMENT-GUIDE.md`.
+The production manifest has one public container only: Caddy on ports 80 and
+443. Database, Redis, Go services, Next.js, BFF, and one-shot jobs are on a
+private Docker network with no host port mappings.
 
-## 1. Yêu cầu trên server
+## What this hardening does and does not make live
 
-- Docker Engine (khuyến nghị 24+) kèm plugin Compose v2. Kiểm tra: `docker compose version`.
-- Git và make (hoặc chạy trực tiếp các lệnh `docker compose`).
-- Tài nguyên tối thiểu gợi ý: 2 vCPU, 4 GB RAM, 20 GB đĩa (Postgres/TimescaleDB, image, dữ liệu giá). Dữ liệu giá tích lũy theo thời gian nên theo dõi dung lượng.
+It provides a safe network boundary, TLS edge configuration, image version
+pins, private Redis, persistent Caddy/DB volumes, log rotation, and host-owned
+scheduling for scrape/forecast jobs. It does **not** turn the current source
+tree into a feature-complete public product.
 
-## 2. Các thành phần trong stack
+[`Caddyfile`](Caddyfile) sends every `/v1/*` and `/graphql` request to the
+private gateway, which removes client-supplied `X-User-*` headers, verifies
+AUTH JWKS, applies its rate/WAF middleware, and routes only allowlisted
+upstreams. Caddy removes those headers and `X-Service-Token` before proxying
+as defense in depth. `X-Service-Token` is reserved for the private
+`tracksvc`-to-`pricesvc` hop and is never a browser credential.
+The unscoped legacy `price-history` and `compare` routes are deliberately not
+published by gateway for this beta; the owner-scoped chart endpoint is the
+supported price-read surface. Wishlist and alert APIs are also deliberately
+unpublished until their ownership and real-delivery contracts are complete.
+`tracksvc`, BFF, auth, price, deal, Redis, and the database have no public
+route or host port. WebSocket `/ws` is not wired by the current gateway and
+must remain unavailable until it has an authenticated upgrade implementation.
 
-Luôn bật: `db` (Postgres 16 + TimescaleDB), `migrate` (chạy 1 lần rồi thoát), `pricesvc` (API giá + so sánh chéo sàn, cổng 8081), `dealsvc` (cron chấm điểm đáy 02:00 Asia/Ho_Chi_Minh + phục vụ biểu đồ TASK-DEAL-003 ở cổng 8082), `notifsvc` (nhận thông báo), `web` (giao diện, cổng 3000), `authsvc` (đăng nhập/refresh + social login, cổng 8084), `tracksvc` (wishlist, cổng 8083), `bff` (GraphQL cho web, cổng 8085).
+`/v1/auth/*` is intentionally a Caddy 404. Browser login, registration,
+refresh, and logout use same-origin Next.js `/api/auth/*` handlers, which call
+the private gateway and store the refresh credential only in an HttpOnly,
+host-only cookie. Caddy overwrites `X-Real-IP` with the direct remote address
+before proxying; the web handlers forward it to gateway solely for rate-limit
+bucketing. If you put a CDN/LB in front of Caddy, configure Caddy's trusted
+proxy ranges first or it will rate-limit the proxy rather than the visitor.
 
-Job chạy theo yêu cầu (profile `jobs`): `scrapesvc` (scrape + hàng đợi bền vững), `mlforecast` (dự báo, có cài CmdStan để chạy Prophet).
+Never use the untracked `Caddyfile.demo` as production configuration. It is a
+demo-only identity injector and is intentionally not referenced by the
+production manifest.
 
-Tất cả service dùng chung một database `shopass`; mỗi bảng có đúng một service sở hữu.
+## Prerequisites
 
-## 3. Cấu hình
+- A Linux host with Docker Engine and Docker Compose v2.
+- A DNS name whose A/AAAA records point to the host, plus inbound TCP 80/443.
+  Caddy obtains and renews TLS certificates after DNS and firewall are correct;
+  no DNS-provider credential is needed for ordinary HTTP-01 issuance.
+- At least 2 vCPU, 4 GB RAM, and monitored persistent disk. Forecasting and
+  Timescale retention will need more capacity as data grows.
+- A backup destination and a tested restore procedure before user data exists.
+- The legal/compliance work required for production user data, including PDPL
+  consent/DPIA and the incident process. See `docs/deployment_guide.md` and
+  `docs/feature-requests/SHIP-GUIDE.md`.
 
-```
-git clone <repo-url> shopass
-cd shopass
-make env                 # tạo deploy/.env từ mẫu
-```
+## 1. Prepare non-secret and secret configuration
 
-Mở `deploy/.env` và đặt giá trị thật trước khi lên staging/production:
+Create a host-owned configuration area. Do not place real files under
+`deploy/secrets/`; that directory is only a documented Git-safe contract.
 
-- `POSTGRES_PASSWORD`: bắt buộc đổi khỏi giá trị mặc định.
-- `POSTGRES_USER`, `POSTGRES_DB`: đổi nếu cần.
-- `DB_PORT`, `PRICE_PORT`, `WEB_PORT`: cổng mở ra host; đổi nếu trùng.
-- `SHOPEE_BASE_URL`, `SCRAPE_SEED`, `HTTPS_PROXY`: cấu hình cho job scrape (proxy dân cư theo TASK-SCRAPE-002).
-
-File `deploy/.env` đã nằm trong `.gitignore` - không commit. `docker compose` tự nạp file này.
-
-## 4. Triển khai
-
-```
-make up                  # build image + chạy toàn bộ service luôn-bật
-make ps                  # kiểm tra: db healthy, migrate đã Exit 0, còn lại Up
-```
-
-`migrate` chạy đầy đủ chuỗi migration (nền tảng dùng chung + của từng service) lên TimescaleDB thật, gồm cả hypertable `price_snapshot` và continuous aggregate `price_daily`.
-
-## 5. Kiểm tra sau triển khai
-
-```
-curl -s http://<host>:8081/v1/products/1/price-history?range=7d   # pricesvc trả JSON
-open http://<host>:3000                                            # web
-make smoke                                                         # đi hết vòng lặp và in kết quả
-```
-
-`make smoke` seed một sản phẩm demo, chạy scrape + deal, rồi in `price_snapshot` và `bottom_alert_log`. Với server không ra được Shopee thật, trỏ `SHOPEE_BASE_URL` sang endpoint fixture để chạy khô.
-
-## 6. Vận hành
-
-Log và trạng thái:
-
-```
-make logs                # hoặc: docker compose -f deploy/docker-compose.yml logs -f <service>
-make ps
-```
-
-Chạy lại migration (idempotent, sau khi cập nhật schema): `make migrate`.
-
-Mở psql: `make psql`.
-
-Sao lưu và phục hồi database:
-
-```
-# backup
-docker compose -f deploy/docker-compose.yml exec -T db pg_dump -U postgres shopass | gzip > backup_$(date +%F).sql.gz
-# restore (stack đang chạy, database rỗng)
-gunzip -c backup_YYYY-MM-DD.sql.gz | docker compose -f deploy/docker-compose.yml exec -T db psql -U postgres -d shopass
+```bash
+sudo install -d -m 0700 /etc/shopass/secrets
+sudo install -d -m 0700 /etc/shopass
+sudo install -m 0600 deploy/.env.production.example /etc/shopass/runtime.env
+sudoedit /etc/shopass/runtime.env
 ```
 
-Giám sát: thư mục `deploy/grafana/` có sẵn dashboard. Đấu Prometheus/Grafana vào endpoint metrics của các service khi bạn thêm chúng vào compose (chưa nằm trong stack lõi này).
+Set the non-secret values in `runtime.env`, especially `APP_DOMAIN`,
+`ACME_EMAIL`, `APP_ORIGIN`, image pins, `POSTGRES_USER`, `POSTGRES_DB`, and
+`AUTH_KEY_ID`. `APP_ORIGIN` must be the exact browser origin (for example
+`https://deals.example.com`, without a trailing slash); it is used by Next.js
+to reject cross-origin login, logout, registration, and refresh requests.
+Keep `GATEWAY_INTERNAL_BASE_URL=http://gateway:8080` on the private Compose
+network. It is for server-side Next.js route handlers only, never a public API
+URL. Generate the initial database password and auth signing key as described
+in [`secrets/README.md`](secrets/README.md). Set `DB_PASSWORD_FILE` and
+`AUTH_SIGNING_KEY_SECRET_FILE` to those root-owned files.
 
-Lên lịch job (quan trọng để hệ tự chạy): `scrapesvc` và `mlforecast` là job một-lần. Đặt cron trên host, hoặc thêm một scheduler (ví dụ ofelia) để chạy định kỳ:
+The current service binaries still require `DATABASE_URL` at runtime. Inject it
+from your host secret manager or add it to `/etc/shopass/runtime.env` with mode
+`0600` until `_FILE`/Vault loading exists. The same temporary rule applies to
+`GOOGLE_CLIENT_SECRET`, credential-bearing `HTTPS_PROXY`, and the high-entropy
+`PRICE_INTERNAL_SERVICE_TOKEN`. The latter must have one identical value in
+both `tracksvc` and `pricesvc`; `tracksvc` sends it only on its private
+`PRICE_INTERNAL_URL` calls as `X-Service-Token`. It must never be configured at
+Caddy or exposed to a browser. This limitation is intentional and tracked in
+[`secrets/README.md`](secrets/README.md); it must not be represented as full
+FR-INFRA-003 compliance.
 
+Google OAuth is deliberately disabled by the production manifest. Its current
+callback returns a token pair as JSON, which would expose a refresh token
+outside the HttpOnly cookie flow. Do not set `ENABLE_GOOGLE_OAUTH=true` in
+production; authsvc refuses to start if it is enabled. Password registration
+and login remain the closed-beta sign-in path.
+
+Before any existing database migration, take a backup. `deploy/migrate.sh`
+refuses to auto-baseline a database that already has a `platform` table but no
+migration ledger. After independently verifying that its schema contains every
+migration in this checkout, an operator may run the migration once with
+`MIGRATION_BASELINE=acknowledge-existing-schema`. Do not use that acknowledgement
+on a partially migrated database; restore or repair it instead.
+
+## 2. Validate without a domain or cloud credential
+
+The production manifest can be parsed without DNS. Supply harmless placeholder
+values only for configuration validation:
+
+```bash
+APP_DOMAIN=example.invalid \
+ACME_EMAIL=ops@example.invalid \
+APP_ORIGIN=https://example.invalid \
+DATABASE_URL='postgres://placeholder:placeholder@db:5432/shopass?sslmode=disable' \
+DB_PASSWORD_FILE=/dev/null \
+AUTH_SIGNING_KEY_SECRET_FILE=/dev/null \
+AUTH_KEY_ID=test-key \
+PRICE_INTERNAL_SERVICE_TOKEN=not-a-real-secret \
+docker compose --env-file /dev/null -f deploy/docker-compose.production.yml config
 ```
-# ví dụ crontab trên host: scrape mỗi 5 phút, dự báo mỗi giờ
-*/5 * * * * cd /srv/shopass && SCRAPE_SEED= docker compose -f deploy/docker-compose.yml run --rm scrapesvc
-0   * * * * cd /srv/shopass && docker compose -f deploy/docker-compose.yml run --rm mlforecast
+
+For an on-host TLS smoke test that does not contact ACME, set the following
+non-secret values in a temporary root-owned runtime file:
+
+```dotenv
+CADDYFILE=./Caddyfile.local
+APP_DOMAIN=localhost
+ACME_EMAIL=ops@localhost
+HTTP_PORT=8080
+HTTPS_PORT=8443
+APP_ORIGIN=https://localhost:8443
+GATEWAY_INTERNAL_BASE_URL=http://gateway:8080
 ```
 
-Hàng đợi `scrape_job` là bền vững trên Postgres, nên chạy chồng hay service chết giữa chừng đều an toàn (lease + reclaim).
+`Caddyfile.local` uses Caddy's internal certificate authority. Test it with
+`curl -k https://localhost:8443/`; do not treat that certificate as public TLS.
+Before bringing up that local stack, add a randomly generated
+`PRICE_INTERNAL_SERVICE_TOKEN` to the same root-owned runtime file; the
+placeholder token above is for `config` parsing only.
 
-Mở rộng: tăng số bản sao service không giữ trạng thái:
+## 3. First production launch
 
-```
-docker compose -f deploy/docker-compose.yml up -d --scale pricesvc=3
-```
+From the checked-out repository (the systemd units assume `/srv/shopass`):
 
-Cập nhật phiên bản:
-
-```
-git pull
-make up                  # build lại image thay đổi và chạy tiếp; make migrate nếu có migration mới
-```
-
-Dừng và dọn:
-
-```
-make down                # dừng, GIỮ dữ liệu
-make clean               # dừng và XÓA volume dữ liệu (mất toàn bộ dữ liệu)
+```bash
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml build
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml up -d
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml ps
 ```
 
-## 7. Bảo mật
+Expected state: `db` and Redis become healthy, `migrate` exits successfully,
+and the long-running services plus gateway and Caddy are up. Only Caddy should
+show host port mappings. Verify from a separate network after DNS propagates:
 
-- Đổi `POSTGRES_PASSWORD` và mọi bí mật khỏi giá trị mặc định.
-- Không mở cổng `db` (5432) ra Internet công cộng; chỉ mở cho mạng nội bộ hoặc bỏ ánh xạ cổng nếu không cần truy cập từ host.
-- Đặt một reverse proxy có TLS (Caddy/Nginx/Traefik) trước `web` và `pricesvc`; không phục vụ HTTP trần ra ngoài.
-- Bí mật thật (khóa cổng thanh toán, token proxy) nên đưa qua trình quản lý bí mật hoặc biến môi trường của môi trường triển khai, không ghi vào file trong repo.
-- Tôn trọng các bất biến ở `docs/tasks/SHIP-GUIDE.md` (không lưu token phiên sàn phía server, tuân thủ PDPL).
+```bash
+curl -fsSI https://your-domain.example/
+curl -i 'https://your-domain.example/v1/products/100/price-history?range=7d'
+```
 
-## 8. Ghi chú và giới hạn hiện tại
+The second request should return `401` without a valid access token, proving
+that Caddy did not bypass the gateway. Repeat it with a token from the login
+flow before treating the protected route as accepted.
 
-- Ảnh Go build dùng `golang:1.25` (khớp `go.mod`); nếu hạ về 1.22 theo ghi chú vệ sinh trong `docs/AUDIT-REPORT.md` thì đổi cả ở đây.
-- Ảnh ml cài CmdStan để chạy Prophet cho SKU đã đủ lịch sử; SKU chưa đủ dùng đường prior nhẹ.
-- Chưa nằm trong stack: API gateway đứng trước các service (xác thực JWT tập trung). Hiện `authsvc`, `tracksvc`, `bff` tin `X-User-Id` do gateway chuyển xuống; khi chưa có gateway thật, đặt gateway/reverse-proxy tự gắn header này, hoặc chỉ mở các service qua mạng nội bộ.
-- `authsvc`, `tracksvc`, `bff` nay đã nằm trong compose và build được (đã kiểm bằng `go build`/`npm run build`), nhưng `docker compose up` chưa chạy thử ở môi trường xây dựng vì không có Docker. Còn hai điểm chưa trọn: `bff` trả wishlist nhưng chưa kèm item (cần `tracksvc` nhúng item vào response `GET /v1/wishlists`), và social login chỉ bật khi có `GOOGLE_CLIENT_ID/SECRET` thật.
-- Chuỗi migration `deploy/migrate.sh` (gồm cả `0007_social_identity`) đã được kiểm trên một Postgres thật và áp dụng sạch; `make migrate` tạo cả `social_identity`.
-- Đọc thêm: `docs/AUDIT-REPORT.md` (chất lượng và cách chạy test), `docs/TASK-COVERAGE.md` (tính năng thật và phần còn stub).
+Do not seed demo data or run `make smoke` against a production database.
+
+## 4. Scheduled work
+
+`dealsvc` already runs its nightly score at 02:00 Asia/Ho_Chi_Minh. Install the
+root-owned scrape and forecast timers from [`systemd/README.md`](systemd/README.md).
+They run `scrapesvc` every five minutes and `mlforecast` at 01:30, respectively,
+with `flock` to prevent overlap. They intentionally do not mount the Docker
+socket into an application container.
+
+## 5. Operations
+
+Use the production manifest consistently:
+
+```bash
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml logs -f --tail=100
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml ps
+```
+
+The production DB has no published port. Use `docker compose exec` for a
+controlled administrative session rather than opening 5432:
+
+```bash
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml exec db \
+  psql -U shopass -d shopass
+```
+
+Schedule encrypted, off-host backups and test restore regularly. A local export
+is useful only as a first step, not as a disaster-recovery strategy:
+
+```bash
+sudo docker compose --env-file /etc/shopass/runtime.env \
+  -f deploy/docker-compose.production.yml exec -T db \
+  pg_dump -U shopass shopass | gzip > shopass_$(date +%F).sql.gz
+```
+
+See [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md) for why application readiness
+checks are not yet declared in Compose and the exact source work needed before
+adding them.
+
+## Release blockers still outside this deployment change
+
+1. Run gateway/auth proxy integration and adversarial JWT tests against the
+   built containers, including JWKS outage, header spoofing, rate limits, and
+   auth key restart/rotation. `/ws` still requires a verified implementation.
+2. Implement controlled auth-key rotation overlap and a human-run recovery
+   procedure. The production secret mount prevents boot-time key regeneration,
+   but rotation is not automated.
+3. Implement `_FILE`/Vault/AWS Secret Manager loading in every service, then
+   remove `DATABASE_URL`, third-party credentials, and
+   `PRICE_INTERNAL_SERVICE_TOKEN` from process environments.
+4. Add real `/livez` + dependency-aware `/readyz` endpoints and probe support
+   as listed in [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md).
+5. Wire a real notification provider, alert delivery monitoring, metrics,
+   tracing, off-host backups, alerting, and restore drills.
+6. Obtain residential proxy credentials and verify scraping/legal/compliance
+   controls before collecting real marketplace or personal data.
+
+Until those blockers are closed and human-tested, this is a hardened deployment
+foundation and staging/public-read edge, not approval to accept real users for
+private tracking or alert functionality.

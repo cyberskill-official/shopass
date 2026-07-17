@@ -33,7 +33,7 @@ export function WishlistPanel() {
     try {
       const lists = await listWishlists();
       setWishlists(lists);
-      
+
       if (lists.length > 0) {
         // Fetch items for the first list as a simplified UX for this slice
         const res = await apiFetch(`/v1/wishlists/${lists[0].id}/items`);
@@ -44,8 +44,12 @@ export function WishlistPanel() {
           setError("Không tìm thấy danh sách");
         }
       }
-    } catch (e: any) {
-      setError(e.message || "Đã xảy ra lỗi khi tải danh sách");
+    } catch (error) {
+      setError(
+        error instanceof Error && error.message
+          ? error.message
+          : "Đã xảy ra lỗi khi tải danh sách"
+      );
     } finally {
       setLoading(false);
     }
@@ -58,8 +62,8 @@ export function WishlistPanel() {
       await createWishlist(newListName);
       setNewListName("");
       await loadData();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error) {
+      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
     }
   };
 
@@ -69,18 +73,18 @@ export function WishlistPanel() {
     try {
       const pid = parseInt(newProductId, 10);
       const tp = newTargetPrice.trim() === "" ? null : parseInt(newTargetPrice, 10);
-      
+
       if (tp !== null && (isNaN(tp) || tp <= 0)) {
         alert("Giá phải là số nguyên dương");
         return;
       }
-      
+
       await addItem(wishlists[0].id, pid, tp);
       setNewProductId("");
       setNewTargetPrice("");
       await loadData();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error) {
+      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
     }
   };
 
@@ -89,8 +93,8 @@ export function WishlistPanel() {
     try {
       await deleteWishlist(id);
       await loadData();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error) {
+      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
     }
   };
 
@@ -105,7 +109,7 @@ export function WishlistPanel() {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-semibold mb-4">Quản lý Wishlist</h2>
-      
+
       {wishlists.length === 0 ? (
         <div className="bg-gray-50 p-6 text-center rounded-lg border border-dashed border-gray-300">
           <p className="text-gray-500 mb-4">Bạn chưa có wishlist nào.</p>

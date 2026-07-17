@@ -26,8 +26,8 @@ export function WishlistItemRow({
       }
       await onUpdateTargetPrice(item.id, parsed);
       setEditing(false);
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error) {
+      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
     } finally {
       setLoading(false);
     }

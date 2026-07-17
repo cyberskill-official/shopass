@@ -1,6 +1,7 @@
 package gw
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -8,9 +9,37 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func testUpstream(t *testing.T, name string) http.Handler {
+	t.Helper()
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Upstream", name)
+		w.Header().Set("X-User-Id-Echo", r.Header.Get("X-User-Id"))
+		w.Header().Set("X-Request-Id-Echo", r.Header.Get("X-Request-Id"))
+		w.WriteHeader(http.StatusOK)
+	})
+}
+
+func testDeps(t *testing.T) Deps {
+	t.Helper()
+	auth := testUpstream(t, "auth")
+	track := testUpstream(t, "track")
+	price := testUpstream(t, "price")
+	deal := testUpstream(t, "deal")
+	bff := testUpstream(t, "bff")
+	return Deps{
+		JWKS: &mockJWKS{},
+		Upstreams: Upstreams{
+			AuthHandler:  auth,
+			TrackHandler: track,
+			PriceHandler: price,
+			DealHandler:  deal,
+			BFFHandler:   bff,
+		},
+	}
+}
+
 func TestWAF_PathTraversal_400(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}}
-	h := NewHandler(deps)
+	h := NewHandler(testDeps(t))
 
 	req := httptest.NewRequest("GET", "/v1/../etc/passwd", nil)
 	rr := httptest.NewRecorder()
@@ -19,7 +48,8 @@ func TestWAF_PathTraversal_400(t *testing.T) {
 }
 
 func TestWAF_BodySize_413(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}, WAFConfig: WAFConfig{MaxBodySize: 10}} // very small cap
+	deps := testDeps(t)
+	deps.WAFConfig = WAFConfig{MaxBodySize: 10}
 	h := NewHandler(deps)
 
 	req := httptest.NewRequest("POST", "/v1/auth/login", strings.NewReader("this is a very long body that exceeds 10 bytes"))
@@ -29,10 +59,9 @@ func TestWAF_BodySize_413(t *testing.T) {
 }
 
 func TestRequestID_Generated(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}}
-	h := NewHandler(deps)
+	h := NewHandler(testDeps(t))
 
-	req := httptest.NewRequest("GET", "/v1/health", nil)
+	req := httptest.NewRequest("POST", "/v1/auth/login", nil)
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
 
@@ -41,28 +70,80 @@ func TestRequestID_Generated(t *testing.T) {
 	require.NotEmpty(t, rr.Header().Get("X-Request-Id"))
 }
 
-func TestRouter_Routing(t *testing.T) {
-	deps := Deps{JWKS: &mockJWKS{}}
-	h := NewHandler(deps)
+func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
+	h := NewHandler(testDeps(t))
 
 	tests := []struct {
-		path     string
-		upstream string
+		method string
+		path   string
+		token  bool
+		want   string
 	}{
-		{"/v1/health", "rest"},
-		{"/graphql", "graphql"},
-		{"/ws", "ws"},
+		{http.MethodPost, "/v1/auth/login", false, "auth"},
+		{http.MethodGet, "/v1/track", true, "track"},
+		{http.MethodGet, "/v1/tracked-products", true, "track"},
+		{http.MethodGet, "/v1/products/1/chart", true, "deal"},
+		{http.MethodPost, "/graphql", true, "bff"},
 	}
 
 	for _, tc := range tests {
-		req := httptest.NewRequest("GET", tc.path, nil)
-		// For ws and graphql, if we want them to pass they need to be public or authenticated.
-		// WSS spec says "verify JWT in handshake (query param or subprotocol)". For test simplicity, let's just use valid token.
-		req.Header.Set("Authorization", "Bearer valid-1")
-		rr := httptest.NewRecorder()
-		h.ServeHTTP(rr, req)
+		t.Run(tc.path, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, tc.path, nil)
+			if tc.token {
+				req.Header.Set("Authorization", "Bearer valid-1")
+			}
+			rr := httptest.NewRecorder()
+			h.ServeHTTP(rr, req)
 
-		require.Equal(t, 200, rr.Code)
-		require.Equal(t, tc.upstream, rr.Header().Get("X-Upstream"))
+			require.Equal(t, http.StatusOK, rr.Code)
+			require.Equal(t, tc.want, rr.Header().Get("X-Upstream"))
+		})
+	}
+}
+
+func TestGatewayStripsForgedIdentityBeforeSettingVerifiedIdentity(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	req := httptest.NewRequest(http.MethodGet, "/v1/tracked-products", nil)
+	req.Header.Set("Authorization", "Bearer valid-90112")
+	req.Header.Set("X-User-Id", "999999")
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "90112", rr.Header().Get("X-User-Id-Echo"))
+}
+
+func TestGatewayRejectsInternalPriceIngestRoute(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	req := httptest.NewRequest(http.MethodPost, "/v1/price/snapshots", nil)
+	req.Header.Set("Authorization", "Bearer valid-1")
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusNotFound, rr.Code)
+}
+
+func TestGatewayRejectsUnscopedPriceReadRoutes(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	for _, path := range []string{"/v1/products/1/price-history", "/v1/compare"} {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			req.Header.Set("Authorization", "Bearer valid-1")
+			rr := httptest.NewRecorder()
+			h.ServeHTTP(rr, req)
+			require.Equal(t, http.StatusNotFound, rr.Code)
+		})
+	}
+}
+
+func TestGatewayRejectsUnavailableBetaRoutes(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	for _, path := range []string{"/v1/wishlists", "/v1/alerts"} {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			req.Header.Set("Authorization", "Bearer valid-1")
+			rr := httptest.NewRecorder()
+			h.ServeHTTP(rr, req)
+			require.Equal(t, http.StatusNotFound, rr.Code)
+		})
 	}
 }

@@ -1,0 +1,305 @@
+# Production topology. This file is intentionally separate from the existing
+# docker-compose.yml development/demo stack: it exposes only Caddy and keeps
+# every application service, database, cache, and job network-private.
+#
+# Run with a root-owned runtime env file, for example:
+#   docker compose --env-file /etc/shopass/runtime.env \
+#     -f deploy/docker-compose.production.yml up -d --build
+#
+# DATABASE_URL is still required as a runtime environment variable because the
+# current service binaries do not support DATABASE_URL_FILE/Vault loading yet.
+# See deploy/secrets/README.md and deploy/README.md before using this file.
+name: shopass
+
+x-json-logging: &json_logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-daemon: &daemon
+  restart: unless-stopped
+  init: true
+  logging: *json_logging
+
+services:
+  # The sole public entrypoint. It is connected to public for Internet egress
+  # (ACME) and private for upstreams; no other service has host ports.
+  caddy:
+    <<: *daemon
+    image: ${CADDY_IMAGE:-caddy:2.8.4-alpine}
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN to the production hostname}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL for certificate notices}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ${CADDYFILE:-./Caddyfile}:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web: { condition: service_started }
+      gateway: { condition: service_started }
+    networks: [public, private]
+
+  # Redis is private-only and used by the gateway's distributed rate limiter.
+  # It is deliberately not published.
+  redis:
+    <<: *daemon
+    image: ${REDIS_IMAGE:-redis:7.4.2-alpine}
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
+    volumes: ["redisdata:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks: [private]
+
+  db:
+    restart: unless-stopped
+    logging: *json_logging
+    image: ${TIMESCALE_IMAGE:-timescale/timescaledb:2.28.2-pg16}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shopass}
+      POSTGRES_DB: ${POSTGRES_DB:-shopass}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - source: db_password
+        target: db_password
+        mode: 0400
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shopass} -d ${POSTGRES_DB:-shopass}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+    networks: [private]
+
+  # One-shot schema application. Do not make it a restartable daemon: a failed
+  # migration must stop a release and receive an operator decision.
+  migrate:
+    image: ${POSTGRES_TOOL_IMAGE:-postgres:16.4-alpine}
+    logging: *json_logging
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+    volumes:
+      - ../db/migrations:/migrations/db:ro
+      - ../services:/migrations/services:ro
+      - ./migrate.sh:/migrate.sh:ro
+    entrypoint: ["sh", "/migrate.sh"]
+    restart: "no"
+    networks: [private]
+
+  notifsvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/notif, CMD: ./cmd/notifsvc }
+    environment:
+      PORT: "8082"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+
+  pricesvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/price, CMD: ./cmd/pricesvc }
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      PRICE_ADDR: ":8081"
+      # Shared only with tracksvc. tracksvc presents this value as
+      # X-Service-Token when it calls the private price API.
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:?PRICE_INTERNAL_SERVICE_TOKEN must be injected for the private price API}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+
+  dealsvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/deal, CMD: ./cmd/dealsvc }
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      NOTIFSVC_URL: http://notifsvc:8082/notify
+      DEAL_ADDR: ":8082"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      notifsvc: { condition: service_started }
+    networks: [private]
+
+  web:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    environment:
+      # These stay server-side: browser API traffic remains same-origin through
+      # Caddy, while Next.js auth route handlers call the private gateway.
+      NODE_ENV: production
+      APP_ORIGIN: ${APP_ORIGIN:?set APP_ORIGIN to the exact public HTTPS origin}
+      GATEWAY_INTERNAL_BASE_URL: ${GATEWAY_INTERNAL_BASE_URL:-http://gateway:8080}
+      PRICE_API_BASE: http://pricesvc:8081
+    depends_on:
+      pricesvc: { condition: service_started }
+    networks: [private]
+
+  # Google OAuth is intentionally disabled in production until its callback is
+  # mediated by the web BFF, which can keep the refresh token HttpOnly.
+  authsvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/auth, CMD: ./cmd/authsvc }
+    environment:
+      APP_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      AUTH_ADDR: ":8084"
+      AUTH_ISS: ${AUTH_ISS:-shopass-auth}
+      AUTH_AUD: ${AUTH_AUD:-shopass-gateway}
+      AUTH_SIGNING_KEY_FILE: /run/secrets/auth_signing_key
+      AUTH_KEY_ID: ${AUTH_KEY_ID:?set AUTH_KEY_ID for the mounted signing key}
+      ENABLE_GOOGLE_OAUTH: "false"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+    secrets:
+      - source: auth_signing_key
+        target: auth_signing_key
+        mode: 0400
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private, egress]
+
+  # The only service trusted to verify browser JWTs and construct X-User-*
+  # headers for internal downstreams. It has no host port; Caddy reaches it on
+  # the private network.
+  gateway:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/gateway, CMD: ./cmd/gateway }
+    environment:
+      GATEWAY_ADDR: ":8080"
+      REDIS_URL: redis://redis:6379/0
+      AUTH_JWKS_URL: http://authsvc:8084/.well-known/jwks.json
+      AUTH_ISS: ${AUTH_ISS:-shopass-auth}
+      AUTH_AUD: ${AUTH_AUD:-shopass-gateway}
+      AUTH_UPSTREAM_URL: http://authsvc:8084
+      TRACK_UPSTREAM_URL: http://tracksvc:8083
+      PRICE_UPSTREAM_URL: http://pricesvc:8081
+      DEAL_UPSTREAM_URL: http://dealsvc:8082
+      BFF_UPSTREAM_URL: http://bff:8085
+    depends_on:
+      redis: { condition: service_healthy }
+      authsvc: { condition: service_started }
+      tracksvc: { condition: service_started }
+      pricesvc: { condition: service_started }
+      dealsvc: { condition: service_started }
+      bff: { condition: service_started }
+    networks: [private]
+
+  tracksvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/track, CMD: ./cmd/tracksvc }
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      TRACK_ADDR: ":8083"
+      PRICE_INTERNAL_URL: ${PRICE_INTERNAL_URL:-http://pricesvc:8081}
+      # Must be byte-for-byte identical to pricesvc's token above. Do not
+      # expose it at Caddy or send it from a browser.
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:?PRICE_INTERNAL_SERVICE_TOKEN must be injected for the private price API}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+
+  bff:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.node
+      args: { SERVICE: bff }
+    environment:
+      BFF_ADDR: ":8085"
+      TRACK_BASE_URL: http://tracksvc:8083
+      DEAL_BASE_URL: http://dealsvc:8082
+    depends_on:
+      tracksvc: { condition: service_started }
+      dealsvc: { condition: service_started }
+    networks: [private]
+
+  # One-shot jobs are launched by the root-owned systemd timers in
+  # deploy/systemd/. They stay off the normal compose up path.
+  scrapesvc:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/scrape, CMD: ./cmd/scrapesvc }
+    logging: *json_logging
+    environment:
+      SHOPEE_BASE_URL: ${SHOPEE_BASE_URL:-https://shopee.vn}
+      PRICE_BASE_URL: http://pricesvc:8081
+      SCRAPE_SEED: ${SCRAPE_SEED:-}
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+    depends_on:
+      pricesvc: { condition: service_started }
+    restart: "no"
+    networks: [private, egress]
+
+  mlforecast:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.ml
+    logging: *json_logging
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    restart: "no"
+    networks: [private]
+
+networks:
+  # Only Caddy joins this network. Host port publishing exists only on Caddy.
+  public:
+    name: shopass-public
+  # DB, cache, and application RPC use this non-routable network.
+  private:
+    name: shopass-private
+    internal: true
+  # Only components with reviewed outbound needs join this network.
+  egress:
+    name: shopass-egress
+
+volumes:
+  pgdata:
+  redisdata:
+  caddy_data:
+  caddy_config:
+
+secrets:
+  # Root-readable files outside the repository. Postgres and authsvc consume
+  # these as files; other application credentials remain documented temporary
+  # runtime env injections until their source-level _FILE/Vault integration.
+  db_password:
+    file: ${DB_PASSWORD_FILE:?set DB_PASSWORD_FILE to a root-readable secret file}
+  auth_signing_key:
+    file: ${AUTH_SIGNING_KEY_SECRET_FILE:?set AUTH_SIGNING_KEY_SECRET_FILE to an RSA PEM file}

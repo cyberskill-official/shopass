@@ -23,6 +23,7 @@ func (h *handlers) routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/auth/register", h.registerUser)
 	mux.HandleFunc("POST /v1/auth/login", h.login)
 	mux.HandleFunc("POST /v1/auth/refresh", h.refresh)
+	mux.HandleFunc("POST /v1/auth/logout", h.logout)
 	mux.HandleFunc("GET /v1/auth/oauth/{provider}/start", h.oauthStart)
 	mux.HandleFunc("GET /v1/auth/oauth/{provider}/callback", h.oauthCallback)
 }
@@ -102,6 +103,20 @@ func (h *handlers) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, pair)
+}
+
+func (h *handlers) logout(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.RefreshToken == "" {
+		writeErr(w, http.StatusBadRequest, "invalid body")
+		return
+	}
+	// Idempotent at the web boundary: no token detail is disclosed to an
+	// unauthenticated caller, and the browser always clears its cookie.
+	_ = h.tokens.Logout(r.Context(), body.RefreshToken)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *handlers) oauthStart(w http.ResponseWriter, r *http.Request) {

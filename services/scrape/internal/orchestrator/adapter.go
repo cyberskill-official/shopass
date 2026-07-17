@@ -21,6 +21,30 @@ type ScrapeJob struct {
 	PlatformItemID string // platform-specific ref, e.g. "itemID:shopID" for Shopee
 	Tier           Tier
 	Attempts       int
+	// NextRunAt is populated for deferred in-memory jobs. The durable queue keeps
+	// the source of truth in scrape_job.next_run_at.
+	NextRunAt time.Time
+}
+
+// JobOutcome describes a job whose resulting queue state was persisted. A
+// processing error is represented by Deferred or Failed rather than by the
+// error return from Pool.ProcessJob.
+type JobOutcome string
+
+const (
+	JobSucceeded JobOutcome = "succeeded"
+	JobDeferred  JobOutcome = "deferred"
+	JobFailed    JobOutcome = "failed"
+)
+
+// ProcessResult separates a persisted scrape outcome from an infrastructure
+// error. When ProcessJob returns a non-nil error, callers must assume the
+// queue state could not be persisted and should not report the job as handled.
+type ProcessResult struct {
+	Outcome  JobOutcome
+	Attempts int
+	RetryAt  time.Time
+	Cause    error
 }
 
 type PlatformAdapter interface {

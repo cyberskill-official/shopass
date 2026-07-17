@@ -1,6 +1,14 @@
 import React from "react";
 import { RANGE_ALLOWLIST, type Range } from "@/lib/chart/types";
 
+const LABELS: Record<Range, string> = {
+  "7d": "7 ngày",
+  "30d": "30 ngày",
+  "90d": "90 ngày",
+  "180d": "6 tháng",
+  "1y": "1 năm",
+};
+
 export function RangeSelector({
   currentRange,
   onChange,
@@ -9,20 +17,23 @@ export function RangeSelector({
   onChange: (range: Range) => void;
 }) {
   return (
-    <div className="flex space-x-2 my-4 bg-gray-100 p-1 rounded-md inline-flex">
-      {RANGE_ALLOWLIST.map((r) => (
-        <button
-          key={r}
-          onClick={() => onChange(r)}
-          className={`px-3 py-1 text-sm rounded-sm transition-colors ${
-            currentRange === r
-              ? "bg-white shadow-sm font-medium text-blue-600"
-              : "text-gray-600 hover:text-gray-900"
-          }`}
-        >
-          {r}
-        </button>
-      ))}
+    <div className="inline-flex items-center rounded-xl bg-slate-100 p-1 shadow-inner">
+      {RANGE_ALLOWLIST.map((r) => {
+        const isActive = currentRange === r;
+        return (
+          <button
+            key={r}
+            onClick={() => onChange(r)}
+            className={`relative rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all duration-200 sm:px-4 sm:text-sm ${
+              isActive
+                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            {LABELS[r] || r}
+          </button>
+        );
+      })}
     </div>
   );
 }

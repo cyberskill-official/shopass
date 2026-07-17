@@ -21,7 +21,7 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (error || !productId.trim()) return;
-    
+
     setLoading(true);
     try {
       await createAlert({
@@ -35,8 +35,8 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
       setRuleType("price_below");
       setChannels(["push"]);
       onCreated();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error) {
+      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
     } finally {
       setLoading(false);
     }

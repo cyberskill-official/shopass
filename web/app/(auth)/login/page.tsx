@@ -1,88 +1,185 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setAccessToken } from "@/lib/auth";
+import { safeNextPath } from "@/lib/safe-next";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [nextPath, setNextPath] = useState("/dashboard");
   const router = useRouter();
+  const [isSignup, setIsSignup] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsSignup(params.get("signup") === "1");
+    setNextPath(safeNextPath(params.get("next"), window.location.origin));
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setMessage("");
+    setSubmitting(true);
 
-    // Forwarding credentials to auth-svc via gateway
-    const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
     try {
-      const res = await fetch(`${BASE}/v1/auth/login`, {
+      const res = await fetch(isSignup ? "/api/auth/register" : "/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (!res.ok) {
-        setError("Invalid credentials");
+        const body = await res.json().catch(() => null);
+        setError(body?.error || (isSignup ? "Không thể tạo tài khoản" : "Email hoặc mật khẩu không đúng"));
         return;
       }
 
-      const data = await res.json();
-      
-      // Update in-memory token
-      if (data.access_token) {
-        setAccessToken(data.access_token);
-        
-        // Also call our local /api/auth/refresh to set the refresh token in httpOnly cookie
-        // In a real scenario, the backend might set it directly if same-site, or the client calls it
-        // Assuming the auth-svc returns refresh_token which we need to set via route handler
-        if (data.refresh_token) {
-           await fetch("/api/auth/refresh", {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             // MOCK: sending refresh token to set it.
-             // Normally, the BFF route handler receives it and sets the cookie.
-           });
-        }
-        
-        router.push("/dashboard");
+      if (isSignup) {
+        setIsSignup(false);
+        setMessage("Tài khoản đã được tạo. Hãy đăng nhập để bắt đầu theo dõi giá.");
+        return;
       }
-    } catch (err) {
-      setError("An error occurred during login");
+      const data = await res.json();
+      if (typeof data?.accessToken !== "string") {
+        setError("Phản hồi đăng nhập không hợp lệ");
+        return;
+      }
+      setAccessToken(data.accessToken);
+      router.push(nextPath);
+    } catch {
+      setError("Không thể kết nối tới dịch vụ đăng nhập");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Login to SănDeal</h2>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input 
-              type="email" 
-              className="w-full border rounded-md px-3 py-2"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
+    <div className="mesh-bg flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="grid w-full max-w-5xl min-w-0 overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-2xl shadow-indigo-100/50 backdrop-blur-xl lg:grid-cols-[1fr_1.1fr]">
+
+        {/* Left Side: Brand Panel */}
+        <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-950 p-10 text-white lg:flex xl:p-12">
+          <div className="absolute -left-10 -top-10 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+          <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-violet-600/20 blur-3xl" />
+
+          <div className="relative z-10">
+            <Link href="/" className="flex items-center gap-3 text-xl font-black transition-opacity hover:opacity-80">
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/20">S</span>
+              <span>Săn<span className="text-blue-400">Deal</span></span>
+            </Link>
+
+            <h1 className="mt-20 text-4xl font-black leading-[1.15] tracking-tight text-white xl:text-5xl">
+              Đừng mua theo cảm tính.<br />
+              <span className="text-blue-400">Mua theo dữ liệu.</span>
+            </h1>
+
+            <p className="mt-6 max-w-sm text-base leading-relaxed text-slate-400">
+              Theo dõi lịch sử giá minh bạch để biết một deal thật sự tốt hay chỉ đang được nền tảng đánh lừa.
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input 
-              type="password" 
-              className="w-full border rounded-md px-3 py-2"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
+
+          <div className="relative z-10">
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-blue-200">
+              <span className="h-2 w-2 rounded-full bg-blue-400" />
+              CLOSED BETA · SHOPEE VN
+            </p>
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700">
-            Login
-          </button>
-        </form>
+        </div>
+
+        {/* Right Side: Form */}
+        <div className="flex flex-col justify-center px-6 py-10 sm:px-12 sm:py-14 lg:px-14 xl:px-16">
+          <div className="w-full max-w-md lg:mx-auto">
+            <Link href="/" className="mb-8 inline-flex items-center gap-1 text-sm font-bold text-slate-400 transition hover:text-slate-900 lg:hidden">
+              ← Về trang chủ
+            </Link>
+
+            <h2 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+              {isSignup ? "Tạo tài khoản" : "Chào mừng"}
+            </h2>
+            <p className="mt-3 mb-8 text-sm leading-relaxed text-slate-500 sm:text-base">
+              {isSignup
+                ? "Bắt đầu hành trình mua sắm thông minh ngay hôm nay."
+                : "Đăng nhập để tiếp tục theo dõi các sản phẩm của bạn."}
+            </p>
+
+            {error && (
+              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+                <p className="text-sm font-medium text-red-800">{error}</p>
+              </div>
+            )}
+
+            {message && (
+              <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-sm font-medium text-emerald-800">{message}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
+                  Địa chỉ Email
+                </label>
+                <input
+                  type="email"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
+                  Mật khẩu
+                </label>
+                <input
+                  type="password"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <button
+                disabled={submitting}
+                type="submit"
+                className="mt-2 flex w-full items-center justify-center rounded-xl bg-slate-950 py-4 text-sm font-extrabold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:translate-y-0"
+              >
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path></svg>
+                    Đang xử lý...
+                  </span>
+                ) : (
+                  isSignup ? "Tạo tài khoản" : "Đăng nhập"
+                )}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => { setIsSignup((current) => !current); setError(""); setMessage(""); }}
+                className="text-sm font-bold text-slate-500 transition hover:text-slate-900"
+              >
+                {isSignup ? (
+                  <span>Đã có tài khoản? <span className="text-blue-600">Đăng nhập</span></span>
+                ) : (
+                  <span>Chưa có tài khoản? <span className="text-blue-600">Tạo tài khoản</span></span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ package pgqueue
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -28,16 +29,21 @@ func New(pool *pgxpool.Pool, lease time.Duration) *Queue {
 // Enqueue upserts a due job. platform_item_id lives on tracked_product, so it is
 // not stored here; Claim joins it back.
 func (q *Queue) Enqueue(ctx context.Context, job orchestrator.ScrapeJob) error {
+	nextRunAt := job.NextRunAt
+	if nextRunAt.IsZero() {
+		nextRunAt = time.Now()
+	}
 	_, err := q.pool.Exec(ctx, `
 		INSERT INTO scrape_job (product_id, platform_id, tier, next_run_at, last_status)
-		VALUES ($1, $2, $3::scrape_tier, now(), 'pending')
+		VALUES ($1, $2, $3::scrape_tier, $4, 'pending')
 		ON CONFLICT (product_id) DO UPDATE SET
 			platform_id = EXCLUDED.platform_id,
 			tier        = EXCLUDED.tier,
 			next_run_at = EXCLUDED.next_run_at,
+			attempts    = 0,
 			last_status = 'pending',
 			locked_until = NULL
-	`, job.ProductID, job.PlatformID, string(job.Tier))
+	`, job.ProductID, job.PlatformID, string(job.Tier), nextRunAt)
 	return err
 }
 
@@ -54,7 +60,7 @@ WHERE j.product_id = (
 	FOR UPDATE SKIP LOCKED
 	LIMIT 1
 )
-RETURNING j.product_id, j.platform_id, j.tier::text, j.attempts,
+RETURNING j.product_id, j.platform_id, j.tier::text, j.attempts, j.next_run_at,
 	COALESCE((SELECT platform_item_id FROM tracked_product WHERE id = j.product_id), '')`
 
 // Claim leases the next due job for a platform. ok=false when none is available.
@@ -67,17 +73,56 @@ func (q *Queue) Claim(ctx context.Context, platformID int16) (orchestrator.Scrap
 func (q *Queue) Ack(ctx context.Context, productID int64) error {
 	_, err := q.pool.Exec(ctx, `
 		UPDATE scrape_job
-		SET last_status = 'ok', locked_until = NULL,
+		SET attempts = 0, last_status = 'ok', locked_until = NULL,
 		    next_run_at = GREATEST(next_run_at, now() + INTERVAL '1 minute')
 		WHERE product_id = $1`, productID)
 	return err
+}
+
+// Retry persists a failed attempt and makes the job eligible only at
+// nextRunAt. Attempts are carried by the claimed job and are not reset until
+// a later successful Ack.
+func (q *Queue) Retry(ctx context.Context, job orchestrator.ScrapeJob, nextRunAt time.Time) error {
+	tag, err := q.pool.Exec(ctx, `
+		UPDATE scrape_job
+		SET attempts = GREATEST(attempts, $2),
+		    last_status = 'retry',
+		    next_run_at = $3,
+		    locked_until = NULL
+		WHERE product_id = $1`, job.ProductID, job.Attempts, nextRunAt)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() != 1 {
+		return fmt.Errorf("scrape job %d not found while deferring", job.ProductID)
+	}
+	return nil
+}
+
+// Fail records the terminal queue state after the retry budget is exhausted.
+// Failed jobs are excluded by Claim and by the due-job index.
+func (q *Queue) Fail(ctx context.Context, job orchestrator.ScrapeJob) error {
+	tag, err := q.pool.Exec(ctx, `
+		UPDATE scrape_job
+		SET attempts = GREATEST(attempts, $2),
+		    last_status = 'failed',
+		    locked_until = NULL
+		WHERE product_id = $1`, job.ProductID, job.Attempts)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() != 1 {
+		return fmt.Errorf("scrape job %d not found while failing", job.ProductID)
+	}
+	return nil
 }
 
 // Reschedule persists the next scrape time + tier (orchestrator.Rescheduler).
 func (q *Queue) Reschedule(ctx context.Context, productID int64, tier orchestrator.Tier, nextRunAt time.Time) error {
 	_, err := q.pool.Exec(ctx, `
 		UPDATE scrape_job
-		SET tier = $2::scrape_tier, next_run_at = $3, last_status = 'ok', locked_until = NULL
+		SET tier = $2::scrape_tier, next_run_at = $3, attempts = 0,
+		    last_status = 'ok', locked_until = NULL
 		WHERE product_id = $1`, productID, string(tier), nextRunAt)
 	return err
 }
@@ -94,7 +139,7 @@ WHERE j.product_id = (
 	FOR UPDATE SKIP LOCKED
 	LIMIT 1
 )
-RETURNING j.product_id, j.platform_id, j.tier::text, j.attempts,
+RETURNING j.product_id, j.platform_id, j.tier::text, j.attempts, j.next_run_at,
 	COALESCE((SELECT platform_item_id FROM tracked_product WHERE id = j.product_id), '')`
 
 // Reclaim re-leases a job whose lease expired (crashed worker). timeout is the
@@ -107,7 +152,7 @@ func (q *Queue) scanJob(ctx context.Context, sql string, platformID int16, lease
 	var job orchestrator.ScrapeJob
 	var tier string
 	err := q.pool.QueryRow(ctx, sql, platformID, lease).
-		Scan(&job.ProductID, &job.PlatformID, &tier, &job.Attempts, &job.PlatformItemID)
+		Scan(&job.ProductID, &job.PlatformID, &tier, &job.Attempts, &job.NextRunAt, &job.PlatformItemID)
 	if err == pgx.ErrNoRows {
 		return orchestrator.ScrapeJob{}, false, nil
 	}

@@ -1,5 +1,7 @@
 # SănDeal - Hướng dẫn Triển khai & Phát hành Toàn diện (Deployment Guide)
 
+> **Trạng thái:** tài liệu này là bản hướng dẫn kiến trúc/rộng. Quy trình Docker Compose an toàn hiện tại nằm ở [`../deploy/README.md`](../deploy/README.md). Không mở công khai `deploy/docker-compose.yml`, không dùng `Caddyfile.demo`, và không xem các lệnh trong file này là checklist production đã đủ. `deploy/README.md` nêu rõ các release blocker còn lại: gateway JWT thật, khoá ký auth bền vững, secret loading, readiness, backup/restore và notification.
+
 Tài liệu này cung cấp các bước chi tiết (step-by-step) để bạn có thể tự tay (manually) triển khai toàn bộ hệ sinh thái SănDeal lên môi trường Production, bao gồm Backend (Go), ML (Python), Web Frontend (Next.js), và xuất bản Extension lên Chrome Web Store.
 
 ---

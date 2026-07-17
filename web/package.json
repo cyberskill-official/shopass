@@ -10,10 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "next": "14.2.35",
-    "react": "^18",
-    "react-dom": "^18",
-    "recharts": "^3.9.1"
+    "@tailwindcss/postcss": "^4.0.0",
+    "next": "15.5.20",
+    "postcss": "^8.5.10",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "recharts": "^3.9.1",
+    "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
@@ -21,16 +24,16 @@
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
     "eslint": "^8",
-    "eslint-config-next": "14.2.35",
+    "eslint-config-next": "15.5.20",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
-  "engines": {
-    "node": ">=24 <25"
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }

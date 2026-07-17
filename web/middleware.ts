@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { refreshCookieCandidates } from "@/lib/server-auth";
+
+function readRefreshCookie(request: NextRequest): string | undefined {
+  for (const name of refreshCookieCandidates()) {
+    const value = request.cookies.get(name)?.value;
+    if (value) return value;
+  }
+  return undefined;
+}
 
 export function middleware(request: NextRequest) {
-  // Guard the (app) route group, specifically we can check path prefixes or all paths excluding some
-  // We'll protect anything that is not public. Let's protect /dashboard for now as per minimal setup.
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    const refreshToken = request.cookies.get("refresh_token")?.value;
-    
+  const protectedPrefixes = ["/dashboard", "/wishlist", "/alerts", "/products"];
+  if (protectedPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix))) {
+    const refreshToken = readRefreshCookie(request);
+
     if (!refreshToken) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", request.nextUrl.pathname);

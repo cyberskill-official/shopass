@@ -3,6 +3,7 @@ package track
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 type Repo struct {
@@ -29,4 +30,49 @@ func (r *Repo) LinkUserProduct(ctx context.Context, userID, productID int64) (bo
 		return false, err
 	}
 	return affected > 0, nil
+}
+
+// UserTrackedProduct is the owner-scoped product summary used by the closed
+// beta dashboard. It intentionally contains registry metadata only: price and
+// alert state have their own service-owned read paths.
+type UserTrackedProduct struct {
+	ProductID      int64     `json:"product_id"`
+	Platform       string    `json:"platform"`
+	PlatformItemID string    `json:"platform_item_id"`
+	FirstSeen      time.Time `json:"first_seen"`
+	TrackedAt      time.Time `json:"tracked_at"`
+}
+
+// ListUserTrackedProducts returns only products linked to the supplied user.
+// The user_id predicate is deliberately in the query rather than accepted as
+// a URL parameter, so callers cannot enumerate another user's dashboard.
+func (r *Repo) ListUserTrackedProducts(ctx context.Context, userID int64) ([]UserTrackedProduct, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT tp.id, p.code, tp.platform_item_id, tp.first_seen, utp.tracked_at
+		FROM user_tracked_product utp
+		JOIN tracked_product tp ON tp.id = utp.product_id
+		JOIN platform p ON p.id = tp.platform_id
+		WHERE utp.user_id = $1
+		ORDER BY utp.tracked_at DESC, tp.id DESC
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	products := make([]UserTrackedProduct, 0)
+	for rows.Next() {
+		var product UserTrackedProduct
+		if err := rows.Scan(
+			&product.ProductID,
+			&product.Platform,
+			&product.PlatformItemID,
+			&product.FirstSeen,
+			&product.TrackedAt,
+		); err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	return products, rows.Err()
 }

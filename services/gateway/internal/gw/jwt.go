@@ -3,6 +3,7 @@ package gw
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,8 +27,12 @@ type JWKSCache interface {
 func jwtVerify(jwks JWKSCache) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if isPublic(r.URL.Path) {
+			if isPublic(r) {
 				next.ServeHTTP(w, r)
+				return
+			}
+			if jwks == nil {
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "authentication unavailable"})
 				return
 			}
 
@@ -40,6 +45,10 @@ func jwtVerify(jwks JWKSCache) func(http.Handler) http.Handler {
 
 			claims, err := jwks.Verify(r.Context(), raw)
 			if err != nil {
+				if errors.Is(err, ErrJWKSUnavailable) {
+					writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "authentication unavailable"})
+					return
+				}
 				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				return
 			}
@@ -47,14 +56,30 @@ func jwtVerify(jwks JWKSCache) func(http.Handler) http.Handler {
 			ctx := context.WithValue(r.Context(), claimsKey{}, claims)
 			r = r.WithContext(ctx)
 			r.Header.Set("X-User-Id", strconv.FormatInt(claims.UserID, 10))
+			r.Header.Set("X-User-Locale", claims.Locale)
+			r.Header.Set("X-User-Tier", claims.Tier)
 
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
-func isPublic(path string) bool {
-	return path == "/v1/health" || path == "/v1/auth/login"
+func isPublic(r *http.Request) bool {
+	if r.URL.Path == "/healthz" || r.URL.Path == "/v1/health" {
+		return true
+	}
+	if !strings.HasPrefix(r.URL.Path, "/v1/auth/") {
+		return false
+	}
+	if r.Method == http.MethodPost {
+		switch r.URL.Path {
+		case "/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh", "/v1/auth/logout":
+			return true
+		}
+	}
+	// OAuth starts at a user action and callbacks originate with the provider;
+	// neither carries an application access token yet.
+	return r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/v1/auth/oauth/")
 }
 
 func writeJSON(w http.ResponseWriter, status int, body interface{}) {

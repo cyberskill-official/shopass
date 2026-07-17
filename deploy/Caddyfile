@@ -1,0 +1,71 @@
+# Public production edge for SănDeal.
+#
+# Caddy is deliberately the only Internet-facing container in
+# docker-compose.production.yml. It does not manufacture identity headers.
+# Every REST/GraphQL request is sent to the private JWT gateway; application
+# services never receive browser traffic directly.
+{
+	email {$ACME_EMAIL}
+	admin off
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	# Keep browser-facing responses conservative without imposing a CSP that
+	# could break the current Next.js application.
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), geolocation=(), microphone=()"
+	}
+
+	# Apply the edge body cap before a request reaches an application service.
+	# Upload endpoints must get an explicit, reviewed exception when introduced.
+	request_body {
+		max_size 1MB
+	}
+
+	# Browser auth mutations terminate at Next.js /api/auth/* route handlers.
+	# Those handlers call gateway over the private network and put refresh tokens
+	# only in an HttpOnly host-only cookie. Never expose the raw auth service
+	# token-pair endpoints at /v1/auth/*, where a browser could read a refresh
+	# token from JSON.
+	@direct_auth path /v1/auth/*
+	handle @direct_auth {
+		respond "not found" 404
+	}
+
+	# The gateway verifies JWTs and is the sole component allowed to create
+	# X-User-* identity headers for a downstream service. Strip any client value
+	# at the edge as a second line of defense before the gateway strips it again.
+	@api path /v1/* /graphql /graphql/*
+	handle @api {
+		reverse_proxy gateway:8080 {
+			header_up -X-User-Id
+			header_up -X-User-Locale
+			header_up -X-User-Tier
+			# Overwrite rather than trust a browser-provided client-IP header. The
+			# private gateway uses this only for anonymous/auth rate-limit buckets.
+			header_up X-Real-IP {remote_host}
+			# This credential is only valid on the private tracksvc -> pricesvc
+			# hop. Browser traffic must never be allowed to present it.
+			header_up -X-Service-Token
+		}
+	}
+
+	# Everything else is the public web application. Remove forgeable identity
+	# headers before Next.js receives browser traffic.
+	handle {
+		reverse_proxy web:3000 {
+			header_up -X-User-Id
+			header_up -X-User-Locale
+			header_up -X-User-Tier
+			# Auth route handlers forward this Caddy-authenticated value to gateway.
+			header_up X-Real-IP {remote_host}
+			header_up -X-Service-Token
+		}
+	}
+}

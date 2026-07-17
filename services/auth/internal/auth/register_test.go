@@ -68,6 +68,10 @@ func (m *mockRepo) InsertRefreshToken(ctx context.Context, userID int64, hash, f
 	return nil
 }
 
+func (m *mockRepo) RotateRefreshToken(ctx context.Context, oldHash, replacementHash string, replacementExpiresAt time.Time) (RefreshRotationStatus, error) {
+	return RefreshRotationInvalid, nil
+}
+
 func (m *mockRepo) UpsertPlatformAccount(ctx context.Context, pa PlatformAccount) error {
 	return nil
 }
@@ -115,7 +119,6 @@ func (m *mockRepo) AnonymizePII(ctx context.Context, userID int64) error {
 func (m *mockRepo) DeletePlatformAccounts(ctx context.Context, userID int64) error {
 	return nil
 }
-
 
 func TestRegister_NoIdentifier(t *testing.T) {
 	ctx := context.Background()

@@ -1,0 +1,16 @@
+[Unit]
+Description=Run the SănDeal ML forecast batch once
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+ConditionPathExists=/srv/shopass/deploy/docker-compose.production.yml
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/shopass
+EnvironmentFile=/etc/shopass/runtime.env
+TimeoutStartSec=2h
+Nice=10
+IOSchedulingClass=best-effort
+# Forecast runs before dealsvc's in-process 02:00 Asia/Ho_Chi_Minh scorer.
+ExecStart=/usr/bin/flock -n /run/lock/shopass-forecast.lock /usr/bin/docker compose --env-file /etc/shopass/runtime.env -f /srv/shopass/deploy/docker-compose.production.yml run --rm --no-deps mlforecast

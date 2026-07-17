@@ -12,8 +12,15 @@ func TestParse_Shopee(t *testing.T) {
 	if it.ShopID != "88123" {
 		t.Errorf("Expected 88123, got %s", it.ShopID)
 	}
-	if it.PlatformItemID != "20114455667" {
-		t.Errorf("Expected 20114455667, got %s", it.PlatformItemID)
+	if it.PlatformItemID != "20114455667:88123" {
+		t.Errorf("Expected 20114455667:88123, got %s", it.PlatformItemID)
+	}
+}
+
+func TestParse_ShopeeRejectsNonVNHost(t *testing.T) {
+	_, ok := ParseItemURL("shopee", "https://example.com/x-i.88123.20114455667")
+	if ok {
+		t.Fatal("expected non-Shopee host to be rejected")
 	}
 }
 

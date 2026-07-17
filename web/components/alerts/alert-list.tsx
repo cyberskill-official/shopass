@@ -48,7 +48,7 @@ export function AlertList({
               <span className="uppercase text-xs">{alert.channels.join(", ")}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <label className="flex items-center space-x-2 cursor-pointer">
               <span className="text-sm text-gray-600">{alert.active ? "Bật" : "Tắt"}</span>
@@ -60,8 +60,8 @@ export function AlertList({
                   onChange={async () => {
                     try {
                       await onToggleActive(alert.id, !alert.active);
-                    } catch (e: any) {
-                      window.alert(e.message);
+                    } catch (error) {
+                      window.alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
                     }
                   }}
                 />
@@ -69,14 +69,14 @@ export function AlertList({
                 <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${alert.active ? "transform translate-x-4" : ""}`}></div>
               </div>
             </label>
-            
+
             <button
               onClick={async () => {
                 if (confirm("Xóa cảnh báo này?")) {
                   try {
                     await onDelete(alert.id);
-                  } catch (e: any) {
-                    window.alert(e.message);
+                  } catch (error) {
+                    window.alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
                   }
                 }
               }}

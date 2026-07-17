@@ -4,21 +4,32 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"shopass/services/deal/internal/api"
 	"shopass/services/deal/internal/chart"
 	"shopass/services/deal/internal/coldstart"
 	"shopass/services/deal/internal/fakesale"
 )
 
-// chartRepo implements api.Repo for the chart endpoint over price_daily and
-// tracked_product (the TASK-DEAL-003 feed the BFF reads).
-type chartRepo struct{ pool *pgxpool.Pool }
+type chartQueryer interface {
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+}
 
-func (r *chartRepo) ProductExists(ctx context.Context, productID int64) (bool, error) {
+// chartRepo implements api.Repo for the chart endpoint. Chart access is scoped
+// through user_tracked_product before price_daily is read.
+type chartRepo struct{ pool chartQueryer }
+
+func (r *chartRepo) UserCanViewProduct(ctx context.Context, userID, productID int64) (bool, error) {
 	var ok bool
 	err := r.pool.QueryRow(ctx,
-		`SELECT EXISTS(SELECT 1 FROM tracked_product WHERE id = $1)`, productID).Scan(&ok)
+		`SELECT EXISTS(
+			SELECT 1
+			FROM user_tracked_product
+			WHERE user_id = $1 AND product_id = $2
+		)`, userID, productID).Scan(&ok)
 	return ok, err
 }
 
@@ -43,8 +54,30 @@ func (r *chartRepo) QueryDaily(ctx context.Context, productID int64, from time.T
 	return out, rows.Err()
 }
 
+func (r *chartRepo) QueryRawTail(ctx context.Context, productID int64) ([]api.SnapshotPoint, error) {
+	rows, err := r.pool.Query(ctx,
+		`SELECT ts, price
+		 FROM price_snapshot
+		 WHERE product_id = $1 AND ts >= now() - INTERVAL '2 hours'
+		 ORDER BY ts`, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []api.SnapshotPoint
+	for rows.Next() {
+		var point api.SnapshotPoint
+		if err := rows.Scan(&point.TS, &point.Price); err != nil {
+			return nil, err
+		}
+		out = append(out, point)
+	}
+	return out, rows.Err()
+}
+
 // dealService implements api.DealService: maturity from days of history
-// (TASK-DEAL-002) and the fake-sale verdict from the daily series (TASK-DEAL-001).
+// (FR-DEAL-002) and the fake-sale verdict from the daily series (FR-DEAL-001).
 type dealService struct{ pool *pgxpool.Pool }
 
 func (s *dealService) daysOfHistory(ctx context.Context, productID int64) int {

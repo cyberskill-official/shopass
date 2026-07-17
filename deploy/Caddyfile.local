@@ -1,0 +1,48 @@
+# Offline smoke-test edge. This is intentionally separate from Caddyfile so
+# a local test never attempts ACME issuance or needs a real DNS name.
+# Use with CADDYFILE=./Caddyfile.local, APP_DOMAIN=localhost and curl -k.
+{
+	admin off
+}
+
+https://localhost {
+	tls internal
+	encode zstd gzip
+
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	request_body {
+		max_size 1MB
+	}
+
+	# Keep local smoke tests on the same browser auth boundary as production.
+	@direct_auth path /v1/auth/*
+	handle @direct_auth {
+		respond "not found" 404
+	}
+
+	@api path /v1/* /graphql /graphql/*
+	handle @api {
+		reverse_proxy gateway:8080 {
+			header_up -X-User-Id
+			header_up -X-User-Locale
+			header_up -X-User-Tier
+			header_up X-Real-IP {remote_host}
+			header_up -X-Service-Token
+		}
+	}
+
+	handle {
+		reverse_proxy web:3000 {
+			header_up -X-User-Id
+			header_up -X-User-Locale
+			header_up -X-User-Tier
+			header_up X-Real-IP {remote_host}
+			header_up -X-Service-Token
+		}
+	}
+}

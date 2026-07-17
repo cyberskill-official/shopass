@@ -71,7 +71,9 @@ func (noopQueue) Enqueue(context.Context, orchestrator.ScrapeJob) error { return
 func (noopQueue) Claim(context.Context, int16) (orchestrator.ScrapeJob, bool, error) {
 	return orchestrator.ScrapeJob{}, false, nil
 }
-func (noopQueue) Ack(context.Context, int64) error { return nil }
+func (noopQueue) Ack(context.Context, int64) error                               { return nil }
+func (noopQueue) Retry(context.Context, orchestrator.ScrapeJob, time.Time) error { return nil }
+func (noopQueue) Fail(context.Context, orchestrator.ScrapeJob) error             { return nil }
 func (noopQueue) Reclaim(context.Context, int16, time.Duration) (orchestrator.ScrapeJob, bool, error) {
 	return orchestrator.ScrapeJob{}, false, nil
 }
@@ -100,10 +102,11 @@ func TestE2E_ShopeeToPriceIngest(t *testing.T) {
 	)
 	pool.RegisterAdapter(adapter)
 
-	err := pool.ProcessJob(context.Background(), orchestrator.ScrapeJob{
+	result, err := pool.ProcessJob(context.Background(), orchestrator.ScrapeJob{
 		ProductID: 100, PlatformID: 1, PlatformItemID: "555:777", Tier: orchestrator.TierHot,
 	})
 	require.NoError(t, err)
+	require.Equal(t, orchestrator.JobSucceeded, result.Outcome)
 	require.EqualValues(t, 199000, postedPrice) // micro-VND parsed to BIGINT VND
 	require.EqualValues(t, 250000, postedList)
 }

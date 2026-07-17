@@ -7,6 +7,13 @@ class UnauthorizedError extends Error {
   }
 }
 
+class AuthenticationUnavailableError extends Error {
+  constructor(message = "Authentication temporarily unavailable") {
+    super(message);
+    this.name = "AuthenticationUnavailableError";
+  }
+}
+
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const headers = new Headers(init.headers);
@@ -15,10 +22,13 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   let res = await fetch(`${BASE}${path}`, { ...init, headers });
 
   if (res.status === 401) {
-    const refreshed = await tryRefreshOnce();
-    if (!refreshed) {
+    const refreshResult = await tryRefreshOnce();
+    if (refreshResult === "invalid") {
       await logout();
       throw new UnauthorizedError();
+    }
+    if (refreshResult !== "refreshed") {
+      throw new AuthenticationUnavailableError();
     }
     const newAccessToken = getAccessToken();
     if (newAccessToken) {

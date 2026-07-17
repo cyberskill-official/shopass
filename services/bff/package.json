@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc && cp src/schema.graphql dist/schema.graphql",
-    "test": "tsc && cp src/schema.graphql dist/schema.graphql && node --test dist",
+    "test": "tsc && cp src/schema.graphql dist/schema.graphql && node --test dist/__tests__/*.test.js",
     "start": "node dist/server.js"
   },
   "dependencies": {

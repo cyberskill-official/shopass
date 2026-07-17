@@ -8,10 +8,10 @@ describe("SEO Metadata", () => {
     expect(params.map((p) => p.keyword)).toContain("sale-that-hay-sale-ao");
   });
 
-  it("mỗi keyword có title/description/canonical riêng", () => {
+  it("mỗi keyword có title/description/canonical riêng", async () => {
     const seen = new Set<string>();
     for (const p of KEYWORD_PAGES) {
-      const meta = generateMetadata({ params: { keyword: p.slug } });
+      const meta = await generateMetadata({ params: Promise.resolve({ keyword: p.slug }) });
       expect(meta.title).toBeTruthy();
       expect(meta.description).toBeTruthy();
       expect((meta.alternates as any).canonical).toContain(p.slug);

@@ -71,7 +71,7 @@ func main() {
 				log.Error("enqueue", "product_id", j.ProductID, "err", err.Error())
 			}
 		}
-		drained := 0
+		var succeeded, deferred, failed int
 		for {
 			j, ok, err := q.Claim(ctx, shopeePlatformID)
 			if err != nil {
@@ -81,14 +81,26 @@ func main() {
 			if !ok {
 				break
 			}
-			if err := orch.ProcessJob(ctx, j); err != nil {
-				log.Error("scrape job failed", "product_id", j.ProductID, "err", err.Error())
+			result, err := orch.ProcessJob(ctx, j)
+			if err != nil {
+				log.Error("scrape job outcome not persisted", "product_id", j.ProductID, "err", err.Error())
 				continue
 			}
-			drained++
-			log.Info("scraped and posted (durable queue)", "product_id", j.ProductID)
+			switch result.Outcome {
+			case orchestrator.JobSucceeded:
+				succeeded++
+				log.Info("scraped and posted (durable queue)", "product_id", j.ProductID)
+			case orchestrator.JobDeferred:
+				deferred++
+				log.Warn("scrape deferred for retry", "product_id", j.ProductID, "attempt", result.Attempts, "retry_at", result.RetryAt, "err", result.Cause)
+			case orchestrator.JobFailed:
+				failed++
+				log.Error("scrape failed permanently", "product_id", j.ProductID, "attempt", result.Attempts, "err", result.Cause)
+			default:
+				log.Error("scrape returned unknown outcome", "product_id", j.ProductID, "outcome", result.Outcome)
+			}
 		}
-		log.Info("drain complete", "count", drained)
+		log.Info("drain complete", "succeeded", succeeded, "deferred", deferred, "failed", failed)
 		return
 	}
 
@@ -100,11 +112,21 @@ func main() {
 	orch := orchestrator.NewPool(cfg, pc, memqueue.New())
 	orch.RegisterAdapter(adapter)
 	for _, j := range jobs {
-		if err := orch.ProcessJob(ctx, j); err != nil {
-			log.Error("scrape job failed", "product_id", j.ProductID, "err", err.Error())
+		result, err := orch.ProcessJob(ctx, j)
+		if err != nil {
+			log.Error("scrape job outcome not persisted", "product_id", j.ProductID, "err", err.Error())
 			continue
 		}
-		log.Info("scraped and posted to price", "product_id", j.ProductID)
+		switch result.Outcome {
+		case orchestrator.JobSucceeded:
+			log.Info("scraped and posted to price", "product_id", j.ProductID)
+		case orchestrator.JobDeferred:
+			log.Warn("scrape deferred for retry", "product_id", j.ProductID, "attempt", result.Attempts, "retry_at", result.RetryAt, "err", result.Cause)
+		case orchestrator.JobFailed:
+			log.Error("scrape failed permanently", "product_id", j.ProductID, "attempt", result.Attempts, "err", result.Cause)
+		default:
+			log.Error("scrape returned unknown outcome", "product_id", j.ProductID, "outcome", result.Outcome)
+		}
 	}
 }
 

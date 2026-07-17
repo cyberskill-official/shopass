@@ -34,7 +34,7 @@ describe("API Client (lib/api.ts)", () => {
         headers: expect.any(Headers),
       })
     );
-    
+
     const callArgs = fetchMock.mock.calls[0];
     const headers = callArgs[1].headers as Headers;
     expect(headers.get("Authorization")).toBe("Bearer fake-token");
@@ -42,10 +42,10 @@ describe("API Client (lib/api.ts)", () => {
 
   it("should refresh token once on 401 and retry", async () => {
     (getAccessToken as jest.Mock).mockReturnValueOnce("old-token").mockReturnValueOnce("new-token");
-    
+
     // First call returns 401, second call returns 200
     fetchMock.mockResolvedValueOnce({ status: 401 }).mockResolvedValueOnce({ status: 200 });
-    (tryRefreshOnce as jest.Mock).mockResolvedValue(true);
+    (tryRefreshOnce as jest.Mock).mockResolvedValue("refreshed");
 
     const res = await apiFetch("/protected");
 
@@ -61,12 +61,23 @@ describe("API Client (lib/api.ts)", () => {
   it("should logout and throw if refresh fails on 401", async () => {
     (getAccessToken as jest.Mock).mockReturnValue("old-token");
     fetchMock.mockResolvedValue({ status: 401 });
-    (tryRefreshOnce as jest.Mock).mockResolvedValue(false);
+    (tryRefreshOnce as jest.Mock).mockResolvedValue("invalid");
 
     await expect(apiFetch("/protected")).rejects.toThrow("Unauthorized");
-    
+
     expect(tryRefreshOnce).toHaveBeenCalledTimes(1);
     expect(logout).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledTimes(1); // Only the initial call
+  });
+
+  it("preserves the session on a transient refresh failure", async () => {
+    (getAccessToken as jest.Mock).mockReturnValue("old-token");
+    fetchMock.mockResolvedValue({ status: 401 });
+    (tryRefreshOnce as jest.Mock).mockResolvedValue("transient");
+
+    await expect(apiFetch("/protected")).rejects.toThrow("Authentication temporarily unavailable");
+
+    expect(logout).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

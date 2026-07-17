@@ -1,0 +1,17 @@
+[Unit]
+Description=Run the SănDeal durable scrape queue once
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+ConditionPathExists=/srv/shopass/deploy/docker-compose.production.yml
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/shopass
+EnvironmentFile=/etc/shopass/runtime.env
+TimeoutStartSec=30min
+Nice=10
+IOSchedulingClass=best-effort
+# flock prevents an overdue timer and a manual retry from draining the queue at
+# the same time. --no-deps assumes the main production stack is already up.
+ExecStart=/usr/bin/flock -n /run/lock/shopass-scrape.lock /usr/bin/docker compose --env-file /etc/shopass/runtime.env -f /srv/shopass/deploy/docker-compose.production.yml run --rm --no-deps scrapesvc
