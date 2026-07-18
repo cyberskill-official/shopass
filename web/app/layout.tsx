@@ -17,22 +17,22 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(siteURL),
   title: {
-    default: "SănDeal - Theo dõi giá, tránh sale ảo",
-    template: "%s | SănDeal",
+    default: "Shopass - Theo dõi giá, tránh sale ảo",
+    template: "%s | Shopass",
   },
   description: "Theo dõi lịch sử giá và nhận cảnh báo deal tốt trên Shopee, TikTok Shop và Lazada.",
-  applicationName: "SănDeal",
+  applicationName: "Shopass",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "vi_VN",
-    siteName: "SănDeal",
-    title: "SănDeal - Theo dõi giá, tránh sale ảo",
+    siteName: "Shopass",
+    title: "Shopass - Theo dõi giá, tránh sale ảo",
     description: "Mua đúng giá với lịch sử giá minh bạch và cảnh báo deal tốt.",
   },
   twitter: {
     card: "summary",
-    title: "SănDeal - Theo dõi giá, tránh sale ảo",
+    title: "Shopass - Theo dõi giá, tránh sale ảo",
     description: "Mua đúng giá với lịch sử giá minh bạch và cảnh báo deal tốt.",
   },
 };

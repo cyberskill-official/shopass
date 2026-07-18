@@ -50,7 +50,7 @@ export default async function KeywordPage({ params }: KeywordPageProps) {
       <h1 className="text-3xl font-bold mb-6">{p.keyword}</h1>
       <div className="prose mb-8">
         <p>{p.description}</p>
-        <p>SănDeal là công cụ cảnh báo giá và kiểm tra sale ảo số 1 Việt Nam. Đừng để bị lừa bởi những chiêu trò tăng giá rồi giảm ảo.</p>
+        <p>Shopass là công cụ cảnh báo giá và kiểm tra sale ảo số 1 Việt Nam. Đừng để bị lừa bởi những chiêu trò tăng giá rồi giảm ảo.</p>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 my-8 text-center">
@@ -59,7 +59,7 @@ export default async function KeywordPage({ params }: KeywordPageProps) {
           href="/login?signup=1"
           className="inline-block bg-blue-600 text-white font-medium py-3 px-8 rounded-full hover:bg-blue-700 transition"
         >
-          Dùng SănDeal miễn phí
+          Dùng Shopass miễn phí
         </Link>
       </div>
 

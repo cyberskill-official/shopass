@@ -16,10 +16,18 @@ migration_key() {
   printf '%s' "$1" | sed 's#^/migrations/##'
 }
 
+sql_literal() {
+  # Migration keys are repository-controlled paths, but quote them anyway so
+  # psql receives valid SQL without relying on psql variable substitution.
+  # `psql -c` sends SQL directly to the server and does not expand :variables.
+  printf '%s' "$1" | sed "s/'/''/g"
+}
+
 mark_applied() {
   key=$(migration_key "$1")
-  psql -v ON_ERROR_STOP=1 -v migration_key="$key" \
-    -c "INSERT INTO applied_migration_files (filename) VALUES (:'migration_key') ON CONFLICT DO NOTHING;" "$DB"
+  key_sql=$(sql_literal "$key")
+  psql -v ON_ERROR_STOP=1 \
+    -c "INSERT INTO applied_migration_files (filename) VALUES ('$key_sql') ON CONFLICT DO NOTHING;" "$DB"
 }
 
 # A pre-existing database has no reliable way to prove that every migration in
@@ -44,7 +52,8 @@ fi
 
 apply() {
   key=$(migration_key "$1")
-  already_applied=$(psql -v migration_key="$key" -t -A -c "SELECT 1 FROM applied_migration_files WHERE filename = :'migration_key';" "$DB")
+  key_sql=$(sql_literal "$key")
+  already_applied=$(psql -t -A -c "SELECT 1 FROM applied_migration_files WHERE filename = '$key_sql';" "$DB")
   if [ "$already_applied" = "1" ]; then
     return
   fi

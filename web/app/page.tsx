@@ -37,7 +37,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg sm:leading-8">
-            SănDeal biến lịch sử giá thành một quyết định đơn giản: hôm nay là lúc nên mua ngay, hay bạn nên chờ thêm?
+            Shopass biến lịch sử giá thành một quyết định đơn giản: hôm nay là lúc nên mua ngay, hay bạn nên chờ thêm?
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center lg:mt-10 lg:gap-4">
@@ -128,7 +128,7 @@ export default function Home() {
             {
               n: "02",
               t: "Hệ thống thu thập",
-              d: "SănDeal tự động ghi nhận giá mỗi ngày và xây dựng một lịch sử giá độc lập, trung thực, hoàn toàn minh bạch.",
+              d: "Shopass tự động ghi nhận giá mỗi ngày và xây dựng một lịch sử giá độc lập, trung thực, hoàn toàn minh bạch.",
               icon: <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
             },
             {
@@ -157,7 +157,7 @@ export default function Home() {
           <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-violet-600/30 blur-3xl" />
           <div className="relative mx-auto max-w-2xl">
             <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">Ngừng mua hớ ngay hôm nay.</h2>
-            <p className="mt-6 text-base leading-relaxed text-slate-400 sm:text-lg">Tạo tài khoản miễn phí để bắt đầu theo dõi giá những món đồ bạn yêu thích. Bạn chỉ việc thêm link, SănDeal sẽ lo phần còn lại.</p>
+            <p className="mt-6 text-base leading-relaxed text-slate-400 sm:text-lg">Tạo tài khoản miễn phí để bắt đầu theo dõi giá những món đồ bạn yêu thích. Bạn chỉ việc thêm link, Shopass sẽ lo phần còn lại.</p>
             <Link href="/login?signup=1" className="mx-auto mt-10 inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-base font-extrabold text-white shadow-xl shadow-blue-900/50 transition hover:-translate-y-0.5 hover:bg-blue-500">
               Tạo tài khoản miễn phí <span>→</span>
             </Link>
@@ -170,7 +170,7 @@ export default function Home() {
         <div className="landing-container flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-2 font-black text-slate-900">
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-slate-900 text-xs text-white">S</span>
-            SănDeal
+            Shopass
           </div>
           <p className="text-center text-sm font-medium text-slate-500 sm:text-right">
             Sản phẩm đang trong giai đoạn Closed Beta.<br className="sm:hidden" /> Dữ liệu giá minh bạch cho người dùng Việt Nam.

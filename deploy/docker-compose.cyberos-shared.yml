@@ -1,0 +1,28 @@
+# Shopass on a host whose public 80/443 edge is already owned by CyberOS Caddy.
+#
+# Use this file in addition to docker-compose.production.yml.  It prevents the
+# standalone Shopass Caddy service from starting, and exposes only the web and
+# gateway containers to the dedicated `shopass-edge` Docker network.  The
+# CyberOS Caddy container joins that network separately and proxies the
+# shopass.cyberskill.world site block to the aliases below.  Database, Redis,
+# auth, tracking, price and job services remain private-only.
+services:
+  caddy:
+    profiles: ["standalone-edge"]
+
+  web:
+    networks:
+      private: {}
+      edge:
+        aliases: ["shopass-web"]
+
+  gateway:
+    networks:
+      private: {}
+      edge:
+        aliases: ["shopass-gateway"]
+
+networks:
+  edge:
+    name: shopass-edge
+    external: true
