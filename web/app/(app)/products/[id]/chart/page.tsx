@@ -193,7 +193,7 @@ export default function ProductChartPage() {
             <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
               <svg className="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
               <p className="mt-3 font-bold text-slate-700">Chưa có dữ liệu</p>
-              <p className="mt-1 max-w-sm text-sm text-slate-500">Hệ thống đang tích lũy dữ liệu cho sản phẩm này. Hãy quay lại sau.</p>
+              <p className="mt-1 max-w-sm text-sm text-slate-500">Shopass đang lấy mức giá đầu tiên. Việc này thường hoàn tất trong tối đa 5 phút; sau đó bạn có thể bấm “Làm mới”.</p>
             </div>
           )}
 

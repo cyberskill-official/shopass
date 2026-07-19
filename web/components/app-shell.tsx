@@ -7,8 +7,6 @@ import { logout } from "@/lib/auth";
 
 const links = [
   { label: "Bảng điều khiển", href: "/dashboard" },
-  { label: "Sản phẩm quan tâm", href: "/wishlist" },
-  { label: "Cảnh báo giá", href: "/alerts" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -32,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-8">
             <Link href="/dashboard" className="flex items-center gap-2.5 transition hover:opacity-80">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-lg font-black text-white shadow-md shadow-blue-500/20">S</span>
-              <span className="text-xl font-extrabold tracking-tight">Săn<span className="text-blue-600">Deal</span></span>
+              <span className="text-xl font-extrabold tracking-tight">Shop<span className="text-blue-600">ass</span></span>
             </Link>
 
             {/* Desktop Navigation */}
