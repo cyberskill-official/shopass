@@ -67,8 +67,7 @@ Lớp đồng bộ **MUST** đính JWT của SănDeal (KHÔNG token sàn) cho m�
 1. `auth-bridge.ts` **MUST** đính `Authorization: Bearer <jwt>` với JWT do TASK-AUTH-002 cấp cho mọi request backend (DEC-EXT-23). **MUST NOT** đính, dưới bất kỳ tên header nào, token/cookie phiên của sàn (Shopee/TikTok/Lazada).
 2. Chỉ `OutboundPayload` đã qua pipeline tối thiểu hóa (TASK-EXT-003) **MUST** được đưa vào hàng đợi gửi (DEC-EXT-24). **MUST NOT** tồn tại đường gửi `CartReadMessage` thô bỏ qua `minimize()`.
 3. `queue.ts` **MUST** lưu hàng đợi bền trong `chrome.storage` (DEC-EXT-25) để sống qua chu kỳ SW kill (NFR-EXT-001). Hàng đợi **MUST NOT** nằm trong biến module-global (mất khi SW ngủ).
-4. `sender.ts` **MUST** gửi qua HTTPS với retry + backoff; chỉ `ack` (xóa khỏi hàng đợi) khi backend trả 2xx. Lỗi mạng/5xx **MUST** giữ item trong hàng đợi để thử lại - không mất dữ liệu giỏ đã đọc.
-4b. Khi backend trả 401 (JWT hết hạn), `sender.ts` **MUST** gọi refresh (DEC-EXT-27) rồi thử lại; không vứt item.
+4. `sender.ts` **MUST** gửi qua HTTPS với retry + backoff; chỉ `ack` (xóa khỏi hàng đợi) khi backend trả 2xx. Lỗi mạng/5xx **MUST** giữ item trong hàng đợi để thử lại - không mất dữ liệu giỏ đã đọc. 4b. Khi backend trả 401 (JWT hết hạn), `sender.ts` **MUST** gọi refresh (DEC-EXT-27) rồi thử lại; không vứt item.
 5. Khi thiếu JWT (chưa đăng nhập SănDeal / refresh thất bại), gửi **MUST** fail-closed: giữ item trong hàng đợi, KHÔNG gửi dữ liệu ẩn danh không gắn danh tính (DEC-EXT-25).
 6. WSS (`ws-client.ts`) **MUST** chỉ mở khi cần realtime (ví dụ nhận alert giá tức thời) và đóng khi xong (DEC-EXT-26). **MUST NOT** mở WSS thường trực chỉ để giữ SW sống - đó là lạm dụng tài nguyên (§3.2 "không lạm dụng").
 7. JWT SănDeal **MUST** lưu ở `chrome.storage.session` (RAM-only, mất khi trình duyệt đóng) chứ không bền quá mức ở `storage.local` (DEC-EXT-27); refresh token theo cơ chế TASK-AUTH-002.

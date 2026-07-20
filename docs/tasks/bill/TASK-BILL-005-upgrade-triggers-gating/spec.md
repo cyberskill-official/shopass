@@ -70,9 +70,9 @@ Service BILL **MUST** thực thi feature gating ở backend theo subscription ti
 8. Trigger upgrade **MUST NOT** dùng dark pattern (DEC-BILL-24): không che nút đóng, không hù dọa, không ép quyết định ngay. CTA là một gợi ý người dùng có thể bỏ qua và tiếp tục dùng free.
 9. **MUST** seed `plan_feature` idempotent với quyền lợi free + 3 bậc Premium qua `ON CONFLICT (tier, feature_key) DO NOTHING`; tính năng lõi để `free` ở mức khả dụng (limit hợp lý hoặc unlimited).
 10. **MUST** expose:
-    - `Allow(ctx, userID int64, featureKey string) (bool, error)` - quyết định gating.
-    - `LimitFor(ctx, tier, featureKey string) (int64, error)` - đọc giới hạn.
-    - `EvaluateTriggers(ctx, userID int64, event UsageEvent) (*UpgradeSignal, error)` - tín hiệu CTA.
+- `Allow(ctx, userID int64, featureKey string) (bool, error)` - quyết định gating.
+- `LimitFor(ctx, tier, featureKey string) (int64, error)` - đọc giới hạn.
+- `EvaluateTriggers(ctx, userID int64, event UsageEvent) (*UpgradeSignal, error)` - tín hiệu CTA.
 11. Gating **MUST** tách bạch "có quyền không" (boolean/limit) khỏi "thanh toán" (TASK-BILL-002/003): `Allow` chỉ đọc tier hiện tại; nâng cấp thật đi qua checkout. `Allow` không tự kích hoạt subscription.
 12. **SHOULD** phát OTel: `feature_gate_denied_total{feature_key}` (counter), `upgrade_trigger_shown_total{trigger}` (counter), `feature_gate_eval_total{feature_key, decision}` (counter).
 

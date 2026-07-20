@@ -70,9 +70,9 @@ Service BILL **MUST** cấp cho mỗi user một `referral_code` duy nhất, g�
 8. **MUST** tăng `uses` idempotent theo cặp (referrer, referee) (DEC-BILL-20): một người được giới thiệu chỉ làm tăng `uses` của referrer đúng một lần (dựa attribution bất biến ở §1 #4/#6).
 9. **MUST NOT** tự trả thưởng referral ngay (DEC-BILL-19): thay vào đó phát một sự kiện `referral.attributed {referrer_id, referee_id, at}` cho TASK-TRUST-004 (anti-fraud) + cơ chế delay reward; thưởng chỉ được cấp sau khi vượt cửa kiểm tra (velocity, đồ thị quan hệ, §5.3).
 10. **MUST** expose hàm:
-    - `CreateCodeForUser(ctx, userID int64) (string, error)` - tạo mã duy nhất cho user (idempotent: gọi lại trả mã đã có).
-    - `Attribute(ctx, refereeID int64, code string) error` - gắn referrer lúc đăng ký, áp mọi ràng buộc §1 #4-#9.
-    - `FindByCode(ctx, code string) (ReferralCode, bool, error)`.
+- `CreateCodeForUser(ctx, userID int64) (string, error)` - tạo mã duy nhất cho user (idempotent: gọi lại trả mã đã có).
+- `Attribute(ctx, refereeID int64, code string) error` - gắn referrer lúc đăng ký, áp mọi ràng buộc §1 #4-#9.
+- `FindByCode(ctx, code string) (ReferralCode, bool, error)`.
 11. **MUST** coi attribution là một phần của luồng đăng ký (TASK-AUTH-001) nhưng KHÔNG chặn đăng ký nếu mã lỗi: mã giới thiệu sai/tự giới thiệu -> user vẫn đăng ký được, chỉ không gắn attribution (đăng ký không phụ thuộc tính hợp lệ của mã giới thiệu).
 12. **SHOULD** phát OTel + sự kiện: `referral_attributed_total` (counter), `referral_self_blocked_total` (counter), `referral_unknown_code_total` (counter); sự kiện `referral.attributed` lên bus cho TASK-TRUST-004.
 

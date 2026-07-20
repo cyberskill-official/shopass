@@ -62,10 +62,7 @@ risk_if_skipped: "Affiliate/cashback (TASK-AFFIL-005) là dòng tiền ra thật
 Service TRUST **MUST** giữ payout affiliate/cashback qua một cửa sổ delay để điều tra, phát hiện gaming attribution (last-click thao túng, self-referral, dấu hiệu cookie-stuffing), và chỉ giải ngân khi đủ điều kiện - KHÔNG trả ngay, cũng KHÔNG tự từ chối mù. Hợp đồng:
 
 1. Khi `affiliate_conversion` chuyển `confirmed` (TASK-AFFIL-001), payout **MUST NOT** được trả ngay; phải tạo `payout_hold` với `eligible_at = confirmed_at + delay_window` (DEC-TRUST-21).
-2. `attribution_guard.go` **MUST** phát hiện dấu hiệu gaming và gắn `hold_reason` (DEC-TRUST-22):
-   (a) last-click bị thao túng - click affiliate xảy ra ngay trước order trong khi sản phẩm đã ở giỏ từ lâu (click "chèn cuối" để cướp attribution);
-   (b) self-referral - user mua qua link affiliate của chính mình (hoặc cụm liên kết TASK-TRUST-004);
-   (c) dấu hiệu cookie-stuffing - click không gắn với user-action hợp lệ (vi phạm mô hình user-initiated, NFR-AFFIL-001).
+2. `attribution_guard.go` **MUST** phát hiện dấu hiệu gaming và gắn `hold_reason` (DEC-TRUST-22): (a) last-click bị thao túng - click affiliate xảy ra ngay trước order trong khi sản phẩm đã ở giỏ từ lâu (click "chèn cuối" để cướp attribution); (b) self-referral - user mua qua link affiliate của chính mình (hoặc cụm liên kết TASK-TRUST-004); (c) dấu hiệu cookie-stuffing - click không gắn với user-action hợp lệ (vi phạm mô hình user-initiated, NFR-AFFIL-001).
 3. `delay.go` **MUST** tính `eligible_at`; nếu chủ thể có `risk_score` cao (từ TASK-TRUST-004), delay **MUST** được kéo dài hoặc chuyển trạng thái giữ-chờ-điều tra - KHÔNG tự từ chối payout (DEC-TRUST-23).
 4. `release.go` (job giải ngân) **MUST** chỉ trả payout khi ĐỦ BA điều kiện (DEC-TRUST-24): (a) đã qua `eligible_at`, (b) không còn `hold_reason` điều tra mở, (c) network đã confirm (postback TASK-AFFIL-003).
 5. Mọi quyết định delay/hold **MUST** ghi `hold_reason` cụ thể (audit trail); **MUST NOT** giữ tiền user khi không có tín hiệu cụ thể (DEC-TRUST-25). Giữ tiền vô cớ là tổn hại.

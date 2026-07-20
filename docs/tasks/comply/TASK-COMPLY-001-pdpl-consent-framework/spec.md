@@ -69,10 +69,10 @@ Service COMPLY **MUST** cung cấp khung quản lý đồng thuận (consent) tu
 4. **MUST** coi đồng thuận là tự nguyện và chủ động (DEC-COMPLY-01): chỉ `granted = true` khi user CHỦ ĐỘNG bật. Checkbox tích sẵn, opt-out mặc định, hoặc im lặng KHÔNG được coi là đồng thuận. Giá trị mặc định của mọi purpose là chưa đồng thuận.
 5. **MUST** lưu đủ trường chứng minh (DEC-COMPLY-04): `purpose_key`, `policy_version` (đúng bản user đã thấy), `source` (web/extension/mobile), `ts`, `ip`, `user_agent`. Đây là bằng chứng trước cơ quan quản lý rằng đồng thuận hợp lệ.
 6. **MUST** expose hàm service cho các service khác gọi như cổng pháp lý:
-    - `Grant(ctx, userID int64, purpose string, src string, meta ReqMeta) error` - ghi dòng granted=true với policy_version đang hiệu lực.
-    - `Withdraw(ctx, userID int64, purpose string, src string, meta ReqMeta) error` - ghi dòng granted=false (thu hồi), KHÔNG xóa lịch sử.
-    - `IsAllowed(ctx, userID int64, purpose string) (bool, error)` - trả trạng thái hiệu lực hiện tại (dòng mới nhất của (user, purpose)); chưa có bản ghi -> false.
-    - `History(ctx, userID int64, purpose string) ([]ConsentRecord, error)` - toàn bộ lịch sử cho DSAR (TASK-COMPLY-003) và kiểm toán.
+- `Grant(ctx, userID int64, purpose string, src string, meta ReqMeta) error` - ghi dòng granted=true với policy_version đang hiệu lực.
+- `Withdraw(ctx, userID int64, purpose string, src string, meta ReqMeta) error` - ghi dòng granted=false (thu hồi), KHÔNG xóa lịch sử.
+- `IsAllowed(ctx, userID int64, purpose string) (bool, error)` - trả trạng thái hiệu lực hiện tại (dòng mới nhất của (user, purpose)); chưa có bản ghi -> false.
+- `History(ctx, userID int64, purpose string) ([]ConsentRecord, error)` - toàn bộ lịch sử cho DSAR (TASK-COMPLY-003) và kiểm toán.
 7. **MUST** từ chối `purpose_key` không nằm trong tập đã đăng ký (enum `Purpose`); từ chối `policy_version` cũ hơn bản đang hiệu lực (user phải đồng thuận trên bản mới nhất).
 8. **MUST** seed tập purpose lõi tối thiểu: `cart_read` (extension đọc giỏ hàng/voucher), `price_tracking` (theo dõi giá theo tài khoản), `marketing_notification` (gửi alert/khuyến mãi), `analytics_b2b` (đóng góp dữ liệu xu hướng ẩn danh). Mỗi purpose là một bản `consent_policy` riêng.
 9. **MUST** đảm bảo idempotent với double-submit: grant hai lần liên tiếp cùng trạng thái KHÔNG tạo ra mâu thuẫn ngữ nghĩa (dòng mới nhất vẫn phản ánh đúng); trạng thái suy ra từ dòng mới nhất theo `ts`.

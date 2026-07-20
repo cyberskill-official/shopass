@@ -70,10 +70,10 @@ Service AFFIL **MUST** định nghĩa hai bảng sổ cái affiliate: `affiliate
 7. `affiliate_conversion.status` **MUST** thuộc tập `{'pending','confirmed','rejected'}` qua CHECK; conversion mới **MUST** bắt đầu ở `'pending'` (DEC-AFFIL-05). `confirmed_at` chỉ được set khi chuyển sang `'confirmed'`.
 8. **MUST** áp last-click attribution ở mức dữ liệu (DEC-AFFIL-03): một conversion gắn vào đúng một `click_id`; khi postback (TASK-AFFIL-003) mang `sub_id`, repo tra `affiliate_click` theo `sub_id` để lấy `click_id`. Nếu `sub_id` không khớp click nào -> conversion bị từ chối ghi (không tạo conversion mồ côi).
 9. **MUST** expose hàm repo:
-    - `RecordClick(ctx, c AffiliateClick) (int64, error)` - chèn một click user-initiated, trả `click_id`.
-    - `RecordConversion(ctx, subID string, orderValue, commission int64, network string) (int64, error)` - tra click theo `sub_id`, chèn conversion `pending`.
-    - `ConfirmConversion(ctx, conversionID int64) error` - chuyển `pending` -> `confirmed`, set `confirmed_at = now()`.
-    - `RejectConversion(ctx, conversionID int64, reason string) error` - chuyển sang `rejected`.
+- `RecordClick(ctx, c AffiliateClick) (int64, error)` - chèn một click user-initiated, trả `click_id`.
+- `RecordConversion(ctx, subID string, orderValue, commission int64, network string) (int64, error)` - tra click theo `sub_id`, chèn conversion `pending`.
+- `ConfirmConversion(ctx, conversionID int64) error` - chuyển `pending` -> `confirmed`, set `confirmed_at = now()`.
+- `RejectConversion(ctx, conversionID int64, reason string) error` - chuyển sang `rejected`.
 10. **MUST** đánh index `idx_click_subid` trên `affiliate_click(sub_id)` (đã UNIQUE) cho tra cứu postback nhanh, và `idx_click_user_time` trên `(user_id, clicked_at DESC)` cho báo cáo và anti-fraud (TASK-TRUST-004 velocity).
 11. **MUST** idempotent với postback lặp: cùng một `sub_id` postback hai lần (network retry) **MUST NOT** tạo hai conversion - dùng `UNIQUE` trên `affiliate_conversion(click_id)` hoặc kiểm tồn tại trước khi chèn (một click sinh tối đa một conversion).
 12. **SHOULD** phát OTel: `affiliate_click_recorded_total{platform_id, network}` (counter), `affiliate_conversion_total{status}` (counter), `affiliate_conversion_value_vnd` (histogram order_value).

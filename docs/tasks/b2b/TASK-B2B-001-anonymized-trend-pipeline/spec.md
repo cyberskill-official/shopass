@@ -70,8 +70,8 @@ Service B2B **MUST** sinh bảng dữ liệu xu hướng thị trường ẩn da
 5. **MUST** phát hành chỉ số tổng hợp ở mức ô; **MUST NOT** phát hành giá của một SKU, một shop hay một user đơn lẻ qua bất kỳ cột nào (DEC-B2B-03).
 6. **MUST** chạy như job batch đêm idempotent (DEC-B2B-04): lặp qua cửa sổ ngày cần tính, UPSERT vào `market_trend_daily` theo khóa `(category_id, platform_id, day)`. Chạy lại cùng cửa sổ ngày **MUST** cho kết quả y hệt (không nhân đôi, không trôi).
 7. **MUST** expose hàm repo:
-    - `UpsertCells(ctx, cells []MarketTrendCell) error` - ghi idempotent.
-    - `QueryCells(ctx, categoryID int64, platformID int16, from, to time.Time) ([]MarketTrendCell, error)` - đọc ô đã phát hành; mặc định **MUST** lọc bỏ ô `suppressed = true`.
+- `UpsertCells(ctx, cells []MarketTrendCell) error` - ghi idempotent.
+- `QueryCells(ctx, categoryID int64, platformID int16, from, to time.Time) ([]MarketTrendCell, error)` - đọc ô đã phát hành; mặc định **MUST** lọc bỏ ô `suppressed = true`.
 8. **MUST** ghi `sku_count` thật ngay cả khi ô bị suppress (để audit nội bộ), nhưng `QueryCells` mặc định không trả ô suppressed cho người tiêu thụ downstream (DEC-B2B-05).
 9. **MUST** đảm bảo `sku_count >= 0` và `p25_p <= median_p <= p75_p` (khi không suppress) qua CHECK constraint hoặc bất biến kiểm trong test.
 10. **SHOULD** phát OTel metric: `trend_cells_published_total{platform_id}` (counter), `trend_cells_suppressed_total{platform_id}` (counter), `trend_job_duration_ms` (histogram).

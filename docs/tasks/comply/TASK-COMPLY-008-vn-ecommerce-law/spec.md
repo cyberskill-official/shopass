@@ -66,10 +66,10 @@ Service COMPLY **SHOULD** duy trì sổ theo dõi nghĩa vụ luật TMĐT VN: t
 6. **SHOULD** lưu `source_law` cho mỗi nghĩa vụ (NĐ 52/2013, NĐ 85/2021, hoặc dự thảo 2025) để truy về căn cứ pháp lý.
 7. **SHOULD** versioned checklist (DEC-COMPLY-33): khi dự thảo 2025 ban hành chính thức, tạo version mới của nghĩa vụ với giá trị/ngưỡng đã chốt; bản cũ giữ lịch sử.
 8. **SHOULD** expose hàm:
-    - `Threshold(ctx, year int) (ThresholdState, error)` - trả count + ngưỡng + cờ `must_register`.
-    - `Obligations(ctx) ([]EcommerceObligation, error)` - danh sách nghĩa vụ hiện hành + trạng thái.
-    - `MarkObligation(ctx, key string, status string) error` - cập nhật trạng thái (ví dụ MOIT approved).
-    - `Outstanding(ctx) ([]EcommerceObligation, error)` - nghĩa vụ chưa hoàn tất/quá hạn.
+- `Threshold(ctx, year int) (ThresholdState, error)` - trả count + ngưỡng + cờ `must_register`.
+- `Obligations(ctx) ([]EcommerceObligation, error)` - danh sách nghĩa vụ hiện hành + trạng thái.
+- `MarkObligation(ctx, key string, status string) error` - cập nhật trạng thái (ví dụ MOIT approved).
+- `Outstanding(ctx) ([]EcommerceObligation, error)` - nghĩa vụ chưa hoàn tất/quá hạn.
 9. **SHOULD** validate `status` và `obligation_key` thuộc tập đã biết; giá trị lạ -> lỗi xác định.
 10. **MAY** phát OTel metric `ecom_obligation_outstanding_total`, `ecom_threshold_exceeded` (cờ) để báo động khi vượt ngưỡng hoặc nghĩa vụ quá hạn.
 11. **SHOULD** đảm bảo ngưỡng 100.000 đến từ cấu hình versioned (một chỗ): đổi ngưỡng (nếu luật đổi) tạo version mới, không sửa hằng số rải rác.

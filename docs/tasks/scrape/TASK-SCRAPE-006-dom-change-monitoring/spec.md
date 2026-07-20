@@ -62,10 +62,9 @@ Module health **MUST** theo dõi tỷ lệ parse-failure theo cửa sổ trượ
 1. **MUST** đếm outcome mỗi lần quét theo cửa sổ trượt per `(platform_id, adapter_version)` (DEC-SCRAPE-24): phân loại `success | parse_fail | challenge | network_err`. `parse_fail` là trọng tâm (selector drift / schema đổi).
 2. **MUST** tính baseline động: tỷ lệ `parse_fail` "bình thường" được ước lượng từ lịch sử gần (cửa sổ dài), KHÔNG dùng hằng số tuyệt đối cố định (mùa sale, traffic biến động làm nền thay đổi).
 3. **MUST** suy ra health state qua state machine (DEC-SCRAPE-26): `healthy -> degraded -> broken`:
-    - `healthy`: tỷ lệ parse_fail gần baseline.
-    - `degraded`: parse_fail vượt baseline đáng kể nhưng chưa toàn diện.
-    - `broken`: phần lớn request parse_fail (sàn đã đổi DOM/schema).
-   Chuyển trạng thái **MUST** có hysteresis (ngưỡng lên khác ngưỡng xuống) để không nhấp nháy.
+- `healthy`: tỷ lệ parse_fail gần baseline.
+- `degraded`: parse_fail vượt baseline đáng kể nhưng chưa toàn diện.
+- `broken`: phần lớn request parse_fail (sàn đã đổi DOM/schema). Chuyển trạng thái **MUST** có hysteresis (ngưỡng lên khác ngưỡng xuống) để không nhấp nháy.
 4. **MUST** phát alert khi vượt ngưỡng đột biến (DEC-SCRAPE-25): khi state chuyển sang `degraded` hoặc `broken`, gửi alert qua observability (TASK-INFRA-004) kèm `(platform, adapter_version, fail_rate, sample_count)`.
 5. **MUST** dedup + cooldown alert: một adapter chuyển `broken` chỉ alert một lần trong cửa sổ cooldown, KHÔNG spam mỗi request hỏng.
 6. **MUST** điều khiển orchestrator hạ tải khi `broken` (DEC-SCRAPE-27): expose `ShouldThrottle(platformID, adapterVersion) (bool, factor)`; khi broken, orchestrator giảm tần suất quét target đó (tăng `next_run_at`) để không đốt proxy vào parse hỏng hàng loạt.

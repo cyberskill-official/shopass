@@ -71,10 +71,10 @@ Dispatcher email **MUST** gửi email qua một interface `EmailProvider` thay-�
 5. **MUST** xử lý hard bounce và complaint từ SES SNS notification (DEC-NOTIF-62): một handler webhook nhận SNS message; với `notificationType='Bounce'` mà `bounceType='Permanent'` (hard bounce) HOẶC `notificationType='Complaint'` -> set `user_channel_token.verified=false` cho `(user_id, 'email')` của địa chỉ đó. Soft bounce (`bounceType='Transient'`) **MUST NOT** vô hiệu địa chỉ.
 6. **MUST** tôn trọng throttling/rate-limit của provider và retry lỗi tạm thời bằng exponential backoff có jitter (DEC-NOTIF-63): throttling (HTTP `429`/`Throttling`), `5xx`, timeout, soft bounce -> backoff rồi thử lại; **MUST** tôn trọng `Retry-After` khi provider trả về. Message lỗi tạm thời **MUST NOT** bị drop; nó giữ `status='queued'` để thử lại sau.
 7. **MUST** phân loại phản hồi provider thành bốn nhóm và hành xử đúng:
-    - Thành công (gửi nhận, có `MessageId`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
-    - Lỗi tạm thời (throttling, `5xx`, timeout) -> retry theo backoff; vượt số lần thử tối đa thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
-    - Địa chỉ chết (`MessageRejected` do email không tồn tại, hoặc địa chỉ đã trong suppression list) -> `MarkFailed` + đánh dấu địa chỉ verified=false.
-    - Lỗi vĩnh viễn khác (cấu hình sai, sender chưa verified domain) -> `MarkFailed`, log để vận hành xử lý.
+- Thành công (gửi nhận, có `MessageId`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
+- Lỗi tạm thời (throttling, `5xx`, timeout) -> retry theo backoff; vượt số lần thử tối đa thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
+- Địa chỉ chết (`MessageRejected` do email không tồn tại, hoặc địa chỉ đã trong suppression list) -> `MarkFailed` + đánh dấu địa chỉ verified=false.
+- Lỗi vĩnh viễn khác (cấu hình sai, sender chưa verified domain) -> `MarkFailed`, log để vận hành xử lý.
 8. **MUST** nhặt việc an toàn khi chạy nhiều worker song song: `ClaimEmailBatch` dùng `SELECT ... FOR UPDATE SKIP LOCKED` trên `notification` (`channel='email'`, `status='queued'`), để hai worker không gửi trùng một dòng (DEC-NOTIF-64).
 9. **MUST** idempotent ở mức hợp lý: một dòng `notification` đã `status='sent'` **MUST NOT** bị gửi lại; `ClaimEmailBatch` chỉ lấy `status='queued'`, và `MarkSent`/`MarkFailed` là cập nhật có điều kiện trên trạng thái hiện tại.
 10. **MUST** trả error (không panic) khi provider trả lỗi không phân loại được hoặc credential hết hạn/sai, để dispatcher loop áp retry/backoff và không kẹt worker.

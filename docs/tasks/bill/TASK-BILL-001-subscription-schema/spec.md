@@ -69,10 +69,10 @@ Service BILL **MUST** định nghĩa `plan_catalog` (bậc giá Premium) và `su
 6. **MUST** ràng buộc `renews_at > started_at` qua CHECK (chu kỳ gia hạn phải ở tương lai so với điểm bắt đầu).
 7. **MUST** không hardcode giá Premium trong code nghiệp vụ (DEC-BILL-05): `subscription` tham chiếu `plan_id`; giá đọc từ `plan_catalog`. Đổi giá là cập nhật `plan_catalog`, không sửa code rải rác.
 8. **MUST** expose hàm repo:
-    - `CreateSubscription(ctx, userID, planID int64, renewsAt time.Time) (int64, error)` - tạo subscription `active`; lỗi nếu user đã có active (partial unique).
-    - `GetActive(ctx, userID int64) (Subscription, bool, error)` - lấy subscription active hiện tại (nếu có).
-    - `UpdateStatus(ctx, subID int64, to string) error` - chuyển trạng thái (qua `lifecycle.go`, chỉ chuyển hợp lệ).
-    - `SetRenewsAt(ctx, subID int64, t time.Time) error` - đẩy mốc gia hạn (do TASK-BILL-002/003 gọi sau thanh toán).
+- `CreateSubscription(ctx, userID, planID int64, renewsAt time.Time) (int64, error)` - tạo subscription `active`; lỗi nếu user đã có active (partial unique).
+- `GetActive(ctx, userID int64) (Subscription, bool, error)` - lấy subscription active hiện tại (nếu có).
+- `UpdateStatus(ctx, subID int64, to string) error` - chuyển trạng thái (qua `lifecycle.go`, chỉ chuyển hợp lệ).
+- `SetRenewsAt(ctx, subID int64, t time.Time) error` - đẩy mốc gia hạn (do TASK-BILL-002/003 gọi sau thanh toán).
 9. **MUST** thực thi chuyển trạng thái hợp lệ (`lifecycle.go`): `active -> past_due` (trễ hạn), `past_due -> active` (thanh toán lại), `active|past_due -> canceled` (user hủy), `past_due -> expired` (quá hạn ân hạn). Chuyển không hợp lệ (ví dụ `canceled -> active`) -> lỗi, không đổi.
 10. **MUST** seed `plan_catalog` idempotent với 4 bậc (free + 3 Premium) qua `ON CONFLICT (tier) DO NOTHING`.
 11. **MUST** đặt mọi cột thời gian kiểu `TIMESTAMPTZ`; `started_at` mặc định `now()` khi tạo.

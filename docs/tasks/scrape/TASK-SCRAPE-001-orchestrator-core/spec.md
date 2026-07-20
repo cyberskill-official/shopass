@@ -66,10 +66,9 @@ Service SCRAPE **MUST** cung cấp một orchestrator lõi điều phối việc
 
 1. **MUST** định nghĩa bảng `scrape_job (product_id, platform_id, tier, next_run_at, attempts, last_status, locked_until)` với `PRIMARY KEY (product_id)` và index trên `(next_run_at)` để scheduler quét job đến hạn nhanh.
 2. **MUST** phân tầng tần suất quét (DEC-SCRAPE-01) qua enum `tier - {hot, warm, cold}`:
-    - `hot` (đang flash sale hoặc SKU biến động): chu kỳ <= 5 phút.
-    - `warm` (SKU được theo dõi, ổn định): chu kỳ 1-6 giờ.
-    - `cold` (SKU ít quan tâm): chu kỳ 24 giờ.
-   Hàm `NextRunAt(tier, now) time.Time` **MUST** trả mốc kế tiếp đúng theo tier.
+- `hot` (đang flash sale hoặc SKU biến động): chu kỳ <= 5 phút.
+- `warm` (SKU được theo dõi, ổn định): chu kỳ 1-6 giờ.
+- `cold` (SKU ít quan tâm): chu kỳ 24 giờ. Hàm `NextRunAt(tier, now) time.Time` **MUST** trả mốc kế tiếp đúng theo tier.
 3. **MUST** cho phép promote/demote tier: khi giá vừa thay đổi hoặc `flash_sale=true` -> promote lên `hot`; sau N chu kỳ không đổi -> demote dần về `warm`/`cold`. Logic này **MUST** là hàm thuần kiểm thử được `ReTier(current, changed, flashSale) tier`.
 4. **MUST** dùng hàng đợi bền (DEC-SCRAPE-02): scheduler đẩy job đến hạn vào Redis Streams; worker `claim` job, xử lý, rồi `ack`. Job chưa `ack` quá thời gian `locked_until` **MUST** được re-claim (chống mất job khi worker crash).
 5. **MUST** retry có giới hạn + backoff: mỗi job thất bại tăng `attempts`; backoff hàm mũ có jitter; vượt `max_attempts` (mặc định 5) -> đánh `last_status='failed'` và đẩy sang dead-letter, KHÔNG retry vô hạn.

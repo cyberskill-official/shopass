@@ -65,19 +65,19 @@ Module proxy **MUST** cấp session residential xoay vòng theo tier nhà cung c
 
 1. **MUST** mặc định dùng residential proxy cho mọi target có WAF/anti-bot (DEC-SCRAPE-15). Datacenter chỉ được dùng cho target xác nhận KHÔNG có Cloudflare/Akamai; với Shopee/TikTok/Lazada luôn residential.
 2. **MUST** phân tầng nhà cung cấp (DEC-SCRAPE-16) qua enum `tier - {enterprise, mid, budget}`:
-    - `enterprise`: Bright Data, Oxylabs (~8,5-12 USD/GB) - độ tin cậy cao nhất, tỷ lệ success ~99,95%.
-    - `mid`: Decodo, SOAX, NetNut (~3-6 USD/GB).
-    - `budget`: IPRoyal (~1,75 USD/GB) - rẻ nhất.
+- `enterprise`: Bright Data, Oxylabs (~8,5-12 USD/GB) - độ tin cậy cao nhất, tỷ lệ success ~99,95%.
+- `mid`: Decodo, SOAX, NetNut (~3-6 USD/GB).
+- `budget`: IPRoyal (~1,75 USD/GB) - rẻ nhất.
 3. **MUST** chọn tier theo độ khó target (DEC-SCRAPE-17) qua hàm thuần `SelectTier(d TargetDifficulty) Tier`:
-    - Akamai (Lazada), ByteDance attestation (TikTok) -> `enterprise`.
-    - Shopee qua internal JSON (dễ hơn) -> `budget` hoặc `mid`.
-    - Mặc định khi không rõ -> `mid` (cân bằng).
+- Akamai (Lazada), ByteDance attestation (TikTok) -> `enterprise`.
+- Shopee qua internal JSON (dễ hơn) -> `budget` hoặc `mid`.
+- Mặc định khi không rõ -> `mid` (cân bằng).
 4. **MUST** cấp session proxy theo cặp `(tier, country)` và xoay vòng IP: `Acquire(ctx, tier, country) (ProxySession, error)`; mỗi session có `url/user/pass`, và pool **MUST** tránh tái dùng cùng một IP liên tục cho cùng một sàn trong cửa sổ ngắn.
 5. **MUST** đánh dấu IP bị ban/challenge: khi adapter/farm báo IP bị chặn, pool **MUST** ghi nhận và không cấp lại IP đó trong khoảng cooldown.
 6. **MUST** gắn proxy session với fingerprint profile cùng nước (DEC-SCRAPE-19): proxy VN chỉ ghép profile VN của TASK-SCRAPE-003; ghép sai nước bị từ chối.
 7. **MUST** cost-guard (DEC-SCRAPE-18): theo dõi GB tiêu thụ và chi phí ước tính per provider per ngày vào `proxy_usage`; khi chi phí ngày vượt ngân sách cấu hình, cost-guard **MUST**:
-    - hạ tier (enterprise -> mid -> budget) cho request không tới hạn, và/hoặc
-    - tạm dừng quét tier `cold` (TASK-SCRAPE-001), giữ tier `hot` (flash sale) chạy.
+- hạ tier (enterprise -> mid -> budget) cho request không tới hạn, và/hoặc
+- tạm dừng quét tier `cold` (TASK-SCRAPE-001), giữ tier `hot` (flash sale) chạy.
 8. **MUST** expose `CanProceed(tier, country) (bool, reason)` để orchestrator hỏi trước khi cấp session khi gần trần ngân sách.
 9. **MUST** quy đổi chi phí bằng số nguyên (USD micro hoặc cent), KHÔNG dùng float tích lũy cho tiền (đồng bộ nguyên tắc tiền tệ của hệ thống).
 10. **SHOULD** phát OTel metric: `proxy_gb_used_total{provider, tier}` (counter), `proxy_cost_usd_total{provider}` (counter), `proxy_ip_banned_total{provider}` (counter), `proxy_acquire_duration_ms{tier}` (histogram).

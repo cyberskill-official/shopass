@@ -60,10 +60,10 @@ Service COMPLY **MUST** cưỡng chế hai bất biến bảo mật của SănDe
 
 1. **MUST** cung cấp bộ quét tĩnh `audit.Scan(root string) ([]Finding, error)` quét cây mã + migration tìm pattern cấm, trả vi phạm kèm `file` + `line` + `rule`.
 2. **MUST** định nghĩa tập quy tắc cấm (DEC-COMPLY-19) tối thiểu:
-    - Cột/biến tên gợi ý lưu cleartext mật khẩu (ví dụ `password TEXT` không phải `pwd_hash`, `plain_password`).
-    - Cột/biến/log lưu token phiên sàn (ví dụ `shopee_token`, `session_cookie`, `platform_access_token` ở backend).
-    - Secret hardcode (khóa API/DB password chuỗi literal) thay vì đọc từ Vault (TASK-INFRA-003).
-    - Băm mật khẩu yếu (`md5`, `sha1`) cho credential.
+- Cột/biến tên gợi ý lưu cleartext mật khẩu (ví dụ `password TEXT` không phải `pwd_hash`, `plain_password`).
+- Cột/biến/log lưu token phiên sàn (ví dụ `shopee_token`, `session_cookie`, `platform_access_token` ở backend).
+- Secret hardcode (khóa API/DB password chuỗi literal) thay vì đọc từ Vault (TASK-INFRA-003).
+- Băm mật khẩu yếu (`md5`, `sha1`) cho credential.
 3. **MUST** cung cấp CI gate `no_cleartext_gate.sh` gọi `Scan` và thoát mã khác 0 khi có vi phạm (DEC-COMPLY-22), chặn merge. Tích hợp vào `.github/workflows/ci.yml`.
 4. **MUST** cưỡng chế token-not-on-server (DEC-COMPLY-20): backend KHÔNG có cột, biến, hoặc dòng log nào chứa token phiên sàn. Quy tắc quét bắt mọi tên trường khớp danh sách token sàn.
 5. **MUST** cung cấp payload guard động `audit.GuardPayload(p map[string]any) error` (DEC-COMPLY-22): khẳng định payload nhận từ extension chỉ chứa trường cho phép (productId/price/qty...) và KHÔNG chứa `cookie`, `token`, `session`, `authorization` (tôn trọng TASK-EXT-003 tối thiểu hóa).

@@ -73,10 +73,10 @@ Dispatcher APNs **MUST** gửi push tới iPhone/iPad qua APNs HTTP/2 provider A
 5. **MUST** mở **nhiều kết nối HTTP/2 song song** tới `api.push.apple.com` và **multiplex** nhiều request trên mỗi kết nối (DEC-NOTIF-51). Một kết nối HTTP/2 đơn không đủ throughput cho đỉnh 00:00; pool nhiều kết nối + multiplexing là cách APNs khuyến nghị để đạt thông lượng cao.
 6. **MUST** dựng aps payload JSON đúng cấu trúc: `aps.alert.{title,body}` (đã render bởi TASK-NOTIF-001), tùy chọn `aps.sound`, `aps.badge`, và custom key ngoài `aps` (vd `product_id`, `deeplink`) cho điều hướng. Payload **MUST** giữ dưới giới hạn 4KB của APNs cho alert push.
 7. **MUST** phân loại phản hồi APNs theo HTTP status + `reason` và hành xử đúng:
-    - Thành công (HTTP `200`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
-    - Token chết (HTTP `410` `Unregistered`, hoặc `400` `BadDeviceToken`) -> token không còn active.
-    - Lỗi server tạm thời (HTTP `500` `InternalServerError`, `503` `ServiceUnavailable`, timeout) -> retry theo backoff.
-    - Bị siết (HTTP `429` `TooManyRequests`) -> backoff, tôn trọng `Retry-After`.
+- Thành công (HTTP `200`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
+- Token chết (HTTP `410` `Unregistered`, hoặc `400` `BadDeviceToken`) -> token không còn active.
+- Lỗi server tạm thời (HTTP `500` `InternalServerError`, `503` `ServiceUnavailable`, timeout) -> retry theo backoff.
+- Bị siết (HTTP `429` `TooManyRequests`) -> backoff, tôn trọng `Retry-After`.
 8. **MUST** xử lý HTTP `410` (`Unregistered` - apns-id/device token không còn active) bằng cách set `user_channel_token.verified=false` cho `(user_id, 'push')` tương ứng (DEC-NOTIF-52) và `MarkFailed` dòng `notification`. Lần sau routing (TASK-NOTIF-001) sẽ không coi token đó là khả dụng nữa - ngừng gửi vào token chết. HTTP `400 BadDeviceToken` xử lý cùng nhánh token chết.
 9. **MUST** xử lý HTTP `500`/`503` (lỗi server APNs) bằng exponential backoff có jitter và **MUST** tôn trọng header `Retry-After` khi APNs trả về (DEC-NOTIF-53). Message bị 500/503 **MUST NOT** bị drop; nó được trả lại hàng đợi (giữ `status='queued'`) để thử lại sau, không mất thông báo. Vượt số lần thử tối đa thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
 10. **MUST** nhặt việc an toàn khi chạy nhiều worker song song: `ClaimIOSPushBatch` dùng `SELECT ... FOR UPDATE SKIP LOCKED` trên `notification` (`channel='push'`, `status='queued'`, thiết bị iOS), để hai worker không gửi trùng một dòng (DEC-NOTIF-54). Một dòng `notification` đã `status='sent'` **MUST NOT** bị gửi lại; `MarkSent`/`MarkFailed` là cập nhật có điều kiện trên trạng thái hiện tại.

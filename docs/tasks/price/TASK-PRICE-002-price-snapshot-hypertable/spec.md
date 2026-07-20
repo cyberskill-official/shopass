@@ -71,9 +71,9 @@ Service PRICE **MUST** lưu chuỗi thời gian giá sản phẩm vào Timescale
 6. **MUST** tạo continuous aggregate `price_daily` (DEC-PRICE-03): bucket 1 ngày, cột `min_p = min(price)`, `max_p = max(price)`, `close_p = last(price, ts)`, GROUP BY `product_id, day`. Đăng ký refresh policy (refresh cửa sổ gần nhất mỗi giờ).
 7. **MUST** đặt retention policy: giữ raw `price_snapshot` 18 tháng (`add_retention_policy('price_snapshot', INTERVAL '18 months')`); continuous aggregate `price_daily` giữ vô thời hạn (lịch sử dài phục vụ dự đoán đáy giá TASK-DEAL-004).
 8. **MUST** expose hàm repo:
-    - `InsertSnapshot(ctx, snap PriceSnapshot) (written bool, err error)` - áp dụng delta-only; `written=false` khi bị bỏ qua.
-    - `QueryRange(ctx, productID int64, from, to time.Time) ([]PriceSnapshot, error)` - đọc raw trong khoảng.
-    - `QueryDaily(ctx, productID int64, from, to time.Time) ([]DailyBucket, error)` - đọc từ `price_daily`.
+- `InsertSnapshot(ctx, snap PriceSnapshot) (written bool, err error)` - áp dụng delta-only; `written=false` khi bị bỏ qua.
+- `QueryRange(ctx, productID int64, from, to time.Time) ([]PriceSnapshot, error)` - đọc raw trong khoảng.
+- `QueryDaily(ctx, productID int64, from, to time.Time) ([]DailyBucket, error)` - đọc từ `price_daily`.
 9. **MUST** đánh index hỗ trợ truy vấn theo `product_id` + thời gian (hypertable đã index `ts`; thêm index phụ nếu cần cho `flash_sale` filter).
 10. **SHOULD** phát OTel metric: `price_snapshot_written_total{platform_id}` (counter), `price_snapshot_delta_skipped_total{platform_id}` (counter), `price_query_duration_ms` (histogram).
 11. **MUST** xử lý ghi đồng thời cùng `(product_id, ts)`: dùng `INSERT ... ON CONFLICT (product_id, ts) DO NOTHING` để idempotent với retry của scraper.

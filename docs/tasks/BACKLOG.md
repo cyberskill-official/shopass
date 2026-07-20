@@ -1,11 +1,6 @@
 # SănDeal - Task Backlog
 
-**Owner:** Stephen Cheng (Founder / CEO) - **Status:** v0.2.0 - SHIP-READY. 90 task + 90 audit + 10 NFR + 10 audit; DAG acyclic + reciprocal; data model nhất quán (một table một owner); đã qua một vòng review chéo module. Backlog khởi tạo từ tài liệu nền tảng SănDeal v1.0 (16/06/2026), áp dụng workflow task của CyberOS (engineering-spec@1).
-**Nguồn sự thật (source of truth):** các file markdown trong thư mục này. Index này được tái tạo khi task được thêm hoặc đổi status.
-**Tài liệu nguồn:** [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" - PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../)
-**Tài liệu hỗ trợ ship (cho agent triển khai):** [`SHIP-GUIDE.md`](SHIP-GUIDE.md) (conventions + bất biến build) | [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md) (thứ tự build theo layer) | [`DATA-MODEL.md`](DATA-MODEL.md) (schema hợp nhất) | [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md) (vòng đời status). Ghi chú: `AGENTS.md` ở gốc repo dành cho giao thức memory CyberOS (BRAIN); conventions build nằm ở SHIP-GUIDE.md.
-**Playbook tác giả:** workflow `task-author` + `task-audit` của CyberOS (`cyberos/modules/skill/contracts/task/`). Mỗi task đi kèm một file `.audit.md`.
-**Status enum (10 trạng thái):** `draft | done | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
+**Owner:** Stephen Cheng (Founder / CEO) - **Status:** v0.2.0 - SHIP-READY. 90 task + 90 audit + 10 NFR + 10 audit; DAG acyclic + reciprocal; data model nhất quán (một table một owner); đã qua một vòng review chéo module. Backlog khởi tạo từ tài liệu nền tảng SănDeal v1.0 (16/06/2026), áp dụng workflow task của CyberOS (engineering-spec@1). **Nguồn sự thật (source of truth):** các file markdown trong thư mục này. Index này được tái tạo khi task được thêm hoặc đổi status. **Tài liệu nguồn:** [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" - PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../) **Tài liệu hỗ trợ ship (cho agent triển khai):** [`SHIP-GUIDE.md`](SHIP-GUIDE.md) (conventions + bất biến build) | [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md) (thứ tự build theo layer) | [`DATA-MODEL.md`](DATA-MODEL.md) (schema hợp nhất) | [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md) (vòng đời status). Ghi chú: `AGENTS.md` ở gốc repo dành cho giao thức memory CyberOS (BRAIN); conventions build nằm ở SHIP-GUIDE.md. **Playbook tác giả:** workflow `task-author` + `task-audit` của CyberOS (`cyberos/modules/skill/contracts/task/`). Mỗi task đi kèm một file `.audit.md`. **Status enum (10 trạng thái):** `draft | done | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
 
 ---
 
@@ -20,8 +15,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 - **Depends on**: danh sách phụ thuộc cross-FR.
 - **Effort**: ước lượng thô theo giờ (1h = 30 phút làm tập trung + 30 phút phối hợp/review). Sai số +/-50%. Tính cho một kỹ sư có kinh nghiệm.
 
-**Thứ tự đọc cho người lập kế hoạch:** quét §1 (tổng) -> chọn phase đang làm -> đọc phần phân rã theo module trong phase đó -> đào vào từng file task.
-**Thứ tự đọc cho người triển khai:** tìm TASK-ID được giao trong phần module -> mở file task markdown để xem chi tiết.
+**Thứ tự đọc cho người lập kế hoạch:** quét §1 (tổng) -> chọn phase đang làm -> đọc phần phân rã theo module trong phase đó -> đào vào từng file task. **Thứ tự đọc cho người triển khai:** tìm TASK-ID được giao trong phần module -> mở file task markdown để xem chi tiết.
 
 ---
 
@@ -336,8 +330,6 @@ NFR sống dưới [`../non-functional-requirements/<module>/`](../non-functiona
 
 ## Conventions (CyberOS)
 
-One backlog for both classes: rows are `- [status] TASK-ID-slug - title`;
-`class: improvement` rows carry an `(improvement)` suffix, product rows are untagged.
-task frontmatter `status` is the record of truth; this file is the index.
+One backlog for both classes: rows are `- [status] TASK-ID-slug - title`; `class: improvement` rows carry an `(improvement)` suffix, product rows are untagged. task frontmatter `status` is the record of truth; this file is the index.
 
 - improvement programs: see `improvement/` (moved from `docs/improvement/`; class: improvement work - convert items to tasks on pickup)

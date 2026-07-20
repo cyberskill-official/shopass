@@ -66,16 +66,16 @@ Service COMPLY **MUST** duy trì sổ đăng ký DPIA (Data Protection Impact As
 4. **MUST** tính `filing_due_at = started_at + INTERVAL '60 days'` (DEC-COMPLY-06): hạn nộp DPIA là 60 ngày kể từ khi bắt đầu xử lý.
 5. **MUST** tính `review_due_at = COALESCE(last_reviewed_at, filed_at) + INTERVAL '6 months'` (DEC-COMPLY-07): DPIA phải được rà soát lại tối thiểu mỗi 6 tháng.
 6. **MUST** suy ra trạng thái filing từ deadline, KHÔNG nhập tay (DEC-COMPLY-09):
-    - `draft` - chưa `filed_at`, còn trong 60 ngày.
-    - `submitted` - đã `filed_at` trong hạn.
-    - `overdue` - chưa `filed_at` mà đã quá `filing_due_at`.
-    - `review_overdue` - đã nộp nhưng quá `review_due_at`.
+- `draft` - chưa `filed_at`, còn trong 60 ngày.
+- `submitted` - đã `filed_at` trong hạn.
+- `overdue` - chưa `filed_at` mà đã quá `filing_due_at`.
+- `review_overdue` - đã nộp nhưng quá `review_due_at`.
 7. **MUST** chặn tạo `processing_activity` với `cross_border = true` mà không có TIA: hàm tạo phải yêu cầu thông tin `recipient_country` + `safeguard` và sinh TIA cùng lúc.
 8. **MUST** expose hàm:
-    - `RegisterActivity(ctx, a ProcessingActivity, dpia DPIAInput) (int64, error)` - tạo activity + DPIA v1 (+ TIA nếu cross_border); trả activity_id.
-    - `ReviewDPIA(ctx, activityID int64, in DPIAInput) error` - tạo DPIA version mới, set `last_reviewed_at = now()`.
-    - `MarkFiled(ctx, dpiaID int64) error` - set `filed_at = now()` (đã nộp cho cơ quan).
-    - `Overdue(ctx) ([]ActivityStatus, error)` - liệt kê hoạt động `overdue` hoặc `review_overdue`.
+- `RegisterActivity(ctx, a ProcessingActivity, dpia DPIAInput) (int64, error)` - tạo activity + DPIA v1 (+ TIA nếu cross_border); trả activity_id.
+- `ReviewDPIA(ctx, activityID int64, in DPIAInput) error` - tạo DPIA version mới, set `last_reviewed_at = now()`.
+- `MarkFiled(ctx, dpiaID int64) error` - set `filed_at = now()` (đã nộp cho cơ quan).
+- `Overdue(ctx) ([]ActivityStatus, error)` - liệt kê hoạt động `overdue` hoặc `review_overdue`.
 9. **MUST** liệt kê được "sắp tới hạn" (due trong N ngày) để cảnh báo trước khi quá hạn.
 10. **SHOULD** phát OTel gauge `dpia_overdue_total`, `dpia_review_due_soon_total`; báo cáo định kỳ qua Grafana.
 11. **MUST** giữ `risk_level` trong tập `('low','medium','high')`; hoạt động `high` SHOULD kèm `mitigation_vi` không rỗng.

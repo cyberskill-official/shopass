@@ -1,7 +1,6 @@
 # SănDeal Security Audit
 
-Version: 1.4.0
-Commit: local
+Version: 1.4.0 Commit: local
 
 | Hook | Kết quả | Bằng chứng |
 |---|---|---|

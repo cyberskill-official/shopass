@@ -13,5 +13,4 @@ This checklist maps the requirements of the Chrome Web Store Affiliate Marketing
 | **Clear Disclosure & Intent** <br> Affiliate functionality must be disclosed, and there can be no hidden back-doors. | Go backend asserting strictly ONE valid route for link generation and requiring `IncludesDisclosure=true`. | `services/affil/internal/affil/guardrail_assert_test.go` |
 
 ## Enforcement Mechanism
-All of these guardrails are enforced as **CI Gates**. If any test fails, the build turns red and the pull request cannot be merged.
-This translates a policy promise into a verifiable technical invariant.
+All of these guardrails are enforced as **CI Gates**. If any test fails, the build turns red and the pull request cannot be merged. This translates a policy promise into a verifiable technical invariant.

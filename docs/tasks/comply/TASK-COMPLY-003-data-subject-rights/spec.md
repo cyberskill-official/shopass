@@ -66,16 +66,16 @@ Service COMPLY **MUST** cung cấp quy trình thực thi bốn quyền chủ th�
 3. **MUST** thực thi quyền truy cập (access): trả bản tóm tắt dữ liệu cá nhân đang lưu (loại dữ liệu, nguồn, mục đích) cho user.
 4. **MUST** thực thi quyền di chuyển (portability) (DEC-COMPLY-13): xuất dữ liệu cá nhân ở định dạng JSON có cấu trúc, máy đọc được, gồm hồ sơ tài khoản + sản phẩm theo dõi + lịch sử consent (TASK-COMPLY-001). KHÔNG xuất dạng không máy đọc được.
 5. **MUST** thực thi quyền xóa (erase) theo nguyên tắc (DEC-COMPLY-12):
-    - Hard-delete dữ liệu cá nhân thuần không ràng buộc (ví dụ wishlist, alert rule cá nhân).
-    - Soft-anonymize dữ liệu có ràng buộc pháp lý/kế toán (ví dụ bản ghi thanh toán phải giữ theo luật kế toán) - thay PII bằng giá trị ẩn danh, không xóa dòng.
-    - KHÔNG xóa `consent_record` - đó là chứng cứ pháp lý; thay vào đó ghi nhận xóa qua một DSAR erase đã hoàn tất.
+- Hard-delete dữ liệu cá nhân thuần không ràng buộc (ví dụ wishlist, alert rule cá nhân).
+- Soft-anonymize dữ liệu có ràng buộc pháp lý/kế toán (ví dụ bản ghi thanh toán phải giữ theo luật kế toán) - thay PII bằng giá trị ẩn danh, không xóa dòng.
+- KHÔNG xóa `consent_record` - đó là chứng cứ pháp lý; thay vào đó ghi nhận xóa qua một DSAR erase đã hoàn tất.
 6. **MUST** thực thi quyền sửa (rectify): cho phép cập nhật trường hồ sơ cá nhân (email, phone, locale) qua luồng có kiểm tra ràng buộc (ví dụ email unique của TASK-AUTH-001).
 7. **MUST** tính `sla_due_at` và suy trạng thái quá hạn từ thời điểm tạo, KHÔNG nhập tay (DEC-COMPLY-14): `open` / `in_progress` / `completed` / `overdue`.
 8. **MUST** expose hàm:
-    - `CreateRequest(ctx, userID int64, kind string) (int64, error)` - tạo DSAR, gán `sla_due_at`.
-    - `Export(ctx, userID int64) (ExportBundle, error)` - gom dữ liệu cho access/portability.
-    - `Erase(ctx, userID int64) (EraseResult, error)` - hard-delete + soft-anonymize theo phân loại, giữ consent.
-    - `Overdue(ctx) ([]DSARRequest, error)` - liệt kê DSAR quá SLA.
+- `CreateRequest(ctx, userID int64, kind string) (int64, error)` - tạo DSAR, gán `sla_due_at`.
+- `Export(ctx, userID int64) (ExportBundle, error)` - gom dữ liệu cho access/portability.
+- `Erase(ctx, userID int64) (EraseResult, error)` - hard-delete + soft-anonymize theo phân loại, giữ consent.
+- `Overdue(ctx) ([]DSARRequest, error)` - liệt kê DSAR quá SLA.
 9. **MUST** đảm bảo `Export` chỉ gom dữ liệu của đúng `user_id` truyền vào; property test chống rò dữ liệu chéo user (cổng tiến phase §7 BACKLOG: rò cross-user = 0).
 10. **SHOULD** phát OTel metric: `dsar_request_total{kind}`, `dsar_overdue_total`; log mọi DSAR ở mức audit.
 11. **MUST** ghi `completed_at` khi DSAR hoàn tất; erase sinh một DSAR `completed` làm dấu vết (đã thực thi quyền xóa lúc nào).

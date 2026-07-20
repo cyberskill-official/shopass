@@ -63,10 +63,10 @@ Adapter Shopee **MUST** triển khai interface `PlatformAdapter` của TASK-SCRA
 2. **MUST** gọi endpoint `/api/v4/pdp/get_pc?item_id={itemid}&shop_id={shopid}` làm đường lấy giá chính (DEC-SCRAPE-06); `item_id`/`shop_id` lấy từ `tracked_product.platform_item_id` (TASK-PRICE-001).
 3. **MUST** truy cập theo ngữ cảnh `is_login:false` (không phiên đăng nhập) - adapter backend KHÔNG dùng cookie phiên của bất kỳ người dùng nào (DEC-SCRAPE-09, §3.2). Yêu cầu đi qua proxy residential (TASK-SCRAPE-004) và fingerprint của farm, tách hẳn khỏi extension.
 4. **MUST** parse JSON Shopee về `PriceSnapshot` (DEC-SCRAPE-07):
-    - `price` <- trường giá hiện tại, quy đổi đơn vị Shopee (giá Shopee thường là micro-đơn-vị x100000) về BIGINT VND nguyên.
-    - `list_price` <- giá gốc/niêm yết (before-discount), cùng quy đổi.
-    - `stock`, `sold` <- tồn kho và đã bán nếu có.
-    - `flash_sale` <- true khi payload báo đang flash sale (`flash_sale`/`is_flash_sale`/`upcoming_flash_sale` đang chạy).
+- `price` <- trường giá hiện tại, quy đổi đơn vị Shopee (giá Shopee thường là micro-đơn-vị x100000) về BIGINT VND nguyên.
+- `list_price` <- giá gốc/niêm yết (before-discount), cùng quy đổi.
+- `stock`, `sold` <- tồn kho và đã bán nếu có.
+- `flash_sale` <- true khi payload báo đang flash sale (`flash_sale`/`is_flash_sale`/`upcoming_flash_sale` đang chạy).
 5. **MUST** quy đổi giá KHÔNG dùng float trung gian: chia số nguyên `raw / 100000` (hoặc đọc trường đã là VND nếu Shopee trả vậy), tránh sai số float (đồng bộ DEC-PRICE-05 của TASK-PRICE-002).
 6. **MUST** phát hiện challenge/anti-bot: nếu phản hồi không phải JSON hợp lệ (HTML, trang verify, HTTP 4xx/5xx của WAF), adapter **MUST** rơi xuống Playwright farm (TASK-SCRAPE-003) qua `DEC-SCRAPE-08` thay vì trả snapshot rỗng/sai.
 7. **MUST** trả error (không panic) khi cả endpoint lẫn fallback đều thất bại, để orchestrator (TASK-SCRAPE-001 #5) áp retry/backoff.

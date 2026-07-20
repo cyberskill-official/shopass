@@ -74,9 +74,9 @@ UI quản lý wishlist và alert **MUST** là các màn hình trong khu vực đ
 4. Màn hình alert **MUST** cho tạo luật (`POST /v1/alerts {product_id, rule_type, threshold?, channel[]?}`), liệt kê luật của caller (`GET /v1/alerts`), bật/tắt (`PATCH /v1/alerts/{id} {active}`), xóa (`DELETE /v1/alerts/{id}`) - khớp các route TASK-TRACK-003.
 5. Bộ chọn `rule_type` **MUST** chỉ phơi enum `{price_below, drop_pct, real_sale, bottom_predicted}` của TASK-TRACK-003 (DEC-WEB-17); không cho giá trị ngoài enum.
 6. Ô nhập `threshold` **MUST** đổi theo `rule_type` (DEC-WEB-17, mirror DEC-TRACK-22):
-    - `price_below`: hiện ô giá VND (int > 0).
-    - `drop_pct`: hiện ô phần trăm nguyên trong `[1, 99]`.
-    - `real_sale` và `bottom_predicted`: KHÔNG hiện ô threshold (tín hiệu từ engine, không có ngưỡng người dùng).
+- `price_below`: hiện ô giá VND (int > 0).
+- `drop_pct`: hiện ô phần trăm nguyên trong `[1, 99]`.
+- `real_sale` và `bottom_predicted`: KHÔNG hiện ô threshold (tín hiệu từ engine, không có ngưỡng người dùng).
 7. UI **MUST** validate phía client quan hệ `rule_type` <-> `threshold` trước khi gửi (báo lỗi sớm), nhưng KHÔNG coi đó là kiểm tra cuối: server (TASK-TRACK-003 #5) vẫn validate lần cuối; UI hiển thị lỗi `400` từ server nếu có.
 8. Bộ chọn `channel` **MUST** chỉ phơi `{push, email, sms}` với `push` mặc định (DEC-WEB-18), khớp enum kênh TASK-TRACK-003; cho chọn nhiều kênh; KHÔNG cho kênh ngoài tập.
 9. UI **MUST** chỉ thao tác trên tài nguyên của chính user (DEC-WEB-20): server đã chặn IDOR (TASK-TRACK-002 #6, TASK-TRACK-003), client không cố duyệt id người khác; lỗi `403`/`404` từ server hiển thị "không tìm thấy" trung lập, không lộ sự tồn tại tài nguyên người khác.

@@ -35,5 +35,4 @@ Tất cả các trường khác đều bị loại bỏ ngay tại thiết bị 
 
 ## Chính sách lưu trữ (Retention)
 
-Dữ liệu giá thu thập được lưu trữ theo chính sách truy cập/xóa (DSAR) nhất quán. Lịch sử giá (price snapshot) có thể được lưu trữ ẩn danh để phục vụ cảnh báo biến động. 
-Dữ liệu sẽ được bảo vệ ẩn danh và khi chia sẻ dữ liệu tổng hợp (nếu có, cho B2B) sẽ tuân thủ nghiêm ngặt điều kiện k-anonymity, đảm bảo không thể truy vết ngược lại cá nhân bạn.
+Dữ liệu giá thu thập được lưu trữ theo chính sách truy cập/xóa (DSAR) nhất quán. Lịch sử giá (price snapshot) có thể được lưu trữ ẩn danh để phục vụ cảnh báo biến động. Dữ liệu sẽ được bảo vệ ẩn danh và khi chia sẻ dữ liệu tổng hợp (nếu có, cho B2B) sẽ tuân thủ nghiêm ngặt điều kiện k-anonymity, đảm bảo không thể truy vết ngược lại cá nhân bạn.

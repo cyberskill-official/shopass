@@ -70,9 +70,9 @@ Dispatcher FCM **MUST** gửi push tới Web và Android qua FCM HTTP v1 API, l�
 4. **MUST** áp một token bucket nội bộ ~`600.000` message/phút/project (refill mỗi phút) trước khi gọi FCM (DEC-NOTIF-11). Quota mặc định của FCM là 600.000 message/phút/project và phủ trên 99% nhà phát triển FCM; van nội bộ giữ ta dưới ngưỡng để hạn chế 429 từ phía server.
 5. **MUST** xử lý HTTP `429` `RESOURCE_EXHAUSTED` bằng exponential backoff có jitter và **MUST** tôn trọng header `Retry-After` khi FCM trả về (DEC-NOTIF-12). Message bị 429 **MUST NOT** bị drop; nó được trả lại hàng đợi (giữ `status='queued'`) để thử lại sau, không mất thông báo.
 6. **MUST** phân loại phản hồi FCM thành ba nhóm và hành xử đúng:
-    - Thành công (HTTP 200, có `name`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
-    - Lỗi tạm thời (429 `RESOURCE_EXHAUSTED`, 500/503 `UNAVAILABLE`, timeout) -> retry theo backoff; vượt số lần thử tối đa thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
-    - Lỗi token vĩnh viễn (404 `UNREGISTERED`, 400 `INVALID_ARGUMENT` cho token sai định dạng) -> token chết.
+- Thành công (HTTP 200, có `name`) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
+- Lỗi tạm thời (429 `RESOURCE_EXHAUSTED`, 500/503 `UNAVAILABLE`, timeout) -> retry theo backoff; vượt số lần thử tối đa thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
+- Lỗi token vĩnh viễn (404 `UNREGISTERED`, 400 `INVALID_ARGUMENT` cho token sai định dạng) -> token chết.
 7. **MUST** xử lý `UNREGISTERED` / token không hợp lệ bằng cách set `user_channel_token.verified=false` cho `(user_id, 'push')` tương ứng (DEC-NOTIF-13) và `MarkFailed` dòng `notification`. Lần sau routing (TASK-NOTIF-001) sẽ không coi token đó là khả dụng nữa - ngừng gửi vào token chết.
 8. **MUST** nhặt việc an toàn khi chạy nhiều worker song song: `ClaimPushBatch` dùng `SELECT ... FOR UPDATE SKIP LOCKED` trên `notification` (`channel='push'`, `status='queued'`), cập nhật sang trạng thái đang xử lý, để hai worker không gửi trùng một dòng (DEC-NOTIF-14).
 9. **MUST** idempotent ở mức hợp lý: một dòng `notification` đã `status='sent'` **MUST NOT** bị gửi lại; `ClaimPushBatch` chỉ lấy `status='queued'`, và `MarkSent`/`MarkFailed` là cập nhật có điều kiện trên trạng thái hiện tại.

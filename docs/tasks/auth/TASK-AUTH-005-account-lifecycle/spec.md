@@ -69,8 +69,7 @@ Service AUTH **MUST** quản vòng đời tài khoản: reset mật khẩu an to
 5. `SetStatus(userID, status)` **MUST** chuyển trạng thái theo quy tắc và **MUST** thu hồi mọi refresh token của user khi chuyển sang `suspended` hoặc `deleted` (DEC-AUTH-24).
 6. Đăng nhập **MUST** từ chối khi `status != 'active'` với lỗi xác định (ví dụ `ErrAccountNotActive`), KHÔNG tiết lộ chi tiết nội bộ.
 7. `DeleteAccount(userID)` (DSAR) **MUST** (DEC-AUTH-23): xóa hoặc ẩn danh hóa dữ liệu cá nhân của `app_user` (email, phone, display_name); gỡ mọi `platform_account` (TASK-AUTH-003); thu hồi mọi refresh token; đặt `status='deleted'`.
-8. Xóa **MUST** dứt khoát theo nghĩa PDPL nhưng **SHOULD** có cửa sổ ân hạn ngắn (ví dụ 7-30 ngày) trước khi purge cứng, chống xóa nhầm (DEC-AUTH-25); trong ân hạn tài khoản đã ở `deleted` và không đăng nhập được.
-8b. `DeleteAccount` **MUST** phối với TASK-COMPLY-003 (DSAR): là điểm thực thi quyền xóa; đảm bảo dữ liệu cá nhân ở các bảng liên quan cũng được xử lý theo chính sách lưu trữ.
+8. Xóa **MUST** dứt khoát theo nghĩa PDPL nhưng **SHOULD** có cửa sổ ân hạn ngắn (ví dụ 7-30 ngày) trước khi purge cứng, chống xóa nhầm (DEC-AUTH-25); trong ân hạn tài khoản đã ở `deleted` và không đăng nhập được. 8b. `DeleteAccount` **MUST** phối với TASK-COMPLY-003 (DSAR): là điểm thực thi quyền xóa; đảm bảo dữ liệu cá nhân ở các bảng liên quan cũng được xử lý theo chính sách lưu trữ.
 9. Sau xóa, dữ liệu cá nhân trực tiếp của `app_user` **MUST** không còn truy được ở dạng định danh (email/phone bị nullify hoặc thay bằng tombstone ẩn danh).
 10. Reset và xóa **MUST** KHÔNG log token reset thô hay PII; thao tác nhạy cảm ghi audit (ai/khi/loại) nhưng không kèm dữ liệu nhạy cảm thô.
 11. Mọi chuyển trạng thái và xóa **SHOULD** phát sự kiện/metric (`account_status_changed_total{to}`, `account_deleted_total`) cho observability và đối chiếu DSAR.

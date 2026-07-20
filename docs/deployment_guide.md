@@ -138,15 +138,15 @@ npm run build
 
 1. **Single Purpose:** "Extension giúp người dùng theo dõi giá trị thực của sản phẩm, chống sale ảo và tối ưu hóa giỏ hàng trên các sàn TMĐT."
 2. **Permissions Justification (Lý do cấp quyền):**
-   - `host_permissions` (`*://*.shopee.vn/*`, `*://*.tiktok.com/*`...): Bắt buộc để đọc thông tin giá và vouchers từ DOM.
-   - `storage` / `alarms`: Cần thiết cho Manifest V3 Service Worker để lưu cache và chạy background checks.
-   - `declarativeNetRequest`: Dùng để ngăn chặn hoặc định tuyến các tracking requests dư thừa (bảo vệ quyền riêng tư người dùng).
+- `host_permissions` (`*://*.shopee.vn/*`, `*://*.tiktok.com/*`...): Bắt buộc để đọc thông tin giá và vouchers từ DOM.
+- `storage` / `alarms`: Cần thiết cho Manifest V3 Service Worker để lưu cache và chạy background checks.
+- `declarativeNetRequest`: Dùng để ngăn chặn hoặc định tuyến các tracking requests dư thừa (bảo vệ quyền riêng tư người dùng).
 3. **Data Usage (Sử dụng dữ liệu):**
-   - Extension **KHÔNG GỬI** cookie, session token, hay mật khẩu rời khỏi máy người dùng. (Điều này đã được chứng minh qua file `audit/run-security-audit.sh`).
-   - Tích chọn: *"This item only uses data for its core functionality"*.
-   - Khẳng định KHÔNG bán dữ liệu cá nhân cho bên thứ ba.
+- Extension **KHÔNG GỬI** cookie, session token, hay mật khẩu rời khỏi máy người dùng. (Điều này đã được chứng minh qua file `audit/run-security-audit.sh`).
+- Tích chọn: *"This item only uses data for its core functionality"*.
+- Khẳng định KHÔNG bán dữ liệu cá nhân cho bên thứ ba.
 4. **Affiliate Disclosure (Khai báo Tiếp thị liên kết):**
-   - Trong mô tả Cửa hàng, **PHẢI GHI RÕ**: "SănDeal có thể nhận được hoa hồng khi bạn mua sắm qua các liên kết (hoàn toàn do người dùng chủ động click tạo link)". Không dùng auto-cookie-stuffing (chính sách TASK-AFFIL-004 đã enforce ở code, nhưng bạn phải ghi rõ trên text).
+- Trong mô tả Cửa hàng, **PHẢI GHI RÕ**: "SănDeal có thể nhận được hoa hồng khi bạn mua sắm qua các liên kết (hoàn toàn do người dùng chủ động click tạo link)". Không dùng auto-cookie-stuffing (chính sách TASK-AFFIL-004 đã enforce ở code, nhưng bạn phải ghi rõ trên text).
 
 ### Bước 5.4: Nộp duyệt (Publish)
 Nhấn **Submit for Review**. Quá trình review có thể mất từ 1-3 ngày cho lần đầu tiên. Do extension có host permissions rộng, Google có thể review thủ công khá kỹ.

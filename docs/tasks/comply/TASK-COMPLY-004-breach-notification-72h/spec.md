@@ -64,15 +64,15 @@ Service COMPLY **MUST** cung cấp quy trình quản lý sự cố vi phạm d�
 4. **MUST** đặt dấu thời gian cho từng bước khi chuyển: `triaged_at`, `notified_authority_at`, `notified_subjects_at`, `closed_at` được set đúng lúc bước đó hoàn tất.
 5. **MUST** phân loại mức nghiêm trọng `severity IN ('low','medium','high','critical')`; phân loại quyết định nghĩa vụ thông báo chủ thể (DEC-COMPLY-17): `high`/`critical` BẮT BUỘC qua `notified_subjects` trước khi `closed`.
 6. **MUST** suy cờ deadline từ đồng hồ, KHÔNG nhập tay (DEC-COMPLY-17):
-    - `within_window` - chưa thông báo cơ quan, còn trong 72h.
-    - `breach_overdue` - chưa `notified_authority_at` mà đã quá `authority_due_at`.
-    - `notified` - đã thông báo cơ quan đúng hạn.
+- `within_window` - chưa thông báo cơ quan, còn trong 72h.
+- `breach_overdue` - chưa `notified_authority_at` mà đã quá `authority_due_at`.
+- `notified` - đã thông báo cơ quan đúng hạn.
 7. **MUST** liên kết tín hiệu nguồn (DEC-COMPLY-18): `source_ref` trỏ tới alert/trace của observability spine (TASK-INFRA-004) đã kích hoạt phát hiện, phục vụ điều tra.
 8. **MUST** expose hàm:
-    - `Open(ctx, in BreachInput) (int64, error)` - tạo sự cố ở `detected`, set `acknowledged_at = now()` (bắt đầu đồng hồ).
-    - `Advance(ctx, id int64, to Status) error` - chuyển trạng thái hợp lệ tuần tự; set dấu thời gian tương ứng.
-    - `Close(ctx, id int64) error` - đóng; từ chối đóng `high`/`critical` chưa `notified_subjects`.
-    - `Overdue(ctx) ([]BreachIncident, error)` - liệt kê sự cố `breach_overdue` (cần báo động ngay).
+- `Open(ctx, in BreachInput) (int64, error)` - tạo sự cố ở `detected`, set `acknowledged_at = now()` (bắt đầu đồng hồ).
+- `Advance(ctx, id int64, to Status) error` - chuyển trạng thái hợp lệ tuần tự; set dấu thời gian tương ứng.
+- `Close(ctx, id int64) error` - đóng; từ chối đóng `high`/`critical` chưa `notified_subjects`.
+- `Overdue(ctx) ([]BreachIncident, error)` - liệt kê sự cố `breach_overdue` (cần báo động ngay).
 9. **MUST** đảm bảo `Advance` từ chối chuyển không hợp lệ (lùi trạng thái, nhảy bước) bằng lỗi xác định `ErrInvalidTransition`.
 10. **SHOULD** phát OTel metric: `breach_incident_total{severity}`, `breach_overdue_total` (cờ đỏ); báo động khi `breach_overdue_total > 0`.
 11. **MUST** chặn `Close` khi severity `high`/`critical` mà `notified_subjects_at IS NULL` bằng lỗi `ErrSubjectsNotNotified`.

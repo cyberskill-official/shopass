@@ -72,9 +72,9 @@ Dispatcher SMS **MUST** gửi tin nhắn SMS tới người dùng VN qua một n
 6. **MUST** dựng `SMSMessage` đúng cấu trúc: `to` (số điện thoại VN dạng E.164 hoặc nội địa theo yêu cầu provider), `body` (đã render bởi TASK-NOTIF-001, plaintext, không markup), `brandname` (sender ID đã đăng ký), và cờ `highValue` mang từ dòng `notification`.
 7. **MUST** lấy số điện thoại đích từ `user_channel_token` của TASK-NOTIF-001: bản ghi `channel='sms'`, `verified=true`. Số chưa verified **MUST NOT** được gửi tới (gửi SMS tới số chưa xác minh có thể sai người + tốn tiền vô ích).
 8. **MUST** phân loại phản hồi provider thành ba nhóm và hành xử đúng (mirror TASK-NOTIF-002 §1 #6):
-    - Thành công (provider chấp nhận, có message id) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
-    - Lỗi tạm thời (5xx, timeout, hết số dư tạm, rate-limit provider) -> thử Twilio fallback (nếu high-value/OTP) hoặc retry; vượt số lần thử thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
-    - Lỗi vĩnh viễn (số sai định dạng, brandname bị từ chối, nội dung vi phạm) -> `MarkFailed`, không retry.
+- Thành công (provider chấp nhận, có message id) -> `MarkSent`: `status='sent'`, `sent_at=now()`.
+- Lỗi tạm thời (5xx, timeout, hết số dư tạm, rate-limit provider) -> thử Twilio fallback (nếu high-value/OTP) hoặc retry; vượt số lần thử thì `MarkFailed` để dead-letter (TASK-NOTIF-003).
+- Lỗi vĩnh viễn (số sai định dạng, brandname bị từ chối, nội dung vi phạm) -> `MarkFailed`, không retry.
 9. **MUST** nhặt việc an toàn khi chạy nhiều worker song song: `ClaimSMSBatch` dùng `SELECT ... FOR UPDATE SKIP LOCKED` trên `notification` (`channel='sms'`, `status='queued'`) để hai worker không gửi trùng (DEC-NOTIF-74), tái dùng pattern của TASK-NOTIF-002.
 10. **MUST** idempotent ở mức hợp lý: một dòng `notification` đã `status='sent'` **MUST NOT** bị gửi lại; `ClaimSMSBatch` chỉ lấy `status='queued'`, `MarkSent`/`MarkFailed` là cập nhật có điều kiện trên trạng thái hiện tại. SMS gửi trùng vừa tốn tiền vừa phiền người dùng.
 11. **SHOULD** phát OTel metric: `sms_send_total{provider, result}` (counter: sent|retry|failed), `sms_fallback_twilio_total` (counter - đếm khi phải dùng Twilio), `sms_guard_rejected_total` (counter - đếm khi guard từ chối dòng không high-value), `sms_cost_estimate_vnd_total{provider}` (counter - ước lượng chi phí để giám sát), `sms_send_duration_ms` (histogram).

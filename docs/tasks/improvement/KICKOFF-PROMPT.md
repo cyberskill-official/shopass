@@ -101,5 +101,4 @@ When the wave's tasks are all `done`:
 
 - Start implementation: open a fresh agent session in the shopass repo, paste Prompt 1.
 - Review a batch: paste Prompt 2 (or run it yourself with the checklist).
-- Resume after review fixes: paste Prompt 1 again - the loop re-picks `in_progress`
-  and `todo` tasks automatically from BACKLOG.md state.
+- Resume after review fixes: paste Prompt 1 again - the loop re-picks `in_progress` and `todo` tasks automatically from BACKLOG.md state.

@@ -63,9 +63,9 @@ Service TRACK **MUST** cung cấp schema và API CRUD cho `alert_rule` (luật c
 2. **MUST** ràng buộc `rule_type` - `{price_below, drop_pct, real_sale, bottom_predicted}` qua CHECK (DEC-TRACK-20). `rule_type` ngoài enum bị DB từ chối.
 3. **MUST** lưu `channel` là `TEXT[]` với mỗi phần tử - `{push, email, sms}` (DEC-TRACK-21); validate từng phần tử ở tầng API trước khi ghi (mảng rỗng hoặc kênh lạ trả `400`). `push` là kênh mặc định nếu client không gửi.
 4. **MUST** lưu `threshold` dạng `BIGINT` và diễn giải theo `rule_type` (DEC-TRACK-22):
-    - `price_below`: `threshold` là giá VND (int64), **MUST** > 0; cảnh báo khi giá hiện tại <= threshold.
-    - `drop_pct`: `threshold` là phần trăm nguyên, **MUST** trong `[1, 99]`; cảnh báo khi giá giảm >= threshold% so với mốc tham chiếu.
-    - `real_sale` và `bottom_predicted`: `threshold` **MUST** là NULL (tín hiệu từ engine DEAL, không có ngưỡng người dùng đặt).
+- `price_below`: `threshold` là giá VND (int64), **MUST** > 0; cảnh báo khi giá hiện tại <= threshold.
+- `drop_pct`: `threshold` là phần trăm nguyên, **MUST** trong `[1, 99]`; cảnh báo khi giá giảm >= threshold% so với mốc tham chiếu.
+- `real_sale` và `bottom_predicted`: `threshold` **MUST** là NULL (tín hiệu từ engine DEAL, không có ngưỡng người dùng đặt).
 5. **MUST** validate quan hệ `rule_type` <-> `threshold` ở tầng API (DEC-TRACK-22): `price_below`/`drop_pct` thiếu `threshold` hợp lệ trả `400`; `real_sale`/`bottom_predicted` kèm `threshold` khác NULL trả `400`.
 6. **MUST** định nghĩa bảng `alert (id BIGSERIAL PK, alert_rule_id BIGINT REFERENCES alert_rule(id) ON DELETE CASCADE, fired_at TIMESTAMPTZ NOT NULL, payload JSONB, status TEXT NOT NULL DEFAULT 'pending')` (DEC-TRACK-23). task này chỉ định nghĩa schema và đọc lịch sử; TASK-TRACK-004 ghi dòng `alert`.
 7. **MUST** phục vụ `POST /v1/alerts {product_id, rule_type, threshold?, channel[]?}` tạo luật gắn `user_id` từ JWT; `product_id` phải có trong `tracked_product` (FK), nếu không trả `400`. Trả `201` + luật đã tạo.
