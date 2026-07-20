@@ -28,7 +28,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2.5 transition hover:opacity-80">
+            <Link
+              href="/dashboard"
+              aria-label="Shopass — Bảng điều khiển"
+              className="flex items-center gap-2.5 transition hover:opacity-80"
+            >
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-lg font-black text-white shadow-md shadow-blue-500/20">S</span>
               <span className="text-xl font-extrabold tracking-tight">Shop<span className="text-blue-600">ass</span></span>
             </Link>
