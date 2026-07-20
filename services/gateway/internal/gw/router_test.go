@@ -82,6 +82,7 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		{http.MethodPost, "/v1/auth/login", false, "auth"},
 		{http.MethodGet, "/v1/track", true, "track"},
 		{http.MethodGet, "/v1/tracked-products", true, "track"},
+		{http.MethodPost, "/v1/products/1/browser-snapshot", true, "track"},
 		{http.MethodGet, "/v1/products/1/chart", true, "deal"},
 		{http.MethodPost, "/graphql", true, "bff"},
 	}

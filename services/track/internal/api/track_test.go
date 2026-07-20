@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"shopass/services/track/internal/priceclient"
 	trackdomain "shopass/services/track/internal/track"
 )
 
@@ -28,9 +29,12 @@ func (m mockPlatforms) IDByCode(code string) (int16, bool) {
 }
 
 type mockPrice struct {
-	products map[string]int64
-	nextID   int64
-	got      []TrackedProduct
+	products    map[string]int64
+	nextID      int64
+	got         []TrackedProduct
+	snapshots   []priceclient.PriceSnapshot
+	written     bool
+	snapshotErr error
 }
 
 func (m *mockPrice) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduct, error) {
@@ -47,6 +51,11 @@ func (m *mockPrice) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduc
 	p.ID = m.nextID
 	m.products[key] = p.ID
 	return p, nil
+}
+
+func (m *mockPrice) RecordBrowserPrice(_ context.Context, s priceclient.PriceSnapshot) (bool, error) {
+	m.snapshots = append(m.snapshots, s)
+	return m.written, m.snapshotErr
 }
 
 type mockRepo struct {
@@ -71,6 +80,10 @@ func (m *mockRepo) LinkUserProduct(ctx context.Context, userID, productID int64)
 func (m *mockRepo) ListUserTrackedProducts(_ context.Context, userID int64) ([]trackdomain.UserTrackedProduct, error) {
 	products := m.productsByUser[userID]
 	return append([]trackdomain.UserTrackedProduct(nil), products...), nil
+}
+
+func (m *mockRepo) UserCanViewProduct(_ context.Context, userID, productID int64) (bool, error) {
+	return m.links[userID][productID], nil
 }
 
 type mockQueue struct {
@@ -238,5 +251,122 @@ func TestListTrackedProductsRequiresAuthenticatedUser(t *testing.T) {
 	rec := doGET(t, h, "/v1/tracked-products", 0)
 	if rec.Code != 401 {
 		t.Fatalf("status = %d, want 401", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotRequiresOwnerAndStoresOnlyPrice(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.links = map[int64]map[int64]bool{123: {77: true}}
+	price := h.price.(*mockPrice)
+	price.written = true
+
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+
+	if rec.Code != 201 {
+		t.Fatalf("status = %d, want 201", rec.Code)
+	}
+	if len(price.snapshots) != 1 || price.snapshots[0].ProductID != 77 || price.snapshots[0].Price != 199000 {
+		t.Fatalf("unexpected snapshots: %#v", price.snapshots)
+	}
+}
+
+func TestBrowserSnapshotHidesUnownedProduct(t *testing.T) {
+	h, _ := setupHandler(t)
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+	if rec.Code != 404 {
+		t.Fatalf("status = %d, want 404", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotRequiresAuthenticatedUser(t *testing.T) {
+	h, _ := setupHandler(t)
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+	if rec.Code != 401 {
+		t.Fatalf("status = %d, want 401", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotRejectsBadPrice(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.links = map[int64]map[int64]bool{123: {77: true}}
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 0}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+	if rec.Code != 400 {
+		t.Fatalf("status = %d, want 400", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotRejectsTrailingJSON(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.links = map[int64]map[int64]bool{123: {77: true}}
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}{}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+	if rec.Code != 400 {
+		t.Fatalf("status = %d, want 400", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotReportsPriceServiceFailure(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.links = map[int64]map[int64]bool{123: {77: true}}
+	price := h.price.(*mockPrice)
+	price.snapshotErr = errors.New("price unavailable")
+	req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("id", "77")
+	req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+	rec := httptest.NewRecorder()
+	h.HandleBrowserSnapshot(rec, req)
+	if rec.Code != 502 {
+		t.Fatalf("status = %d, want 502", rec.Code)
+	}
+}
+
+func TestBrowserSnapshotRateLimitsPerUserAndProduct(t *testing.T) {
+	h, _ := setupHandler(t)
+	repo := h.repo.(*mockRepo)
+	repo.links = map[int64]map[int64]bool{123: {77: true}}
+
+	request := func() *httptest.ResponseRecorder {
+		req := httptest.NewRequest("POST", "/v1/products/77/browser-snapshot", bytes.NewBufferString(`{"price": 199000}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.SetPathValue("id", "77")
+		req = req.WithContext(context.WithValue(req.Context(), "user_id", int64(123)))
+		rec := httptest.NewRecorder()
+		h.HandleBrowserSnapshot(rec, req)
+		return rec
+	}
+
+	if got := request().Code; got != 200 {
+		t.Fatalf("first status = %d, want 200", got)
+	}
+	if got := request().Code; got != 429 {
+		t.Fatalf("second status = %d, want 429", got)
 	}
 }

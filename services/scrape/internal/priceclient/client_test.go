@@ -20,6 +20,7 @@ func TestClient_PostsAndParsesWritten(t *testing.T) {
 	var got map[string]any
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, "/v1/price/snapshots", r.URL.Path)
+		require.Equal(t, "test-service-token", r.Header.Get("X-Service-Token"))
 		b, _ := io.ReadAll(r.Body)
 		_ = json.Unmarshal(b, &got)
 		w.WriteHeader(http.StatusCreated)
@@ -28,7 +29,7 @@ func TestClient_PostsAndParsesWritten(t *testing.T) {
 	defer srv.Close()
 
 	lp := int64(250000)
-	written, err := New(srv.URL, 5*time.Second).InsertSnapshot(context.Background(),
+	written, err := New(srv.URL, "test-service-token", 5*time.Second).InsertSnapshot(context.Background(),
 		orchestrator.PriceSnapshot{ProductID: 100, TS: time.Now(), Price: 199000, ListPrice: &lp, FlashSale: true})
 	require.NoError(t, err)
 	require.True(t, written)
@@ -43,7 +44,7 @@ func TestClient_SkipReturnsFalse(t *testing.T) {
 		_, _ = w.Write([]byte(`{"written":false}`))
 	}))
 	defer srv.Close()
-	written, err := New(srv.URL, 5*time.Second).InsertSnapshot(context.Background(),
+	written, err := New(srv.URL, "test-service-token", 5*time.Second).InsertSnapshot(context.Background(),
 		orchestrator.PriceSnapshot{ProductID: 1, Price: 1000, TS: time.Now()})
 	require.NoError(t, err)
 	require.False(t, written)
@@ -97,7 +98,7 @@ func TestE2E_ShopeeToPriceIngest(t *testing.T) {
 
 	pool := orchestrator.NewPool(
 		orchestrator.Config{MaxConcurrency: map[int16]int{1: 1}, MaxAttempts: 3, BackoffBaseMs: 10},
-		New(price.URL, 5*time.Second),
+		New(price.URL, "test-service-token", 5*time.Second),
 		noopQueue{},
 	)
 	pool.RegisterAdapter(adapter)

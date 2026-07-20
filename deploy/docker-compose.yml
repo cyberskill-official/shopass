@@ -140,6 +140,7 @@ services:
     environment:
       SHOPEE_BASE_URL: ${SHOPEE_BASE_URL:-https://shopee.vn}
       PRICE_BASE_URL: http://pricesvc:8081
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
       SCRAPE_SEED: ${SCRAPE_SEED:-}
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable  # durable queue (FR-SCRAPE-001)
     depends_on:

@@ -15,12 +15,13 @@ import (
 // implements orchestrator.PriceRepo: price owns price_snapshot, so the scraper
 // writes through price rather than touching the table directly.
 type Client struct {
-	base string
-	http *http.Client
+	base         string
+	serviceToken string
+	http         *http.Client
 }
 
-func New(base string, timeout time.Duration) *Client {
-	return &Client{base: base, http: &http.Client{Timeout: timeout}}
+func New(base, serviceToken string, timeout time.Duration) *Client {
+	return &Client{base: base, serviceToken: serviceToken, http: &http.Client{Timeout: timeout}}
 }
 
 type ingestReq struct {
@@ -52,6 +53,7 @@ func (c *Client) InsertSnapshot(ctx context.Context, s orchestrator.PriceSnapsho
 		return false, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", c.serviceToken)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return false, err

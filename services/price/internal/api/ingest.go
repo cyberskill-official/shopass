@@ -1,8 +1,13 @@
 package api
 
 import (
+	"context"
+	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"shopass/services/price/internal/price"
@@ -13,11 +18,26 @@ import (
 // so every write goes through this internal endpoint rather than a direct
 // cross-service INSERT.
 type IngestHandler struct {
-	snaps *price.SnapshotRepo
+	snaps             SnapshotWriter
+	serviceTokenHash  [sha256.Size]byte
+	tokenIsConfigured bool
 }
 
-func NewIngestHandler(snaps *price.SnapshotRepo) *IngestHandler {
-	return &IngestHandler{snaps: snaps}
+// SnapshotWriter is the narrow price-store boundary used by the private
+// ingest endpoint. It keeps authorization tests independent of Postgres.
+type SnapshotWriter interface {
+	InsertSnapshot(ctx context.Context, snap price.PriceSnapshot) (bool, error)
+}
+
+// NewIngestHandler creates the private snapshot ingest endpoint. Both the
+// scrape worker and the owner-authorized browser-confirmation path must prove
+// they are an internal service; the public gateway never exposes this route.
+func NewIngestHandler(snaps SnapshotWriter, serviceToken string) *IngestHandler {
+	return &IngestHandler{
+		snaps:             snaps,
+		serviceTokenHash:  sha256.Sum256([]byte(serviceToken)),
+		tokenIsConfigured: strings.TrimSpace(serviceToken) != "",
+	}
 }
 
 func (h *IngestHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -38,10 +58,33 @@ type ingestResponse struct {
 	Written bool `json:"written"`
 }
 
+func (h *IngestHandler) validServiceToken(got string) bool {
+	if !h.tokenIsConfigured {
+		return false
+	}
+	gotHash := sha256.Sum256([]byte(got))
+	return subtle.ConstantTimeCompare(h.serviceTokenHash[:], gotHash[:]) == 1
+}
+
 // HandleIngest serves POST /v1/price/snapshots.
 func (h *IngestHandler) HandleIngest(w http.ResponseWriter, r *http.Request) {
+	if !h.tokenIsConfigured {
+		writeErr(w, http.StatusServiceUnavailable, "internal endpoint unavailable")
+		return
+	}
+	if !h.validServiceToken(r.Header.Get("X-Service-Token")) {
+		writeErr(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
 	var req ingestRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&req); err != nil {
+		writeErr(w, http.StatusBadRequest, "invalid json")
+		return
+	}
+	if err := decoder.Decode(&struct{}{}); err != io.EOF {
 		writeErr(w, http.StatusBadRequest, "invalid json")
 		return
 	}

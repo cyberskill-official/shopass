@@ -10,6 +10,7 @@ func RegisterRoutes(mux *http.ServeMux, h *Handler, wh *WishlistHandler, ah *Ale
 	// reaches these handlers.
 	mux.HandleFunc("POST /v1/track", h.HandleTrack)
 	mux.HandleFunc("GET /v1/tracked-products", h.HandleListTrackedProducts)
+	mux.HandleFunc("POST /v1/products/{id}/browser-snapshot", h.HandleBrowserSnapshot)
 
 	if wh != nil {
 		wh.RegisterRoutes(mux)

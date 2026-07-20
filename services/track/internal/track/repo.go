@@ -32,6 +32,19 @@ func (r *Repo) LinkUserProduct(ctx context.Context, userID, productID int64) (bo
 	return affected > 0, nil
 }
 
+// UserCanViewProduct proves ownership without exposing a product registry row
+// to another account. It is used before a browser-assisted price is accepted.
+func (r *Repo) UserCanViewProduct(ctx context.Context, userID, productID int64) (bool, error) {
+	var allowed bool
+	err := r.db.QueryRowContext(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM user_tracked_product
+			WHERE user_id = $1 AND product_id = $2
+		)
+	`, userID, productID).Scan(&allowed)
+	return allowed, err
+}
+
 // UserTrackedProduct is the owner-scoped product summary used by the closed
 // beta dashboard. It intentionally contains registry metadata only: price and
 // alert state have their own service-owned read paths.

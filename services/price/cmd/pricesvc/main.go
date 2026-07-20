@@ -41,8 +41,8 @@ func main() {
 
 	productRepo := price.NewRepo(pool)
 	mux := http.NewServeMux()
-	api.NewHandler(productRepo).RegisterRoutes(mux)                       // GET price-history
-	api.NewIngestHandler(price.NewSnapshotRepo(pool)).RegisterRoutes(mux) // POST snapshots
+	api.NewHandler(productRepo).RegisterRoutes(mux)                                     // GET price-history
+	api.NewIngestHandler(price.NewSnapshotRepo(pool), serviceToken).RegisterRoutes(mux) // POST snapshots
 	api.NewProductUpsertHandler(productRepo, serviceToken).RegisterRoutes(mux)
 	log.Info("pricesvc listening", "addr", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {

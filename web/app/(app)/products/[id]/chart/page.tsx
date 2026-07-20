@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { type FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { fetchChart } from "@/lib/chart/fetch-chart";
+import { fetchChart, submitBrowserPrice } from "@/lib/chart/fetch-chart";
 import { PriceChart } from "@/components/price-chart/price-chart";
 import { VerdictBadge } from "@/components/price-chart/verdict-badge";
 import { MaturityNotice } from "@/components/price-chart/maturity-notice";
@@ -18,6 +18,10 @@ export default function ProductChartPage() {
   const [data, setData] = useState<ChartResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [browserPrice, setBrowserPrice] = useState("");
+  const [captureStatus, setCaptureStatus] = useState<string | null>(null);
+  const [capturing, setCapturing] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -48,7 +52,42 @@ export default function ProductChartPage() {
     }
 
     return () => { ignore = true; };
-  }, [productId, range]);
+  }, [productId, range, refreshKey]);
+
+  async function handleBrowserPrice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCaptureStatus(null);
+
+    // Accept the common "6.490.000đ" copy/paste format, while storing only
+    // an integer amount of Vietnamese đồng.
+    const normalized = browserPrice.replace(/[^\d]/g, "");
+    const price = Number(normalized);
+
+    if (!Number.isSafeInteger(price) || price <= 0) {
+      setCaptureStatus("Nhập giá hợp lệ, ví dụ 6.490.000.");
+      return;
+    }
+
+    setCapturing(true);
+    try {
+      const result = await submitBrowserPrice(productId, price);
+      setBrowserPrice("");
+      setCaptureStatus(
+        result.written
+          ? "Đã ghi nhận giá bạn xác nhận. Biểu đồ đang được làm mới."
+          : "Mức giá này đã được ghi nhận rồi. Biểu đồ đang được làm mới."
+      );
+      setRefreshKey((value) => value + 1);
+    } catch (submitError) {
+      setCaptureStatus(
+        submitError instanceof Error && submitError.message
+          ? submitError.message
+          : "Không thể lưu giá lúc này. Vui lòng thử lại."
+      );
+    } finally {
+      setCapturing(false);
+    }
+  }
 
   if (error) {
     return (
@@ -181,6 +220,62 @@ export default function ProductChartPage() {
           {data && <MaturityNotice maturity={data.maturity} />}
         </div>
 
+        <section className="mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50/60">
+          <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">
+                Browser-assisted beta
+              </p>
+              <h3 className="mt-2 text-base font-black text-slate-900 sm:text-lg">
+                Ghi nhận giá bạn đang thấy trên Shopee
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Mở sản phẩm ở tab Shopee, kiểm tra giá hiển thị rồi dán vào đây. Shopass chỉ lưu mức giá do bạn chủ động xác nhận — không truy cập tài khoản Shopee hoặc tự quét nền từ trình duyệt của bạn.
+              </p>
+            </div>
+
+            <form onSubmit={handleBrowserPrice} className="w-full shrink-0 lg:max-w-sm" aria-label="Ghi nhận giá từ trình duyệt">
+              <label htmlFor="browser-price" className="text-xs font-bold text-slate-700">
+                Giá đang hiển thị (VNĐ)
+              </label>
+              <div className="mt-2 flex gap-2">
+                <div className="relative min-w-0 flex-1">
+                  <input
+                    id="browser-price"
+                    value={browserPrice}
+                    onChange={(event) => setBrowserPrice(event.target.value)}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="Ví dụ 6.490.000"
+                    disabled={capturing}
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 pr-8 text-sm font-bold text-slate-900 outline-none transition placeholder:font-medium placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                  />
+                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-bold text-slate-400">₫</span>
+                </div>
+                <button
+                  type="submit"
+                  disabled={capturing || !browserPrice.trim()}
+                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  {capturing ? "Đang lưu..." : "Lưu giá"}
+                </button>
+              </div>
+              {captureStatus && (
+                <p
+                  className={`mt-2 text-xs font-medium ${
+                    captureStatus.startsWith("Đã") || captureStatus.startsWith("Mức")
+                      ? "text-emerald-700"
+                      : "text-rose-600"
+                  }`}
+                  role="status"
+                >
+                  {captureStatus}
+                </p>
+              )}
+            </form>
+          </div>
+        </section>
+
         <div className="relative mt-6 h-[400px] w-full rounded-2xl bg-white sm:h-[450px]">
           {loading && !data && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-white/90 backdrop-blur-sm">
@@ -193,7 +288,7 @@ export default function ProductChartPage() {
             <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
               <svg className="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
               <p className="mt-3 font-bold text-slate-700">Chưa có dữ liệu</p>
-              <p className="mt-1 max-w-sm text-sm text-slate-500">Shopass đang lấy mức giá đầu tiên. Việc này thường hoàn tất trong tối đa 5 phút; sau đó bạn có thể bấm “Làm mới”.</p>
+              <p className="mt-1 max-w-sm text-sm text-slate-500">Dùng mục “Ghi nhận giá bạn đang thấy trên Shopee” ở trên để thêm điểm giá đầu tiên do bạn xác nhận.</p>
             </div>
           )}
 

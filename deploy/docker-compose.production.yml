@@ -256,6 +256,7 @@ services:
     environment:
       SHOPEE_BASE_URL: ${SHOPEE_BASE_URL:-https://shopee.vn}
       PRICE_BASE_URL: http://pricesvc:8081
+      PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:?PRICE_INTERNAL_SERVICE_TOKEN must be injected for the private price API}
       SCRAPE_SEED: ${SCRAPE_SEED:-}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
       HTTPS_PROXY: ${HTTPS_PROXY:-}

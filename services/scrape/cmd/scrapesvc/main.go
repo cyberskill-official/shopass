@@ -37,14 +37,19 @@ func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	shopeeBase := env("SHOPEE_BASE_URL", "https://shopee.vn")
 	priceBase := env("PRICE_BASE_URL", "http://localhost:8081")
+	priceServiceToken := os.Getenv("PRICE_INTERNAL_SERVICE_TOKEN")
 	dbURL := os.Getenv("DATABASE_URL")
 	ctx := context.Background()
+	if strings.TrimSpace(priceServiceToken) == "" {
+		log.Error("PRICE_INTERNAL_SERVICE_TOKEN is required for private price ingest")
+		os.Exit(1)
+	}
 
 	// http.Transport uses ProxyFromEnvironment, so HTTPS_PROXY wires the
 	// residential proxy required by TASK-SCRAPE-002.
 	httpClient := &http.Client{Timeout: 15 * time.Second}
 	adapter := shopee.NewShopeeAdapter(shopeeBase, httpClient, nil)
-	pc := priceclient.New(priceBase, 10*time.Second)
+	pc := priceclient.New(priceBase, priceServiceToken, 10*time.Second)
 	cfg := orchestrator.Config{MaxConcurrency: map[int16]int{shopeePlatformID: 4}, MaxAttempts: 3, BackoffBaseMs: 200}
 	jobs := parseSeed(env("SCRAPE_SEED", ""))
 

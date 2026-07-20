@@ -89,7 +89,7 @@ export default function DashboardPage() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-            Dán đường link sản phẩm Shopee vào đây. Shopass sẽ lấy lần giá đầu tiên trong tối đa 5 phút, rồi cập nhật theo lịch để xây dựng biểu đồ lịch sử độc lập với sàn.
+            Dán đường link sản phẩm Shopee vào đây để tạo sản phẩm theo dõi. Trong closed beta, bạn có thể xác nhận giá đang thấy trên Shopee ngay tại biểu đồ để bắt đầu lịch sử giá.
           </p>
 
           <form className="mt-8 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <div>
             <h2 className="text-2xl font-black text-slate-900">Sản phẩm đang theo dõi</h2>
             <p className="mt-1.5 text-sm text-slate-500">
-              Bạn có <strong className="text-slate-900">{products.length}</strong> sản phẩm đang được Shopass cập nhật giá tự động.
+              Bạn có <strong className="text-slate-900">{products.length}</strong> sản phẩm đã thêm vào danh sách theo dõi.
             </p>
           </div>
 
@@ -178,7 +178,7 @@ export default function DashboardPage() {
             </div>
               <h3 className="mt-4 text-lg font-bold text-slate-900">Chưa có sản phẩm nào được theo dõi</h3>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
-              Dán liên kết Shopee vào biểu mẫu phía trên để hệ thống bắt đầu thu thập dữ liệu giá cho bạn.
+              Dán liên kết Shopee vào biểu mẫu phía trên, rồi xác nhận giá đang hiển thị tại trang biểu đồ để bắt đầu lịch sử giá.
             </p>
           </div>
         ) : (

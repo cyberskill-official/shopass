@@ -14,7 +14,10 @@ import (
 	"time"
 )
 
-const productUpsertPath = "/internal/v1/products/upsert"
+const (
+	productUpsertPath  = "/internal/v1/products/upsert"
+	snapshotIngestPath = "/v1/price/snapshots"
+)
 
 // TrackedProduct is the minimal registry representation tracksvc needs from
 // pricesvc. It deliberately mirrors the private HTTP contract rather than the
@@ -67,6 +70,18 @@ type productUpsertResponse struct {
 	ID int64 `json:"id"`
 }
 
+// PriceSnapshot is deliberately small: a browser-assisted beta user can only
+// confirm the price they can currently see. Scraper-only metadata such as
+// stock, sold count and flash-sale status is never accepted on this path.
+type PriceSnapshot struct {
+	ProductID int64 `json:"product_id"`
+	Price     int64 `json:"price"`
+}
+
+type snapshotIngestResponse struct {
+	Written bool `json:"written"`
+}
+
 // Upsert creates or retrieves the product registry entry. The price service
 // owns that table and enforces idempotency on its natural key.
 func (c *Client) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduct, error) {
@@ -105,4 +120,38 @@ func (c *Client) Upsert(ctx context.Context, p TrackedProduct) (TrackedProduct, 
 	}
 	p.ID = out.ID
 	return p, nil
+}
+
+// RecordBrowserPrice sends an owner-authorized, user-initiated price
+// confirmation through pricesvc. The public caller never reaches pricesvc
+// directly: this client runs inside tracksvc on the private network.
+func (c *Client) RecordBrowserPrice(ctx context.Context, s PriceSnapshot) (bool, error) {
+	body, err := json.Marshal(s)
+	if err != nil {
+		return false, err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+snapshotIngestPath, bytes.NewReader(body))
+	if err != nil {
+		return false, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	// This header is ignored by the legacy ingest endpoint today, but retaining
+	// it makes the caller an authenticated internal service when ingest is
+	// tightened in a later release.
+	req.Header.Set("X-Service-Token", c.serviceToken)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("price snapshot ingest: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4<<10))
+		return false, fmt.Errorf("price snapshot ingest: unexpected status %d", resp.StatusCode)
+	}
+	var out snapshotIngestResponse
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 64<<10)).Decode(&out); err != nil {
+		return false, fmt.Errorf("price snapshot ingest: decode response: %w", err)
+	}
+	return out.Written, nil
 }

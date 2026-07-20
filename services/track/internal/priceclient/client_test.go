@@ -67,3 +67,33 @@ func TestClientReportsRejectedUpsert(t *testing.T) {
 		t.Fatal("expected rejected-upsert error")
 	}
 }
+
+func TestClientRecordsBrowserPriceThroughPrivatePriceService(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != snapshotIngestPath {
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+		if got := r.Header.Get("X-Service-Token"); got != "service-secret" {
+			t.Fatalf("unexpected service token %q", got)
+		}
+		var got PriceSnapshot
+		if err := json.NewDecoder(r.Body).Decode(&got); err != nil {
+			t.Fatalf("decode body: %v", err)
+		}
+		if got.ProductID != 77 || got.Price != 199000 {
+			t.Fatalf("unexpected snapshot: %+v", got)
+		}
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(`{"written":true}`))
+	}))
+	defer server.Close()
+
+	client, err := New(server.URL, "service-secret", time.Second)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	written, err := client.RecordBrowserPrice(context.Background(), PriceSnapshot{ProductID: 77, Price: 199000})
+	if err != nil || !written {
+		t.Fatalf("RecordBrowserPrice = %v, %v", written, err)
+	}
+}

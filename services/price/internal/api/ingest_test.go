@@ -8,12 +8,65 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
 	"shopass/services/price/internal/price"
 )
+
+type memorySnapshotWriter struct {
+	calls int
+	last  price.PriceSnapshot
+}
+
+func (m *memorySnapshotWriter) InsertSnapshot(_ context.Context, snap price.PriceSnapshot) (bool, error) {
+	m.calls++
+	m.last = snap
+	return true, nil
+}
+
+func TestIngestRequiresInternalServiceToken(t *testing.T) {
+	store := &memorySnapshotWriter{}
+	mux := http.NewServeMux()
+	NewIngestHandler(store, "private-test-token").RegisterRoutes(mux)
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(`{"product_id":100,"price":199000}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	require.Zero(t, store.calls)
+}
+
+func TestIngestAcceptsInternalServiceTokenAndUsesServerTime(t *testing.T) {
+	store := &memorySnapshotWriter{}
+	mux := http.NewServeMux()
+	NewIngestHandler(store, "private-test-token").RegisterRoutes(mux)
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(`{"product_id":100,"price":199000}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", "private-test-token")
+	before := time.Now().UTC().Add(-time.Second)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
+	require.Equal(t, 1, store.calls)
+	require.EqualValues(t, 100, store.last.ProductID)
+	require.EqualValues(t, 199000, store.last.Price)
+	require.True(t, store.last.TS.After(before))
+}
 
 func setupIngest(t *testing.T) (*httptest.Server, *pgxpool.Pool) {
 	dbURL := os.Getenv("TEST_DB_URL")
@@ -39,12 +92,16 @@ func setupIngest(t *testing.T) (*httptest.Server, *pgxpool.Pool) {
 	require.NoError(t, err)
 
 	mux := http.NewServeMux()
-	NewIngestHandler(price.NewSnapshotRepo(pool)).RegisterRoutes(mux)
+	NewIngestHandler(price.NewSnapshotRepo(pool), "test-price-token").RegisterRoutes(mux)
 	return httptest.NewServer(mux), pool
 }
 
 func postSnap(t *testing.T, srv *httptest.Server, body string) *http.Response {
-	resp, err := http.Post(srv.URL+"/v1/price/snapshots", "application/json", bytes.NewBufferString(body))
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", "test-price-token")
+	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	return resp
 }
