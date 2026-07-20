@@ -41,4 +41,22 @@ describe("Middleware Guard", () => {
     expect(res?.status).toBe(307);
     expect(res?.headers.get("Location")).toBe(`http://localhost/login?next=${encodeURIComponent(path)}`);
   });
+
+  it("keeps browser-capture parameters through login", () => {
+    const path = "/capture?url=https%3A%2F%2Fshopee.vn%2Fitem-i.1.2&price=6490000";
+    const req = new NextRequest(`http://localhost${path}`);
+
+    const res = middleware(req);
+
+    expect(res?.status).toBe(307);
+    expect(res?.headers.get("Location")).toBe(`http://localhost/login?next=${encodeURIComponent(path)}`);
+  });
+
+  it("protects the bookmarklet installation guide", () => {
+    const req = new NextRequest("http://localhost/capture-guide");
+    const res = middleware(req);
+
+    expect(res?.status).toBe(307);
+    expect(res?.headers.get("Location")).toBe("http://localhost/login?next=%2Fcapture-guide");
+  });
 });

@@ -24,6 +24,22 @@ func TestParse_ShopeeRejectsNonVNHost(t *testing.T) {
 	}
 }
 
+func TestParse_ShopeeRejectsUnsafeOrMalformedOrigins(t *testing.T) {
+	cases := []string{
+		"http://shopee.vn/x-i.88123.20114455667",
+		"https://user:password@shopee.vn/x-i.88123.20114455667",
+		"https://shopee.vn:8443/x-i.88123.20114455667",
+		"https://shopee.vn/not-a-product-i.88123.20114455667-extra",
+	}
+	for _, rawURL := range cases {
+		t.Run(rawURL, func(t *testing.T) {
+			if _, ok := ParseItemURL("shopee", rawURL); ok {
+				t.Fatalf("expected unsafe Shopee URL to be rejected: %s", rawURL)
+			}
+		})
+	}
+}
+
 func TestParse_Lazada(t *testing.T) {
 	it, ok := ParseItemURL("lazada", "https://www.lazada.vn/products/abc-pro-i7788.html")
 	if !ok {

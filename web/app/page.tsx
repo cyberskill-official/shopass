@@ -9,7 +9,7 @@ export default function Home() {
         <div className="landing-container flex h-16 items-center justify-between lg:h-20">
           <Link href="/" className="flex items-center gap-3 text-lg font-black tracking-tight lg:text-xl">
             <span className="grid h-9 w-9 place-items-center rounded-[14px] bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-200 lg:h-10 lg:w-10 lg:rounded-2xl">S</span>
-            <span>Săn<span className="text-blue-600">Deal</span></span>
+            <span>Shop<span className="text-blue-600">ass</span></span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="hidden text-sm font-bold text-slate-600 transition hover:text-blue-600 sm:block">Đăng nhập</Link>

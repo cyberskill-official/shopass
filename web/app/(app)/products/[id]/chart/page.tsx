@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { fetchChart, submitBrowserPrice } from "@/lib/chart/fetch-chart";
 import { PriceChart } from "@/components/price-chart/price-chart";
@@ -232,6 +233,9 @@ export default function ProductChartPage() {
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Mở sản phẩm ở tab Shopee, kiểm tra giá hiển thị rồi dán vào đây. Shopass chỉ lưu mức giá do bạn chủ động xác nhận — không truy cập tài khoản Shopee hoặc tự quét nền từ trình duyệt của bạn.
               </p>
+              <Link href="/capture-guide" className="mt-3 inline-flex text-sm font-bold text-blue-700 transition hover:text-blue-900">
+                Cài nút lấy giá một chạm →
+              </Link>
             </div>
 
             <form onSubmit={handleBrowserPrice} className="w-full shrink-0 lg:max-w-sm" aria-label="Ghi nhận giá từ trình duyệt">

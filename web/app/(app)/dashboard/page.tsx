@@ -92,6 +92,13 @@ export default function DashboardPage() {
             Dán đường link sản phẩm Shopee vào đây để tạo sản phẩm theo dõi. Trong closed beta, bạn có thể xác nhận giá đang thấy trên Shopee ngay tại biểu đồ để bắt đầu lịch sử giá.
           </p>
 
+          <Link
+            href="/capture-guide"
+            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-300 transition hover:text-white"
+          >
+            Dùng nút lấy giá Shopee một chạm <span aria-hidden="true">→</span>
+          </Link>
+
           <form className="mt-8 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
             <div className="relative flex-1">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">

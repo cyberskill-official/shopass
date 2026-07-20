@@ -72,7 +72,7 @@ export default function LoginPage() {
           <div className="relative z-10">
             <Link href="/" className="flex items-center gap-3 text-xl font-black transition-opacity hover:opacity-80">
               <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/20">S</span>
-              <span>Săn<span className="text-blue-400">Deal</span></span>
+              <span>Shop<span className="text-blue-400">ass</span></span>
             </Link>
 
             <h1 className="mt-20 text-4xl font-black leading-[1.15] tracking-tight text-white xl:text-5xl">

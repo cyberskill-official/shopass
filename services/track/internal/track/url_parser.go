@@ -12,8 +12,10 @@ type ParsedItem struct {
 	ShopID         string // có thể rỗng nếu sàn không nhúng shop trong url
 }
 
-// shopeeItemRe khớp .../<shop_id>.<item_id> hoặc ...-i.<shop_id>.<item_id>
-var shopeeItemRe = regexp.MustCompile(`i\.(\d+)\.(\d+)`)
+// shopeeItemRe khớp ID sản phẩm ở cuối segment của URL, ví dụ
+// ...-i.<shop_id>.<item_id>. Do not match an ID-looking substring inside an
+// arbitrary path: the URL parser is also an API boundary.
+var shopeeItemRe = regexp.MustCompile(`(^|[-/])i\.(\d+)\.(\d+)($|/)`)
 var lazadaItemRe = regexp.MustCompile(`/products/.*-i(\d+)`)
 var tiktokItemRe = regexp.MustCompile(`/product/(\d+)`)
 
@@ -29,7 +31,7 @@ func ParseItemURL(platform, rawURL string) (ParsedItem, bool) {
 		// ID-looking path on an unrelated host would otherwise create a bogus
 		// product that the scraper can never retrieve.
 		host := strings.ToLower(u.Hostname())
-		if host != "shopee.vn" && host != "www.shopee.vn" {
+		if u.Scheme != "https" || u.User != nil || u.Port() != "" || (host != "shopee.vn" && host != "www.shopee.vn") {
 			return ParsedItem{}, false
 		}
 		m := shopeeItemRe.FindStringSubmatch(u.Path)
@@ -38,7 +40,7 @@ func ParseItemURL(platform, rawURL string) (ParsedItem, bool) {
 		}
 		// Shopee item_id is only unique within a shop. The scraper expects the
 		// registry key in itemID:shopID form (not the old item-only value).
-		return ParsedItem{ShopID: m[1], PlatformItemID: m[2] + ":" + m[1]}, true
+		return ParsedItem{ShopID: m[2], PlatformItemID: m[3] + ":" + m[2]}, true
 	case "lazada":
 		m := lazadaItemRe.FindStringSubmatch(u.Path)
 		if m == nil {

@@ -11,13 +11,16 @@ function readRefreshCookie(request: NextRequest): string | undefined {
 }
 
 export function middleware(request: NextRequest) {
-  const protectedPrefixes = ["/dashboard", "/wishlist", "/alerts", "/products"];
+  const protectedPrefixes = ["/dashboard", "/wishlist", "/alerts", "/products", "/capture", "/capture-guide"];
   if (protectedPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix))) {
     const refreshToken = readRefreshCookie(request);
 
     if (!refreshToken) {
       const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("next", request.nextUrl.pathname);
+      // A bookmarklet arrives at /capture with the canonical product URL and
+      // a candidate price in the query string. Preserve both through login so
+      // that an unauthenticated customer does not need to repeat the action.
+      loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
       // HTTP 307 Temporary Redirect as required by DEC-WEB-05
       return NextResponse.redirect(loginUrl, 307);
     }
