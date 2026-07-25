@@ -9,9 +9,9 @@
     "build": "node build.mjs"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-typescript": "^7.29.0",
+    "@babel/core": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
+    "@babel/preset-typescript": "^8.0.1",
     "@types/chrome": "^0.2.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
@@ -21,7 +21,6 @@
     "jest-environment-jsdom": "^30.4.1",
     "typescript": "^5.9.0"
   },
-  "dependencies": {},
   "engines": {
     "node": ">=24 <25"
   }
