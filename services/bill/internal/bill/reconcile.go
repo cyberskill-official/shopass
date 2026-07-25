@@ -28,7 +28,7 @@ func NewReconcileJob(payments PaymentRepo, subs SubscriptionActivator, gw gatewa
 }
 
 func (j *ReconcileJob) Run(ctx context.Context) {
-	stale := j.payments.GetPendingOlderThan(ctx, 15 * time.Minute)
+	stale := j.payments.GetPendingOlderThan(ctx, 15*time.Minute)
 	for _, p := range stale {
 		status, txID, err := j.gatewayClient.CheckStatus(ctx, p.OrderRef)
 		if err != nil {

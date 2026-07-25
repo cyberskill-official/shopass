@@ -8,15 +8,18 @@ import (
 
 type mockPaymentRepoRec struct {
 	stale []PaymentRecord
-	paid map[int64]string
+	paid  map[int64]string
 }
 
-func (m *mockPaymentRepoRec) ByOrderRef(ctx context.Context, orderRef string) (PaymentRecord, bool) { return PaymentRecord{}, false }
-func (m *mockPaymentRepoRec) InsertPending(ctx context.Context, orderRef string, userID int64, amount int64, gateway string) {}
+func (m *mockPaymentRepoRec) ByOrderRef(ctx context.Context, orderRef string) (PaymentRecord, bool) {
+	return PaymentRecord{}, false
+}
+func (m *mockPaymentRepoRec) InsertPending(ctx context.Context, orderRef string, userID int64, amount int64, gateway string) {
+}
 func (m *mockPaymentRepoRec) MarkPaid(ctx context.Context, id int64, txID string) {
 	m.paid[id] = txID
 }
-func (m *mockPaymentRepoRec) MarkFailed(ctx context.Context, id int64) {}
+func (m *mockPaymentRepoRec) MarkFailed(ctx context.Context, id int64)                {}
 func (m *mockPaymentRepoRec) MarkMismatch(ctx context.Context, id int64, gwAmt int64) {}
 func (m *mockPaymentRepoRec) GetPendingOlderThan(ctx context.Context, d time.Duration) []PaymentRecord {
 	return m.stale

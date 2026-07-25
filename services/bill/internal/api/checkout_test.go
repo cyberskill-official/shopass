@@ -70,7 +70,7 @@ func setupCheckout(t *testing.T) (*Handler, *mockGateway, *mockPaymentRepo) {
 	reg := pay.NewRegistry()
 	reg.Register(gw)
 	repo := &mockPaymentRepo{payments: make(map[string]pay.PaymentResult)}
-	
+
 	h := NewHandler(plans, reg, repo)
 	h.metrics = &testMetrics{}
 	return h, gw, repo
@@ -129,7 +129,7 @@ func TestCheckout_GatewayError_502_StaysPending(t *testing.T) {
 	if rec.Code != 502 {
 		t.Fatalf("expected 502, got %d", rec.Code)
 	}
-	
+
 	// ensure not inserted to repo when fails
 	if len(repo.payments) > 0 {
 		t.Fatalf("expected no payment inserted on failure, got %d", len(repo.payments))
