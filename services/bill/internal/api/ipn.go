@@ -2,10 +2,13 @@ package api
 
 import (
 	"context"
+	"crypto/hmac"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"shopass/services/bill/internal/bill"
@@ -47,14 +50,34 @@ func NewIPNHandler(payments bill.PaymentRepo, subs SubscriptionActivator, secret
 	}
 }
 
-// VerifyIPN signature verification (mock logic for demo, usually defers to pay package)
+// VerifyIPN checks the IPN HMAC against the gateway secret via pay.Sign*.
+// Unknown gateways and empty signatures are rejected. Comparison is constant-time.
 func VerifyIPN(ctx context.Context, secrets pay.SecretReader, gateway string, body []byte, sig string) (bool, error) {
-	// Simple mock: if sig == "bad-sig", fail. Otherwise pass.
-	// In reality, it should call pay.SignMoMo etc.
-	if sig == "bad-sig" {
+	if secrets == nil {
+		return false, fmt.Errorf("secrets reader required")
+	}
+	sig = strings.TrimSpace(sig)
+	if sig == "" {
 		return false, nil
 	}
-	return true, nil
+
+	raw := string(body)
+	var expected string
+	var err error
+	switch strings.ToLower(gateway) {
+	case "momo":
+		expected, err = pay.SignMoMo(ctx, secrets, raw)
+	case "zalopay":
+		expected, err = pay.SignZaloPay(ctx, secrets, raw)
+	case "vnpay":
+		expected, err = pay.SignVNPay(ctx, secrets, raw)
+	default:
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return hmac.Equal([]byte(expected), []byte(sig)), nil
 }
 
 func (h *IPNHandler) HandleIPN(w http.ResponseWriter, req *http.Request) {
