@@ -34,7 +34,9 @@ jobs:
       - name: gofmt
         run: |
           set -e
-          unformatted="$(gofmt -l .)"
+          # Scope to tracked *.go sources only. `gofmt -l .` also picks up
+          # deploy/Dockerfile.go (a Dockerfile, not Go source).
+          unformatted="$(git ls-files '*.go' | xargs gofmt -l)"
           if [ -n "$unformatted" ]; then
             echo "gofmt needed on:"
             echo "$unformatted"
