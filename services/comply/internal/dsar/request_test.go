@@ -24,10 +24,11 @@ func (m *mockUsers) Anonymize(ctx context.Context, userID int64) error {
 	return nil
 }
 
-type mockTrack struct{
-	prods map[int64][]ProductView
+type mockTrack struct {
+	prods    map[int64][]ProductView
 	delCount int
 }
+
 func (m *mockTrack) ByUser(ctx context.Context, userID int64) ([]ProductView, error) {
 	return m.prods[userID], nil
 }
@@ -39,14 +40,16 @@ func (m *mockTrack) HardDeleteByUser(ctx context.Context, userID int64) (int, er
 }
 
 type mockBill struct{ anonCount int }
+
 func (m *mockBill) AnonymizeByUser(ctx context.Context, userID int64) (int, error) {
 	m.anonCount++
 	return 1, nil
 }
 
-type mockConsent struct{
+type mockConsent struct {
 	c []ConsentView
 }
+
 func (m *mockConsent) HistoryAll(ctx context.Context, userID int64) ([]ConsentView, error) {
 	return m.c, nil
 }
@@ -54,6 +57,7 @@ func (m *mockConsent) HistoryAll(ctx context.Context, userID int64) ([]ConsentVi
 type mockRepo struct {
 	dsars []DSARRequest
 }
+
 func (m *mockRepo) create(ctx context.Context, userID int64, kind string, slaDue time.Time) (int64, error) {
 	id := int64(len(m.dsars) + 1)
 	m.dsars = append(m.dsars, DSARRequest{
@@ -90,7 +94,7 @@ func setupMocks() (*Service, *mockUsers, *mockTrack, *mockBill, *mockConsent) {
 
 func TestExport_OnlyOwnData(t *testing.T) {
 	s, mu, mt, _, mc := setupMocks()
-	
+
 	// userA (ID: 1)
 	mu.view = AccountView{UserID: 1, Email: "a@a.com"}
 	mt.prods[1] = []ProductView{{ID: 10, Platform: "shopee", Name: "A"}}
@@ -100,7 +104,7 @@ func TestExport_OnlyOwnData(t *testing.T) {
 	bundle, err := s.Export(context.Background(), 1)
 	require.NoError(t, err)
 	require.Equal(t, int64(1), bundle.Account.UserID)
-	
+
 	for _, p := range bundle.TrackedProducts {
 		require.NotEqual(t, int64(20), p.ID)
 	}

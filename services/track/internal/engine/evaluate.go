@@ -18,10 +18,10 @@ type Snapshot struct {
 type DealVerdict string
 
 const (
-	SaleXin  DealVerdict = "SALE_XIN"
-	SaleAo   DealVerdict = "SALE_AO"
-	TamDuoc  DealVerdict = "TAM_DUOC"
-	Unknown  DealVerdict = "UNKNOWN"
+	SaleXin DealVerdict = "SALE_XIN"
+	SaleAo  DealVerdict = "SALE_AO"
+	TamDuoc DealVerdict = "TAM_DUOC"
+	Unknown DealVerdict = "UNKNOWN"
 )
 
 type DealService interface {

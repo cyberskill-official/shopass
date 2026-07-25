@@ -10,13 +10,13 @@ import (
 var ErrCaptchaBudget = errors.New("captcha budget exhausted")
 
 type Solver struct {
-	dailyBudgetSolves   int
-	maxSolvesPerTarget  int
-	
-	solvesToday         int
-	targetSolves        map[string]int
-	lastReset           time.Time
-	mu                  sync.Mutex
+	dailyBudgetSolves  int
+	maxSolvesPerTarget int
+
+	solvesToday  int
+	targetSolves map[string]int
+	lastReset    time.Time
+	mu           sync.Mutex
 }
 
 func NewSolver(dailyBudget, maxPerTarget int) *Solver {

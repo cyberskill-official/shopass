@@ -15,11 +15,11 @@ func NextDelay(attempt int, base, cap time.Duration) time.Duration {
 	if shift < 0 {
 		shift = 0
 	}
-	
+
 	exp := base << uint(shift)
 	if exp > cap || exp <= 0 {
 		exp = cap
 	}
-	
+
 	return time.Duration(rand.Int63n(int64(exp) + 1))
 }

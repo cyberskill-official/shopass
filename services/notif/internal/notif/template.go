@@ -2,9 +2,9 @@ package notif
 
 import (
 	"fmt"
-	"html"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+	"html"
 )
 
 type Rendered struct {
@@ -50,7 +50,7 @@ var templates = map[string]func(map[string]any) (Rendered, error){
 		if !ok {
 			return Rendered{}, fmt.Errorf("template price_below thiếu price")
 		}
-		
+
 		// Optional fields, but we escape if present
 		productName, _ := strField(d, "product_name")
 		productName = html.EscapeString(productName)

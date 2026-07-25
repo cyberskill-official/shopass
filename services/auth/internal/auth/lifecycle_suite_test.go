@@ -71,7 +71,7 @@ func newTestLifecycleSuite(t *testing.T) *testLifecycleSuite {
 	notif := &mockNotifier{}
 	params := defaultParams
 	ls := NewLifecycleService(repo, notif, params)
-	
+
 	ts := NewTokenService(repo, "test-auth", "test-gw", time.Minute)
 	priv, _ := rsa.GenerateKey(rand.Reader, 2048)
 	ts.AddSigningKey("key1", priv)

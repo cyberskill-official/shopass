@@ -6,11 +6,11 @@ import (
 )
 
 var (
-	meter          = otel.Meter("deal-batch")
-	scoredTotal    metric.Int64Counter
-	firedTotal     metric.Int64Counter
-	skippedTotal   metric.Int64Counter
-	batchDuration  metric.Float64Histogram
+	meter         = otel.Meter("deal-batch")
+	scoredTotal   metric.Int64Counter
+	firedTotal    metric.Int64Counter
+	skippedTotal  metric.Int64Counter
+	batchDuration metric.Float64Histogram
 )
 
 func init() {

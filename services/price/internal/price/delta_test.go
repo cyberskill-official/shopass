@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func ptr64(v int64) *int64  { return &v }
-func ptr32(v int32) *int32  { return &v }
+func ptr64(v int64) *int64 { return &v }
+func ptr32(v int32) *int32 { return &v }
 
 var t0 = time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 

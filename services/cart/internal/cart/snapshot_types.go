@@ -17,11 +17,11 @@ type CartItem struct {
 }
 
 type CartSnapshot struct {
-	ID          int64       `db:"id"`
-	UserID      int64       `db:"user_id"` // gắn từ JWT, KHÔNG từ payload
-	PlatformID  int16       `db:"platform_id"`
-	SnapshotRef uuid.UUID   `db:"snapshot_ref"`
-	CapturedAt  time.Time   `db:"captured_at"`
+	ID          int64     `db:"id"`
+	UserID      int64     `db:"user_id"` // gắn từ JWT, KHÔNG từ payload
+	PlatformID  int16     `db:"platform_id"`
+	SnapshotRef uuid.UUID `db:"snapshot_ref"`
+	CapturedAt  time.Time `db:"captured_at"`
 	Items       []CartItem
 }
 

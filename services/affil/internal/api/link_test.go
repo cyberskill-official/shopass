@@ -16,7 +16,7 @@ type mockProductImpl struct {
 	targetURL  string
 }
 
-func (m mockProductImpl) ID() int64 { return m.id }
+func (m mockProductImpl) ID() int64         { return m.id }
 func (m mockProductImpl) PlatformID() int16 { return m.platformID }
 func (m mockProductImpl) TargetURL() string { return m.targetURL }
 
@@ -65,7 +65,7 @@ func (m *mockAffiliateRepo) FailNextClick() {
 
 type mockMetrics struct{}
 
-func (m *mockMetrics) LinkRejected(reason string)               {}
+func (m *mockMetrics) LinkRejected(reason string)                   {}
 func (m *mockMetrics) LinkCreated(platformID int16, network string) {}
 
 func setupHandler(t *testing.T) (*Handler, *mockAffiliateRepo) {

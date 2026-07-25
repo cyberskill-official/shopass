@@ -51,8 +51,8 @@ func (p *Pool) Acquire(ctx context.Context, tier Tier, country string) (ProxySes
 	}
 
 	if decision == BlockCold {
-		// Ở đây ta giả định Acquire không biết tier của job (hot/cold) 
-		// Thực tế orchestrator sẽ hỏi CanProceed trước. 
+		// Ở đây ta giả định Acquire không biết tier của job (hot/cold)
+		// Thực tế orchestrator sẽ hỏi CanProceed trước.
 		// Ta có thể trả về một lỗi cụ thể.
 		return ProxySession{}, fmt.Errorf("cost-guard: block cold")
 	}
@@ -84,7 +84,7 @@ func (p *Pool) rotate(tier Tier, country string) string {
 		p.rotateIndex++
 		baseIP = fmt.Sprintf("http://proxy.%s.%s:%d", tier, country, 8000+p.rotateIndex%100)
 	}
-	
+
 	// Tránh IP bị ban
 	for {
 		if bannedAt, ok := p.bannedIPs[baseIP]; ok {
@@ -102,7 +102,7 @@ func (p *Pool) rotate(tier Tier, country string) string {
 		}
 		break
 	}
-	
+
 	return baseIP
 }
 

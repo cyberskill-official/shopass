@@ -14,7 +14,7 @@ func (b *Batch) matchBottomRules(ctx context.Context, productID int64) ([]int64,
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var users []int64
 	for rows.Next() {
 		var u int64

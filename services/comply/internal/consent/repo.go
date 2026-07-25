@@ -53,7 +53,7 @@ func (r *pgRepo) append(ctx context.Context, rec ConsentRecord) error {
 	if rec.UserAgent != nil {
 		uaStr = *rec.UserAgent
 	}
-	// Note: in actual implementation, we might let postgres assign ts if it's zero, 
+	// Note: in actual implementation, we might let postgres assign ts if it's zero,
 	// but passing it explicitely works too if it's set. If it's zero we can let pg set it.
 	// For simplicity, let's just pass what's in rec and assume caller sets TS or we use `NOW()`
 	if rec.TS.IsZero() {

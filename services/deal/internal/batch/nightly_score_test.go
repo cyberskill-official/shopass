@@ -149,7 +149,7 @@ func TestNightly_DedupePerDay(t *testing.T) {
 	seedBottomRule(t, deps, userID, productID)
 	require.NoError(t, b.RunNightlyScore(ctx, today))
 	require.NoError(t, b.RunNightlyScore(ctx, today)) // chạy lại cùng ngày
-	require.Equal(t, 1, deps.notif.Count())            // chỉ 1 alert
+	require.Equal(t, 1, deps.notif.Count())           // chỉ 1 alert
 	require.Equal(t, 1, countAlertLog(t, deps, userID, productID))
 }
 
@@ -157,9 +157,9 @@ func TestNightly_Cooldown_NoRepeatWhileHigh(t *testing.T) {
 	b, deps := setupBatch(t)
 	seedMatureForecast(t, deps, productID, 0.85)
 	seedBottomRule(t, deps, userID, productID)
-	require.NoError(t, b.RunNightlyScore(ctx, today))            // ngày 0: bắn
+	require.NoError(t, b.RunNightlyScore(ctx, today))                  // ngày 0: bắn
 	require.NoError(t, b.RunNightlyScore(ctx, today.AddDate(0, 0, 3))) // ngày 3, P vẫn cao
-	require.Equal(t, 1, deps.notif.Count()) // trong cooldown 7 ngày -> không bắn lại
+	require.Equal(t, 1, deps.notif.Count())                            // trong cooldown 7 ngày -> không bắn lại
 
 	// sau cooldown (ngày 8) thì cạnh lên lại -> bắn.
 	require.NoError(t, b.RunNightlyScore(ctx, today.AddDate(0, 0, 8)))

@@ -2,7 +2,7 @@
 # (services/bff, TASK-WEB-005). ARG SERVICE selects which service under services/.
 ARG SERVICE=bff
 
-FROM node:22-slim AS build
+FROM node:24-slim AS build
 ARG SERVICE
 WORKDIR /app
 COPY services/${SERVICE}/package.json services/${SERVICE}/package-lock.json ./
@@ -10,7 +10,7 @@ RUN npm ci --no-audit --no-fund
 COPY services/${SERVICE}/ ./
 RUN npm run build && npm prune --omit=dev
 
-FROM node:22-slim
+FROM node:24-slim
 ARG SERVICE
 WORKDIR /app
 ENV NODE_ENV=production

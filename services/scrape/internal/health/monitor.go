@@ -45,11 +45,11 @@ func (m *Monitor) Report(platformID int16, version string, outcome Outcome) {
 	w.Record(outcome)
 
 	rate, n := w.ParseFailRate()
-	
+
 	m.mu.Lock()
 	curState := m.states[key]
 	baseline := m.baselines[key] // Giả sử tính động ở đây hoặc update định kỳ
-	
+
 	newState := Next(curState, rate, baseline, n)
 	m.states[key] = newState
 	m.mu.Unlock()

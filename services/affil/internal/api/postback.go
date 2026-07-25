@@ -29,7 +29,6 @@ func NewPostbackHandler(repo *affil.Repo, secrets affil.SecretReader) *PostbackH
 	}
 }
 
-
 func (h *PostbackHandler) HandlePostback(w http.ResponseWriter, req *http.Request) {
 	network := req.PathValue("network")
 	body, _ := io.ReadAll(req.Body)

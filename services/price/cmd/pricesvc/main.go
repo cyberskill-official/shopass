@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -44,8 +45,16 @@ func main() {
 	api.NewHandler(productRepo).RegisterRoutes(mux)                                     // GET price-history
 	api.NewIngestHandler(price.NewSnapshotRepo(pool), serviceToken).RegisterRoutes(mux) // POST snapshots
 	api.NewProductUpsertHandler(productRepo, serviceToken).RegisterRoutes(mux)
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Info("pricesvc listening", "addr", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Error("serve", "err", err)
 		os.Exit(1)
 	}

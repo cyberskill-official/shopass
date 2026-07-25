@@ -32,7 +32,7 @@ func (r *SnapshotRepo) InsertSnapshot(ctx context.Context, s *CartSnapshot) erro
 	}
 
 	// 2. Insert snapshot
-	err = tx.QueryRowContext(ctx, 
+	err = tx.QueryRowContext(ctx,
 		"INSERT INTO cart_snapshot (user_id, platform_id, snapshot_ref, captured_at) VALUES ($1, $2, $3, $4) RETURNING id",
 		s.UserID, s.PlatformID, s.SnapshotRef, s.CapturedAt,
 	).Scan(&s.ID)
@@ -64,7 +64,7 @@ func (r *SnapshotRepo) GetSnapshot(ctx context.Context, id int64, userID int64) 
 	s := &CartSnapshot{}
 	err := r.db.QueryRowContext(ctx, "SELECT id, user_id, platform_id, snapshot_ref, captured_at FROM cart_snapshot WHERE id = $1 AND user_id = $2", id, userID).
 		Scan(&s.ID, &s.UserID, &s.PlatformID, &s.SnapshotRef, &s.CapturedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("snapshot not found or unauthorized")

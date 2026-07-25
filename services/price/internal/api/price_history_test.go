@@ -92,7 +92,7 @@ func itoa(i int64) string {
 func doGET(t *testing.T, h *Handler, path string) *httptest.ResponseRecorder {
 	req, err := http.NewRequest("GET", path, nil)
 	require.NoError(t, err)
-	
+
 	// Create a new ServeMux with 1.22 pattern
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux)
@@ -108,7 +108,7 @@ func decode(t *testing.T, rr *httptest.ResponseRecorder, v interface{}) {
 }
 
 func TestPriceHistory_Default90d(t *testing.T) {
-	h, pid := setupWithHistory(t, 120) // 120 ngày dữ liệu
+	h, pid := setupWithHistory(t, 120)                             // 120 ngày dữ liệu
 	rec := doGET(t, h, "/v1/products/"+itoa(pid)+"/price-history") // không range
 	require.Equal(t, 200, rec.Code)
 	var body HistoryResponse

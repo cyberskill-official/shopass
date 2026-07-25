@@ -49,8 +49,8 @@ func CostMicroUSD(usdPerGBMicro int64, bytes int64) int64 {
 	// (bytes / 1GB) * usdPerGBMicro
 	// 1GB = 1 << 30 bytes
 	// => (bytes * usdPerGBMicro) / (1 << 30)
-	
-	// Avoid overflow by dividing first if bytes is large, 
+
+	// Avoid overflow by dividing first if bytes is large,
 	// but bytes is usually small enough for int64.
 	// Actually floating point logic on ints: bytes * usdPerGBMicro / (1<<30)
 	return (bytes * usdPerGBMicro) / (1 << 30)

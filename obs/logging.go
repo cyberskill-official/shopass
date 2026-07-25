@@ -26,7 +26,7 @@ func SetOutput(w io.Writer) {
 // FromContext creates an slog.Logger that binds trace_id and request_id from the context.
 func FromContext(ctx context.Context) *slog.Logger {
 	sc := trace.SpanContextFromContext(ctx)
-	
+
 	traceID := ""
 	if sc.HasTraceID() {
 		traceID = sc.TraceID().String()

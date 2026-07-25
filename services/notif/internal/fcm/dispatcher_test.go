@@ -14,9 +14,9 @@ import (
 // --- mock repo ---
 
 type mockNotifRepo struct {
-	jobs      []PushJob
-	sentIDs   []int64
-	failedIDs []int64
+	jobs             []PushJob
+	sentIDs          []int64
+	failedIDs        []int64
 	invalidatedUsers []int64
 }
 
@@ -79,8 +79,8 @@ func TestDispatch_Unregistered_InvalidatesTokenAndFails(t *testing.T) {
 	d, repo := setupDispatcher(t, 404, `{"error":{"status":"UNREGISTERED"}}`, jobs)
 
 	d.RunOnce(context.Background())
-	require.Equal(t, []int64{42}, repo.invalidatedUsers)  // verified=false
-	require.Equal(t, []int64{200}, repo.failedIDs)         // status=failed
+	require.Equal(t, []int64{42}, repo.invalidatedUsers) // verified=false
+	require.Equal(t, []int64{200}, repo.failedIDs)       // status=failed
 	require.Empty(t, repo.sentIDs)
 }
 

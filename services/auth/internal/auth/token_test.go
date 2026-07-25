@@ -55,7 +55,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 func newServiceWithKeys(t *testing.T) *TokenService {
 	db := setupTestDB(t)
 	repo := NewRepo(db)
-	
+
 	s := NewTokenService(repo.(*pgRepo), "shopass-auth", "shopass-gateway", 15*time.Minute)
 	s.AddSigningKey("key-1", genKey(t))
 	return s
@@ -67,7 +67,7 @@ func verifyWithJWKS(tokenStr string, jwks JWKS) (*Claims, error) {
 		if !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		
+
 		// Find public key in JWKS
 		for _, k := range jwks.Keys {
 			if k.Kid == kid {
@@ -84,7 +84,7 @@ func verifyWithJWKS(tokenStr string, jwks JWKS) (*Claims, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if claims, ok := tok.Claims.(*Claims); ok && tok.Valid {
 		return claims, nil
 	}
@@ -105,7 +105,7 @@ func verifyWithServiceKeys(tokenStr string, s *TokenService) (*Claims, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if claims, ok := tok.Claims.(*Claims); ok && tok.Valid {
 		return claims, nil
 	}
@@ -116,7 +116,7 @@ func TestAccess_VerifiableViaJWKS(t *testing.T) {
 	s := newServiceWithKeys(t)
 	ctx := context.Background()
 	pair, _ := s.IssueTokenPair(ctx, 90112)
-	
+
 	claims, err := verifyWithServiceKeys(pair.Access, s)
 	require.NoError(t, err)
 	require.Equal(t, int64(90112), claims.UserID)
@@ -128,7 +128,7 @@ func TestAccess_Expired_Rejected(t *testing.T) {
 	s.accessTTL = -time.Minute // đã hết hạn
 	ctx := context.Background()
 	pair, _ := s.IssueTokenPair(ctx, 1)
-	
+
 	_, err := verifyWithServiceKeys(pair.Access, s)
 	require.Error(t, err)
 	require.ErrorIs(t, err, jwt.ErrTokenExpired)
@@ -138,10 +138,10 @@ func TestAccess_UnknownKID_Rejected(t *testing.T) {
 	s := newServiceWithKeys(t)
 	ctx := context.Background()
 	pair, _ := s.IssueTokenPair(ctx, 1)
-	
+
 	// Create a new service with different keys
 	s2 := newServiceWithKeys(t)
-	
+
 	_, err := verifyWithServiceKeys(pair.Access, s2)
 	require.Error(t, err) // kid not found
 }
@@ -149,12 +149,12 @@ func TestAccess_UnknownKID_Rejected(t *testing.T) {
 func TestJWKS_MultipleKID_AfterRotation(t *testing.T) {
 	s := newServiceWithKeys(t)
 	ctx := context.Background()
-	
+
 	s.AddSigningKey("key-2", genKey(t)) // xoay
 	require.Len(t, s.GetJWKS().Keys, 2)
-	
+
 	pair, _ := s.IssueTokenPair(ctx, 1) // ký bằng kid hiện hành
-	
+
 	_, err := verifyWithServiceKeys(pair.Access, s)
 	require.NoError(t, err)
 }

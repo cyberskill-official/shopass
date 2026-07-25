@@ -15,7 +15,7 @@ func CanonicalKey(brand, model string, attrs map[string]string) string {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys) // xác định, không phụ thuộc thứ tự map
-	
+
 	var b strings.Builder
 	for _, k := range keys {
 		b.WriteString(k)
@@ -23,7 +23,7 @@ func CanonicalKey(brand, model string, attrs map[string]string) string {
 		b.WriteString(attrs[k])
 		b.WriteByte(';')
 	}
-	
+
 	sum := sha256.Sum256([]byte(b.String()))
 	return brand + ":" + model + ":" + hex.EncodeToString(sum[:])[:12]
 }

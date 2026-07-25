@@ -73,7 +73,7 @@ func (s *LifecycleService) ConfirmReset(ctx context.Context, token, newPassword 
 	if err := s.repo.MarkResetUsed(ctx, pr.ID); err != nil {
 		return err
 	}
-	
+
 	// đổi mật khẩu = đăng xuất mọi phiên (§1 #4)
 	return s.repo.RevokeAllRefresh(ctx, pr.UserID)
 }

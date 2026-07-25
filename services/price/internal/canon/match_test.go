@@ -54,7 +54,7 @@ func setupWithProduct(t *testing.T, platform, title string) (*Matcher, string) {
 	pool := setupTestDB(t)
 	queue := NewReviewQueue(pool)
 	matcher := NewMatcher(pool, queue)
-	
+
 	// Add initial product
 	norm := Normalize(title)
 	attrs := Extract(norm)
@@ -83,7 +83,7 @@ func TestMatch_SameProductDifferentPlatform_Merges(t *testing.T) {
 		Title:     "[LAZMALL] Sony WH 1000XM5 Freeship - Headphone",
 		Attrs:     Extract(Normalize("[LAZMALL] Sony WH 1000XM5 Freeship - Headphone")),
 	})
-	
+
 	require.NoError(t, err)
 	require.Equal(t, "merge", res.Action)
 	require.Equal(t, key, res.CanonicalKey)
@@ -92,7 +92,7 @@ func TestMatch_SameProductDifferentPlatform_Merges(t *testing.T) {
 func TestMatch_DifferentProduct_DoesNotMerge(t *testing.T) {
 	m, _ := setupWithProduct(t, "shopee", "iPhone 15 128GB")
 	ctx := context.Background()
-	
+
 	c := Candidate{
 		ProductID: 2,
 		Title:     "Samsung Galaxy S24 Ultra 256GB",
@@ -107,7 +107,7 @@ func TestMatch_DifferentProduct_DoesNotMerge(t *testing.T) {
 func TestMatch_LowConfidence_GoesToReviewQueue(t *testing.T) {
 	m, _ := setupWithProduct(t, "shopee", "iPhone 15 128GB")
 	ctx := context.Background()
-	
+
 	// "iphone 15 pro 128gb" vs "iphone 15 128gb" has high trigram similarity but slightly different
 	// Let's force similarity to be between 0.60 and 0.82 in the test DB by manually inserting it
 	// Actually, pg_trgm similarity("iphone 15 128gb", "iphone 15 pro 128gb") is approx 0.65-0.75.
@@ -119,7 +119,7 @@ func TestMatch_LowConfidence_GoesToReviewQueue(t *testing.T) {
 	c.Attrs = Extract(Normalize(c.Title))
 
 	res, err := m.Match(ctx, c)
-	
+
 	require.NoError(t, err)
 	require.Equal(t, "review", res.Action)
 	require.Equal(t, 1, countPending(t, m)) // 1 dòng review, KHÔNG auto-merge

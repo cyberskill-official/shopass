@@ -24,7 +24,7 @@ func (h *SnapshotHandler) CreateSnapshot(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Unauthorized: missing user_id", http.StatusUnauthorized)
 		return
 	}
-	
+
 	var userID int64
 	if _, err := fmt.Sscanf(userIDStr, "%d", &userID); err != nil {
 		http.Error(w, "Unauthorized: invalid user_id format", http.StatusUnauthorized)
@@ -56,7 +56,7 @@ func (h *SnapshotHandler) CreateSnapshot(w http.ResponseWriter, r *http.Request)
 			http.Error(w, "qty and unit_price must be > 0", http.StatusBadRequest)
 			return
 		}
-		
+
 		snap.Items = append(snap.Items, cart.CartItem{
 			ProductID:      item.ProductID,
 			PlatformItemID: item.PlatformItemID,

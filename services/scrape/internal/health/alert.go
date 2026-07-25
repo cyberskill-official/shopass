@@ -28,7 +28,7 @@ func (a *AlertDedup) Alert(platformID int16, version string, state Health, failR
 	if state == Healthy {
 		return // No alert for healthy, though could alert for recovery
 	}
-	
+
 	key := string(rune(platformID)) + ":" + version
 	a.mu.Lock()
 	defer a.mu.Unlock()

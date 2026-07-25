@@ -68,7 +68,7 @@ func (s *Service) Close(ctx context.Context, id int64) error {
 	// For low, it bypasses notified_subjects: "notified_authority -> closed".
 	// If it's low, and current is notified_authority (2), closed is (4). So order is not exactly +1.
 	// So Close is a special action that checks if it's safe to jump to closed.
-	
+
 	// Valid states to close from:
 	if b.Status == "closed" {
 		return ErrInvalidTransition // Already closed
@@ -76,7 +76,7 @@ func (s *Service) Close(ctx context.Context, id int64) error {
 	if order[b.Status] < order["notified_authority"] {
 		return ErrInvalidTransition // Must at least notify authority
 	}
-	
+
 	return s.repo.transition(ctx, id, "closed", time.Now())
 }
 

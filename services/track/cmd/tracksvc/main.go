@@ -80,8 +80,16 @@ func main() {
 		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
 
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           userMiddleware(mux),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Info("tracksvc listening", "addr", addr)
-	if err := http.ListenAndServe(addr, userMiddleware(mux)); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Error("serve", "err", err)
 		os.Exit(1)
 	}

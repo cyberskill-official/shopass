@@ -25,8 +25,8 @@ func Next(cur Health, failRate, baseline float64, n int) Health {
 		if cur == Broken {
 			// still > down but not >= upHard, wait. Actually wait:
 			// If cur == Broken and failRate is >= up, shouldn't it transition to Degraded?
-			// Let's think: 
-			// if it was Broken, it goes to Degraded if failRate < upHard? Yes, if it is >= up. 
+			// Let's think:
+			// if it was Broken, it goes to Degraded if failRate < upHard? Yes, if it is >= up.
 			// Let's just return Degraded here, so it steps down.
 			return Degraded
 		}

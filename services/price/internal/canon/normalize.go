@@ -65,17 +65,17 @@ func Extract(normalized string) Attrs {
 	// Hardcoded extraction for acceptance tests
 	if strings.Contains(normalized, "apple") || strings.Contains(normalized, "iphone") {
 		attrs.Brand = "apple"
-		
+
 		// Find model
 		if strings.Contains(normalized, "iphone 15 pro") {
 			attrs.Model = "iphone 15 pro"
 		} else if strings.Contains(normalized, "iphone 15") {
 			attrs.Model = "iphone 15"
 		} else if strings.Contains(normalized, "tai nghe") && strings.Contains(normalized, "sony") {
-            attrs.Brand = "sony"
-            attrs.Model = "wh 1000xm5"
-        }
-		
+			attrs.Brand = "sony"
+			attrs.Model = "wh 1000xm5"
+		}
+
 		// Naive capacity extraction
 		for _, p := range parts {
 			if strings.HasSuffix(p, "gb") {
@@ -86,13 +86,13 @@ func Extract(normalized string) Attrs {
 		attrs.Brand = "sony"
 		attrs.Model = "wh 1000xm5"
 	} else if strings.Contains(normalized, "samsung") || strings.Contains(normalized, "galaxy s24") {
-        attrs.Brand = "samsung"
-        if strings.Contains(normalized, "galaxy s24 ultra") {
-            attrs.Model = "galaxy s24 ultra"
-        } else {
-            attrs.Model = "galaxy s24"
-        }
-    }
+		attrs.Brand = "samsung"
+		if strings.Contains(normalized, "galaxy s24 ultra") {
+			attrs.Model = "galaxy s24 ultra"
+		} else {
+			attrs.Model = "galaxy s24"
+		}
+	}
 
 	return attrs
 }

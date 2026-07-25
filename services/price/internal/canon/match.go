@@ -79,7 +79,7 @@ func (m *Matcher) bestCandidate(ctx context.Context, norm string, c Candidate) (
 // Match tìm nhóm cho candidate: key xác định trước, fuzzy pg_trgm sau (§1 #4-#8).
 func (m *Matcher) Match(ctx context.Context, c Candidate) (MatchResult, error) {
 	norm := Normalize(c.Title)
-	
+
 	// Exact key check (first pass)
 	exactKey := CanonicalKey(c.Attrs.Brand, c.Attrs.Model, c.Attrs.Salient)
 

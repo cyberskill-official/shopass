@@ -139,10 +139,10 @@ func (r *Repo) BatchSetScheduledAt(ctx context.Context, scheduled map[int64]time
 	for id, t := range scheduled {
 		b.Queue("UPDATE notification SET scheduled_at = $1 WHERE id = $2", t, id)
 	}
-	
+
 	br := r.pool.SendBatch(ctx, b)
 	defer br.Close()
-	
+
 	for range scheduled {
 		_, err := br.Exec()
 		if err != nil {

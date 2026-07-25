@@ -25,7 +25,7 @@ func TestSink_DelegatesToInsertSnapshot(t *testing.T) {
 	spy := &spyRepo{returns: true}
 	s := NewSink(spy, &dummyMetrics{})
 	ctx := context.Background()
-	
+
 	s.Write(ctx, PriceSnapshot{ProductID: 1, TS: time.Now(), Price: 89_000})
 	if spy.insertCalls != 1 {
 		t.Errorf("Expected 1 call to InsertSnapshot, got %d", spy.insertCalls)
