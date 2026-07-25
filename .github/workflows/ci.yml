@@ -5,9 +5,12 @@ on:
     branches: [ "main", "master" ]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   go:
-    name: Go (build + unit + integration)
+    name: Go (gofmt + build + unit + integration)
     runs-on: ubuntu-latest
     # A real TimescaleDB is provided for the deal integration suite; the db module
     # spins up its own container via testcontainers (Docker is present on the runner).
@@ -23,11 +26,20 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           # go.mod declares go 1.25.0 (see docs/AUDIT-REPORT.md hygiene note).
           go-version: "1.25"
+      - name: gofmt
+        run: |
+          set -e
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "gofmt needed on:"
+            echo "$unformatted"
+            exit 1
+          fi
       - name: Install psql client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Create test databases + composed schema
@@ -78,20 +90,55 @@ jobs:
     name: Extension + Web (tsc + jest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: "24.18.0"
       - name: Extension
         working-directory: extension
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npx tsc --noEmit
           npm test
       - name: Web
         working-directory: web
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+          npm test
+
+  bff:
+    name: BFF (tsc + test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24.18.0"
+          cache: npm
+          cache-dependency-path: services/bff/package-lock.json
+      - name: Install, typecheck, test
+        working-directory: services/bff
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+
+  scrape-farm:
+    name: Scrape farm (tsc + jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24.18.0"
+          cache: npm
+          cache-dependency-path: services/scrape/farm/package-lock.json
+      - name: Install, typecheck, test
+        working-directory: services/scrape/farm
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
           npx tsc --noEmit
           npm test
 
@@ -99,8 +146,8 @@ jobs:
     name: ml (pytest with Prophet + CmdStan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install Python deps
@@ -129,3 +176,27 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}/services/ml
         run: pytest tests/ -q
+
+  compose:
+    name: Docker Compose config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Validate compose files
+        env:
+          # Config-only stubs — no images built; satisfies ${VAR:?...} interpolation.
+          APP_DOMAIN: example.com
+          ACME_EMAIL: ci@example.com
+          DATABASE_URL: postgres://u:p@db:5432/shopass?sslmode=disable
+          PRICE_INTERNAL_SERVICE_TOKEN: ci-token
+          APP_ORIGIN: https://example.com
+          AUTH_KEY_ID: ci-key
+          DB_PASSWORD_FILE: /tmp/ci-db-password
+          AUTH_SIGNING_KEY_SECRET_FILE: /tmp/ci-auth-key
+        run: |
+          set -e
+          docker compose -f deploy/docker-compose.yml --env-file deploy/.env.example config --quiet
+          docker compose -f deploy/docker-compose.production.yml config --quiet
+          # cyberos-shared is an overlay on production, not a standalone file
+          docker compose -f deploy/docker-compose.production.yml \
+            -f deploy/docker-compose.cyberos-shared.yml config --quiet
