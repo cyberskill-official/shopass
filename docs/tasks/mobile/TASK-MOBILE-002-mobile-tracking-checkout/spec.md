@@ -3,7 +3,7 @@ id: TASK-MOBILE-002
 title: "Mobile theo dõi giá + nhận alert + universal checkout assistant - màn theo dõi/wishlist + biểu đồ giá + nhận push alert; checkout assistant gọi optimizer voucher (TASK-CART-003) hiển thị tổ hợp tối ưu KHI người dùng chủ động yêu cầu"
 module: MOBILE
 priority: SHOULD
-status: done
+status: ready_to_implement
 verify: T
 phase: P3
 milestone: P3 - slice 2

@@ -3,7 +3,7 @@ id: TASK-B2B-003
 title: "Seller-facing competitor price analytics - seller theo dõi vị thế giá của chính mình so với phân vị thị trường (median/p25/p75) theo category từ market_trend_daily, KHÔNG lộ giá đối thủ đơn lẻ"
 module: B2B
 priority: COULD
-status: done
+status: ready_to_implement
 verify: T
 phase: P3
 milestone: P3 - slice 2

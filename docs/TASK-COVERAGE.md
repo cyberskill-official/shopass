@@ -1,6 +1,8 @@
 # SănDeal - task implementation coverage (real vs stub vs missing)
 
-Date: 2026-07-03. This maps the 90 tasks to what actually exists in code, separate from "tests pass." Method: parsed each task's declared `new_files`, checked presence on disk, and inspected the present code for stubs (hardcoded returns, simulated external calls).
+Date: 2026-07-03 (status alignment 2026-07-25). This maps the 90 tasks to what actually exists in code, separate from "tests pass." Method: parsed each task's declared `new_files`, checked presence on disk, and inspected the present code for stubs (hardcoded returns, simulated external calls).
+
+**Source of truth for implementation presence.** Task frontmatter `status: done` must not contradict this file. As of 2026-07-25 the 16 tasks listed under "no code" were reset to `ready_to_implement` (and BACKLOG.md matched). Spec `audit.md` scores of `10/10` mean the *spec* passed task-audit before build — they are not evidence that code shipped. CyberOS HITL still requires a human to set `done`; agents must not invent completion.
 
 Headline: 74 of 90 tasks have code on disk; 16 have none. About 76% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
 

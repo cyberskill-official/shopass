@@ -3,7 +3,7 @@ id: TASK-NOTIF-005
 title: "APNs iOS dispatcher - gửi push tới iPhone/iPad qua APNs HTTP/2 (api.push.apple.com), nhiều kết nối song song multiplexing, token-based auth JWT provider token (.p8), xử lý 410 token hết hạn -> verified=false, backoff cho 500/503, cập nhật notification.status sent|failed"
 module: NOTIF
 priority: MUST
-status: done
+status: ready_to_implement
 verify: T
 phase: P2
 milestone: P2 - slice 2

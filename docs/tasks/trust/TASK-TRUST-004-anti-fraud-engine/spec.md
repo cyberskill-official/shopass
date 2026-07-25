@@ -3,7 +3,7 @@ id: TASK-TRUST-004
 title: "Anti-fraud engine - phát hiện referral abuse + fake-account farming xu + velocity checks + đồ thị quan hệ; chấm điểm rủi ro và gắn cờ để điều tra, KHÔNG tự khóa mù"
 module: TRUST
 priority: MUST
-status: done
+status: ready_to_implement
 verify: T
 phase: P3
 milestone: P3 - slice 1

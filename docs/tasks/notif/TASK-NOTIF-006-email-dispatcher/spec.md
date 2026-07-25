@@ -3,7 +3,7 @@ id: TASK-NOTIF-006
 title: "Email dispatcher - interface EmailProvider pluggable (SES mặc định / SendGrid / Postmark), gửi qua SES API, xử lý bounce/complaint qua SNS đánh dấu verified=false, backoff cho 4xx/5xx tạm thời, cập nhật notification.status sent|failed; kênh rẻ thứ nhì dưới push trên sms"
 module: NOTIF
 priority: MUST
-status: done
+status: ready_to_implement
 verify: T
 phase: P2
 milestone: P2 - slice 2

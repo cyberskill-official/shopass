@@ -1,6 +1,6 @@
 # SănDeal - Task Backlog
 
-**Owner:** Stephen Cheng (Founder / CEO) - **Status:** v0.2.0 - SHIP-READY. 90 task + 90 audit + 10 NFR + 10 audit; DAG acyclic + reciprocal; data model nhất quán (một table một owner); đã qua một vòng review chéo module. Backlog khởi tạo từ tài liệu nền tảng SănDeal v1.0 (16/06/2026), áp dụng workflow task của CyberOS (engineering-spec@1). **Nguồn sự thật (source of truth):** các file markdown trong thư mục này. Index này được tái tạo khi task được thêm hoặc đổi status. **Tài liệu nguồn:** [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" - PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../) **Tài liệu hỗ trợ ship (cho agent triển khai):** [`SHIP-GUIDE.md`](SHIP-GUIDE.md) (conventions + bất biến build) | [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md) (thứ tự build theo layer) | [`DATA-MODEL.md`](DATA-MODEL.md) (schema hợp nhất) | [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md) (vòng đời status). Ghi chú: `AGENTS.md` ở gốc repo dành cho giao thức memory CyberOS (BRAIN); conventions build nằm ở SHIP-GUIDE.md. **Playbook tác giả:** workflow `task-author` + `task-audit` của CyberOS (`cyberos/modules/skill/contracts/task/`). Mỗi task đi kèm một file `.audit.md`. **Status enum (10 trạng thái):** `draft | done | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
+**Owner:** Stephen Cheng (Founder / CEO) - **Status:** v0.2.1 - statuses aligned with docs/TASK-COVERAGE.md. 90 task + 90 audit + 10 NFR + 10 audit; DAG acyclic + reciprocal; data model nhất quán (một table một owner). Tasks with no code on disk are `ready_to_implement` (not `done`); see TASK-COVERAGE for the 16 gaps. Spec audit scores (10/10) mean the *spec* passed task-audit, not that implementation shipped. Backlog khởi tạo từ tài liệu nền tảng SănDeal v1.0 (16/06/2026), áp dụng workflow task của CyberOS (engineering-spec@1). **Nguồn sự thật (source of truth):** các file markdown trong thư mục này. Index này được tái tạo khi task được thêm hoặc đổi status. **Tài liệu nguồn:** [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" - PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../) **Tài liệu hỗ trợ ship (cho agent triển khai):** [`SHIP-GUIDE.md`](SHIP-GUIDE.md) (conventions + bất biến build) | [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md) (thứ tự build theo layer) | [`DATA-MODEL.md`](DATA-MODEL.md) (schema hợp nhất) | [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md) (vòng đời status). Ghi chú: `AGENTS.md` ở gốc repo dành cho giao thức memory CyberOS (BRAIN); conventions build nằm ở SHIP-GUIDE.md. **Playbook tác giả:** workflow `task-author` + `task-audit` của CyberOS (`cyberos/modules/skill/contracts/task/`). Mỗi task đi kèm một file `.audit.md`. **Status enum (10 trạng thái):** `draft | done | implementing | ready_to_review | reviewing | ready_to_test | testing | done | on_hold | closed` (theo [`STATUS-REFERENCE.md`](STATUS-REFERENCE.md)).
 
 ---
 
@@ -219,9 +219,9 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | done | TASK-NOTIF-003 | 5h |
-| **TASK-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | done | TASK-NOTIF-003 | 4h |
-| **TASK-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | done | TASK-NOTIF-003 | 6h |
+| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | ready_to_implement | TASK-NOTIF-003 | 5h |
+| **TASK-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | ready_to_implement | TASK-NOTIF-003 | 4h |
+| **TASK-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | ready_to_implement | TASK-NOTIF-003 | 6h |
 
 ---
 
@@ -235,40 +235,40 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | done | TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-005 | 10h |
+| **TASK-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | ready_to_implement | TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-005 | 10h |
 
 ### P3.2 - B2B - dữ liệu + analytics
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | done | TASK-PRICE-002, TASK-COMPLY-003 | 10h |
-| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | done | TASK-B2B-001, TASK-BILL-001 | 8h |
-| **TASK-B2B-003** | Seller-facing competitor price analytics | COULD | done | TASK-B2B-001 | 8h |
-| **TASK-B2B-004** | Premium API access (tiers, rate-limited) | COULD | done | TASK-INFRA-001, TASK-B2B-001 | 6h |
+| **TASK-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | ready_to_implement | TASK-PRICE-002, TASK-COMPLY-003 | 10h |
+| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | ready_to_implement | TASK-B2B-001, TASK-BILL-001 | 8h |
+| **TASK-B2B-003** | Seller-facing competitor price analytics | COULD | ready_to_implement | TASK-B2B-001 | 8h |
+| **TASK-B2B-004** | Premium API access (tiers, rate-limited) | COULD | ready_to_implement | TASK-INFRA-001, TASK-B2B-001 | 6h |
 
 ### P3.3 - MOBILE - mobile app + SEA virality
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | done | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
-| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | done | TASK-MOBILE-001, TASK-CART-003 | 10h |
-| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | done | TASK-MOBILE-001, TASK-BILL-004 | 6h |
+| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | ready_to_implement | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
+| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | ready_to_implement | TASK-MOBILE-001, TASK-CART-003 | 10h |
+| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | ready_to_implement | TASK-MOBILE-001, TASK-BILL-004 | 6h |
 
 ### P3.4 - COMPLY - per-country gating + SEA + e-commerce law
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | done | TASK-INFRA-005, TASK-CART-004 | 8h |
-| **TASK-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | done | TASK-COMPLY-001, TASK-COMPLY-006 | 8h |
+| **TASK-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | ready_to_implement | TASK-INFRA-005, TASK-CART-004 | 8h |
+| **TASK-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | ready_to_implement | TASK-COMPLY-001, TASK-COMPLY-006 | 8h |
 | **TASK-COMPLY-008** | Tuân thủ luật TMĐT VN (NĐ 52/2013 + 85/2021, MOIT, dự thảo livestream/affiliate 2025) | SHOULD | done | TASK-COMPLY-001 | 6h |
 
 ### P3.5 - TRUST - anti-fraud ở quy mô
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | done | TASK-BILL-004, TASK-AFFIL-001 | 10h |
-| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | done | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
-| **TASK-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | done | TASK-TRUST-004 | 6h |
+| **TASK-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | ready_to_implement | TASK-BILL-004, TASK-AFFIL-001 | 10h |
+| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | ready_to_implement | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
+| **TASK-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | ready_to_implement | TASK-TRUST-004 | 6h |
 
 ---
 
