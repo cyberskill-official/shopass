@@ -13,11 +13,10 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^26.1.0",
+    "@typescript/typescript6": "^6.0.2",
     "jest": "^30.4.2",
     "playwright": "^1.61.1",
-    "ts-jest": "^29.4.11",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "undici": "^8.5.0"
   },
   "engines": {
