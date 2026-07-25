@@ -19,7 +19,7 @@
     "esbuild": "^0.28.1",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "typescript": "^5.9.0"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=24 <25"
