@@ -1,7 +1,7 @@
 {
   "name": "extension",
   "version": "1.0.0",
-  "description": "SanDeal MV3 browser extension",
+  "description": "Shopass MV3 browser extension",
   "type": "commonjs",
   "scripts": {
     "test": "jest",

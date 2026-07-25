@@ -30,7 +30,7 @@ export function renderChecklist(tasks: CoinTask[], container: HTMLElement) {
   
   const note = document.createElement("div");
   note.className = "note";
-  note.textContent = "SănDeal chỉ nhắc; bạn tự thực hiện trên sàn.";
+  note.textContent = "Shopass chỉ nhắc; bạn tự thực hiện trên sàn.";
   container.appendChild(note);
 }
 

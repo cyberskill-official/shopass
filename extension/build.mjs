@@ -31,12 +31,10 @@ const ctx = await esbuild.context({
 
 function copyAssets() {
   // Ensure directories exist
-  fs.mkdirSync('dist/dnr', { recursive: true });
   fs.mkdirSync('dist/ui', { recursive: true });
 
-  // Copy files
+  // Copy files (DNR rules omitted from dist while manifest has no DNR resource)
   fs.copyFileSync('manifest.json', 'dist/manifest.json');
-  fs.copyFileSync('src/dnr/rules.json', 'dist/dnr/rules.json');
   fs.copyFileSync('src/ui/settings.html', 'dist/ui/settings.html');
   fs.copyFileSync('src/ui/onboarding.html', 'dist/ui/onboarding.html');
   console.log('Static assets copied to dist.');

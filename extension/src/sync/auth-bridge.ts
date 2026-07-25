@@ -2,7 +2,7 @@ import { SyncEnvelope } from "../shared/types";
 
 export class NoAuthError extends Error {
   constructor() {
-    super("Missing SănDeal JWT");
+    super("Missing Shopass JWT");
     this.name = "NoAuthError";
   }
 }
@@ -43,7 +43,7 @@ export async function authedFetch(url: string, env: SyncEnvelope): Promise<Respo
   return fetch(url, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${jwt}`, // JWT SănDeal, KHÔNG token sàn
+      "Authorization": `Bearer ${jwt}`, // JWT Shopass, KHÔNG token sàn
       "Content-Type": "application/json"
     },
     body: JSON.stringify(env) // body chỉ OutboundPayload đã sạch + clientTs

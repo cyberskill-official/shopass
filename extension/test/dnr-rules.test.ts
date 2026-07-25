@@ -9,6 +9,26 @@ describe("DNR rules (DEC-EXT-20, DEC-EXT-21)", () => {
     expect(rules.length).toBeLessThanOrEqual(5); // tối thiểu
   });
 
+  test("manifest must not declare DNR while rules.json is empty", () => {
+    // Empty rules + declarativeNetRequest permission/resource is invalid.
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "manifest.json"), "utf8")
+    );
+    const rules = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, "..", "src", "dnr", "rules.json"),
+        "utf8"
+      )
+    ) as unknown[];
+    if (rules.length === 0) {
+      expect(manifest.permissions ?? []).not.toContain("declarativeNetRequest");
+      expect(manifest.declarative_net_request).toBeUndefined();
+    } else {
+      expect(manifest.permissions).toContain("declarativeNetRequest");
+      expect(manifest.declarative_net_request?.rule_resources?.length).toBeGreaterThan(0);
+    }
+  });
+
   test("dnr.ts KHÔNG dùng webRequest blocking (DEC-EXT-20)", () => {
     const dnrPath = path.join(__dirname, "..", "src", "dnr", "dnr.ts");
     const src = fs.readFileSync(dnrPath, "utf8");

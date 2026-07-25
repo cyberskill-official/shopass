@@ -9,6 +9,6 @@ export function reportHealth(signal: HealthSignal) {
   try {
     chrome.runtime.sendMessage({ type: "HEALTH_SIGNAL", ...signal });
   } catch (err) {
-    console.debug("SănDeal: failed to send health signal", err);
+    console.debug("Shopass: failed to send health signal", err);
   }
 }

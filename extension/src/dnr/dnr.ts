@@ -1,7 +1,14 @@
 /**
  * dnr.ts — sanity-check wrapper for declarativeNetRequest rules.
  * MUST NOT use webRequest blocking (DEC-EXT-20).
- * Rules MUST be minimal static set (DEC-EXT-21).
+ * Rules MUST be a minimal static set (DEC-EXT-21).
+ *
+ * Empty rules.json + declarativeNetRequest permission is invalid: Chrome (and
+ * reviewers) expect a real ruleset when the permission/resource is declared.
+ * Until we have a concrete DNR need, the permission and
+ * declarative_net_request block are omitted from manifest.json. Keep
+ * rules.json as [] only as a placeholder for a future non-empty ruleset —
+ * do not re-add the permission without at least one audited rule.
  */
 
 const MAX_ALLOWED_RULES = 5; // tối thiểu, đếm được, audit được
@@ -14,6 +21,12 @@ export async function validateDnrRules(): Promise<{
   valid: boolean;
   ruleCount: number;
 }> {
+  if (
+    typeof chrome === "undefined" ||
+    !chrome.declarativeNetRequest?.getDynamicRules
+  ) {
+    return { valid: true, ruleCount: 0 };
+  }
   const rules = await chrome.declarativeNetRequest.getDynamicRules();
   return {
     valid: rules.length <= MAX_ALLOWED_RULES,
@@ -25,6 +38,12 @@ export async function validateDnrRules(): Promise<{
  * Đếm static rules đã khai báo trong manifest.
  */
 export async function getStaticRuleCount(): Promise<number> {
+  if (
+    typeof chrome === "undefined" ||
+    !chrome.declarativeNetRequest?.getSessionRules
+  ) {
+    return 0;
+  }
   const rules = await chrome.declarativeNetRequest.getSessionRules();
   return rules.length;
 }
