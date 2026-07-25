@@ -15,9 +15,9 @@ type PaymentRequest struct {
 type PaymentResult struct {
 	OrderRef  string `json:"order_ref"`
 	Gateway   string `json:"gateway"`
-	Amount    int64  `json:"amount"`                 // VND
-	PayURL    string `json:"pay_url,omitempty"`      // MoMo/ZaloPay/VNPay
-	QRPayload string `json:"qr_payload,omitempty"`   // VietQR
+	Amount    int64  `json:"amount"`               // VND
+	PayURL    string `json:"pay_url,omitempty"`    // MoMo/ZaloPay/VNPay
+	QRPayload string `json:"qr_payload,omitempty"` // VietQR
 }
 
 type PaymentGateway interface {

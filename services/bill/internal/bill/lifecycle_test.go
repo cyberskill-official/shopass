@@ -31,7 +31,7 @@ func TestUpdateStatus_RejectsInvalid(t *testing.T) {
 	defer pool.Close()
 	r := NewRepo(pool, nil)
 	uid := int64(1) // assume user 1 exists from repo_test.go setup
-	
+
 	// Ensure cleanup
 	_, _ = pool.Exec(context.Background(), `DELETE FROM subscription`)
 

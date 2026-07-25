@@ -86,7 +86,7 @@ func TestAllow_WishlistLimit_Premium(t *testing.T) {
 	subs.subs[2] = bill.Subscription{PlanID: 1} // premium_basic
 	repo.limits["premium_basic:wishlist_items"] = 100
 	repo.usage[2] = 50
-	
+
 	ok, _ := g.Allow(context.Background(), 2, "wishlist_items")
 	if !ok {
 		t.Fatalf("should be allowed for premium user under limit")

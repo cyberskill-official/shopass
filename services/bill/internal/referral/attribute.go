@@ -27,6 +27,7 @@ type AttributeMetrics interface {
 }
 
 type dummyMetrics struct{}
+
 func (dummyMetrics) Attributed() {}
 
 type Service struct {

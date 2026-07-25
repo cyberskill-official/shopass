@@ -32,7 +32,9 @@ func (m *mockRepo) IncrementUses(ctx context.Context, codeID int64) error {
 	}
 	return nil
 }
-func (m *mockRepo) CreateCodeForUser(ctx context.Context, userID int64) (string, error) { return "", nil }
+func (m *mockRepo) CreateCodeForUser(ctx context.Context, userID int64) (string, error) {
+	return "", nil
+}
 
 type mockEventBus struct {
 	events []interface{}
@@ -58,7 +60,7 @@ func setup() (*Service, *mockRepo, *mockEventBus) {
 func TestAttribute_Valid(t *testing.T) {
 	s, repo, _ := setup()
 	repo.codes["SD123"] = &ReferralCode{ID: 1, UserID: 100, Code: "SD123", Uses: 0}
-	
+
 	err := s.Attribute(context.Background(), 200, "SD123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -74,7 +76,7 @@ func TestAttribute_Valid(t *testing.T) {
 func TestAttribute_SelfReferral_Blocked(t *testing.T) {
 	s, repo, _ := setup()
 	repo.codes["SD123"] = &ReferralCode{ID: 1, UserID: 100, Code: "SD123", Uses: 0}
-	
+
 	err := s.Attribute(context.Background(), 100, "SD123")
 	if err != ErrSelfReferral {
 		t.Fatalf("expected ErrSelfReferral, got %v", err)
@@ -88,7 +90,7 @@ func TestAttribute_AlreadyAttributed_Blocked(t *testing.T) {
 	s, repo, _ := setup()
 	repo.codes["SD123"] = &ReferralCode{ID: 1, UserID: 100, Code: "SD123", Uses: 0}
 	repo.attributed[200] = 99 // already attributed
-	
+
 	err := s.Attribute(context.Background(), 200, "SD123")
 	if err != ErrAlreadyAttributed {
 		t.Fatalf("expected ErrAlreadyAttributed, got %v", err)
