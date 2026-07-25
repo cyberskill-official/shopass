@@ -23,6 +23,8 @@ export function RangeSelector({
         return (
           <button
             key={r}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(r)}
             className={`relative rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all duration-200 sm:px-4 sm:text-sm ${
               isActive
