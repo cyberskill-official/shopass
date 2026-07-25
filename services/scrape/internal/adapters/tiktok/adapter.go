@@ -3,14 +3,27 @@ package tiktok
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
-	"shopass/services/scrape/internal/orchestrator"
 	"github.com/playwright-community/playwright-go"
+	"shopass/services/scrape/internal/orchestrator"
 )
 
 // PLATFORM_TIKTOK maps to platform_id = 2
 const PLATFORM_TIKTOK int16 = 2
+
+// EnvStubPrice enables the demo-only stub price path when set to "1".
+// Production MUST leave this unset so Fetch fails closed instead of writing
+// fabricated prices into price_snapshot.
+const EnvStubPrice = "SCRAPE_TIKTOK_STUB_PRICE"
+
+// ErrDOMPriceNotImplemented is returned when stub prices are disabled (default).
+var ErrDOMPriceNotImplemented = fmt.Errorf(
+	"tiktok: DOM price extraction is not implemented; set %s=1 only for demos/tests",
+	EnvStubPrice,
+)
 
 // Renderer renders a TikTok product page. Production uses Playwright; unit tests
 // inject a fake so the adapter runs without launching a real browser.
@@ -59,16 +72,28 @@ func (a *TikTokAdapter) PlatformID() int16 {
 	return PLATFORM_TIKTOK
 }
 
+// stubPriceEnabled is true only when SCRAPE_TIKTOK_STUB_PRICE=1 (explicit opt-in).
+func stubPriceEnabled() bool {
+	return strings.TrimSpace(os.Getenv(EnvStubPrice)) == "1"
+}
+
 func (a *TikTokAdapter) Fetch(ctx context.Context, job orchestrator.ScrapeJob) (orchestrator.PriceSnapshot, error) {
 	// TikTok Shop is a content-commerce SPA (TASK-SCRAPE-004): render the product
-	// page in a browser, then read the price from the DOM. DOM parsing is a
-	// deferred integration step; the rendered price is stubbed for now.
+	// page in a browser, then read the price from the DOM. DOM parsing is not
+	// implemented in this Go adapter yet.
 	targetURL := fmt.Sprintf("https://www.tiktok.com/t/%d", job.ProductID)
 	if a.renderer != nil {
 		if err := a.renderer.Render(ctx, targetURL); err != nil {
 			return orchestrator.PriceSnapshot{}, err
 		}
 	}
+
+	// Fail closed by default: never write fabricated prices into price_snapshot.
+	// Opt in with SCRAPE_TIKTOK_STUB_PRICE=1 for demos/tests only.
+	if !stubPriceEnabled() {
+		return orchestrator.PriceSnapshot{}, ErrDOMPriceNotImplemented
+	}
+
 	return orchestrator.PriceSnapshot{
 		ProductID: job.ProductID,
 		TS:        time.Now(),
