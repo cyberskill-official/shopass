@@ -1,29 +1,27 @@
 {
   "version": "1.4.0",
   "commit": "local",
-  "verdict": "PASS",
+  "verdict": "FAIL",
   "hooks": [
     {
       "name": "egress",
       "pass": true,
-      "outbound_count": 3,
-      "credential_leaks": 0
+      "detail": "jest egress suite exited 0"
     },
     {
       "name": "sbom",
-      "pass": true,
-      "deps": 41,
-      "high_cve": 0
+      "pass": false,
+      "detail": "SBOM generation and/or vuln scan not implemented or failed"
     },
     {
       "name": "reproducible",
-      "pass": true,
-      "shipped_sha256": "dummy-hash"
+      "pass": false,
+      "detail": "hook not implemented — fail closed"
     },
     {
       "name": "payload_guard",
       "pass": true,
-      "findings": 0
+      "detail": "go test ./internal/audit/... exited 0"
     }
   ]
 }

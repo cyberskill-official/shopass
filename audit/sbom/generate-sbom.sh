@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
+# Fail-closed SBOM generator. Do not emit a fake CycloneDX document.
 set -euo pipefail
 
-echo "Generating SBOM for extension..."
-cd extension
-# Giả sử chúng ta dùng @cyclonedx/cyclonedx-npm hoặc tương tự
-# Nơi đây chỉ là mock để qua CI (cài đặt thực tế cần devDependency tương ứng)
-# npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file ../audit/sbom/bom.json
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+OUT="$ROOT/audit/sbom/bom.json"
 
-# Tạm thời sinh file dummy cho báo cáo
-mkdir -p ../audit/sbom/
-cat <<EOF > ../audit/sbom/bom.json
+echo "SBOM generation is not wired to a real tool (e.g. @cyclonedx/cyclonedx-npm)."
+echo "Refusing to write a dummy SBOM. Install and invoke a real generator, then re-run."
+
+cat >"$OUT" <<'EOF'
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.4",
@@ -18,16 +17,17 @@ cat <<EOF > ../audit/sbom/bom.json
     "component": {
       "type": "application",
       "name": "sandeal-extension",
-      "version": "1.4.0"
-    }
+      "version": "NOT_GENERATED"
+    },
+    "properties": [
+      {
+        "name": "sandeal:sbom_status",
+        "value": "NOT_RUN — generate-sbom.sh fails closed until a real CycloneDX tool is wired"
+      }
+    ]
   },
-  "components": [
-    {
-      "type": "library",
-      "name": "react",
-      "version": "18.2.0"
-    }
-  ]
+  "components": []
 }
 EOF
-echo "SBOM generated at audit/sbom/bom.json"
+
+exit 1
