@@ -6,13 +6,61 @@
 # schema applied (db + track alert_rule + ml price_forecast + deal migrations).
 # In CI use the timescale/timescaledb:pg16 service; locally point DATABASE_URL at it.
 #
-# Usage: DATABASE_URL=postgres://postgres:postgres@localhost:5432/shopass_smoke ./scripts/smoke_loop.sh
+# DESTRUCTIVE: this script TRUNCATEs price/alert tables. Fail-closed guards:
+#   1) SMOKE_ALLOW_DESTRUCTIVE=1 must be set explicitly
+#   2) database name must look like a smoke/test DB (*smoke*, *test*, or *_ci)
+#
+# Usage:
+#   SMOKE_ALLOW_DESTRUCTIVE=1 \
+#   DATABASE_URL=postgres://postgres:postgres@localhost:5432/shopass_smoke \
+#   ./scripts/smoke_loop.sh
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DSN="${DATABASE_URL:?set DATABASE_URL to a Postgres with the composed schema}"
 BIN="$(mktemp -d)"
 PSQL=(psql "$DSN" -tA)
+
+# --- environment assertion (fail closed before any TRUNCATE) ---
+assert_smoke_safe_db() {
+  if [ "${SMOKE_ALLOW_DESTRUCTIVE:-}" != "1" ]; then
+    cat >&2 <<'EOF'
+REFUSING: scripts/smoke_loop.sh truncates price/alert tables.
+Set SMOKE_ALLOW_DESTRUCTIVE=1 to acknowledge, and point DATABASE_URL at a
+smoke/test database (name must contain smoke, test, or end with _ci).
+EOF
+    exit 1
+  fi
+
+  # Extract DB name from common URL forms (postgres://user:pass@host:port/dbname?...
+  # or key=value libpq URIs with dbname=...).
+  local dbname=""
+  if [[ "$DSN" =~ dbname=([^[:space:]&]+) ]]; then
+    dbname="${BASH_REMATCH[1]}"
+  elif [[ "$DSN" =~ /([^/?]+)(\?|$) ]]; then
+    dbname="${BASH_REMATCH[1]}"
+  fi
+  dbname="$(printf '%s' "$dbname" | tr '[:upper:]' '[:lower:]')"
+
+  if [[ -z "$dbname" ]]; then
+    echo "REFUSING: could not parse database name from DATABASE_URL; refusing destructive smoke." >&2
+    exit 1
+  fi
+
+  case "$dbname" in
+    *smoke*|*test*|*_ci|ci)
+      ;;
+    *)
+      cat >&2 <<EOF
+REFUSING: database name '$dbname' does not look like a smoke/test DB.
+Allowed name patterns: *smoke*, *test*, *_ci (e.g. shopass_smoke).
+EOF
+      exit 1
+      ;;
+  esac
+  echo "== smoke guard ok (SMOKE_ALLOW_DESTRUCTIVE=1, db=$dbname) =="
+}
+assert_smoke_safe_db
 
 pids=()
 cleanup() { for p in "${pids[@]:-}"; do kill "$p" 2>/dev/null || true; done; }
