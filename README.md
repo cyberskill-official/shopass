@@ -1,4 +1,4 @@
-# SănDeal (shopass)
+# Shopass
 
 Nền tảng SaaS-tiện ích săn deal / theo dõi giá / tối ưu mua sắm đa sàn (Shopee + TikTok Shop + Lazada) cho Việt Nam và Đông Nam Á.
 
@@ -35,11 +35,12 @@ shopass/
   README.md                          # file này (landing)
   AGENTS.md                          # giao thức memory CyberOS (BRAIN) - KHÔNG phải conventions build
   docs/
-    TÀI LIỆU NỀN TẢNG ... SănDeal.md  # tài liệu nguồn
+    TÀI LIỆU NỀN TẢNG ... (PRD/SRS).md  # tài liệu nguồn (tên file lịch sử có thể còn SănDeal)
     tasks/                # 90 task (16 module) + BACKLOG + SHIP-GUIDE + IMPLEMENTATION-ORDER
                                      #   + DATA-MODEL + STATUS-REFERENCE + README chi tiết
     non-functional-requirements/     # 10 NFR + audit
-  services/ extension/ web/ mobile/  # (sẽ được agent tạo khi build theo new_files của từng task)
+  services/ extension/ web/          # code hiện có
+  # mobile/                          # chưa có trong repo (P3; xem docs/TASK-COVERAGE.md)
 ```
 
-`AGENTS.md` ở gốc dành cho giao thức memory CyberOS; conventions build SănDeal nằm ở `docs/tasks/SHIP-GUIDE.md`.
+`AGENTS.md` ở gốc dành cho giao thức memory CyberOS; conventions build Shopass nằm ở `docs/tasks/SHIP-GUIDE.md`. Tài liệu nền tảng lịch sử vẫn có thể dùng tên SănDeal; thương hiệu sản phẩm user-facing là Shopass.

@@ -1,6 +1,6 @@
-# SănDeal - Tasks (đọc đầu tiên)
+# Shopass - Tasks (đọc đầu tiên)
 
-Thư mục này là backlog Task (task) của SănDeal: 90 task + 10 NFR đặc tả toàn bộ sản phẩm, viết theo workflow `task` của CyberOS (engineering-spec@1). Trạng thái: v0.2.0 SHIP-READY - mọi task đã qua audit độc lập 10/10, DAG phụ thuộc sạch, data model nhất quán. Đây là spec để xây, chưa có code; mục tiêu là một người hoặc một agent đọc xong là build được.
+Thư mục này là backlog Task (task) của Shopass: 90 task + 10 NFR đặc tả toàn bộ sản phẩm, viết theo workflow `task` của CyberOS (engineering-spec@1). Trạng thái: v0.2.0 SHIP-READY - mọi task đã qua audit độc lập 10/10, DAG phụ thuộc sạch, data model nhất quán. Đây là spec để xây, chưa có code; mục tiêu là một người hoặc một agent đọc xong là build được.
 
 README này dành cho cả người mới và agent triển khai. Đọc hết phần "Bắt đầu từ đâu" rồi nhảy tới phần phù hợp.
 
@@ -8,10 +8,10 @@ README này dành cho cả người mới và agent triển khai. Đọc hết p
 
 Nếu bạn là người mới (muốn hiểu sản phẩm và backlog):
 
-1. Đọc phần "SănDeal là gì" ngay dưới.
-2. Đọc tài liệu nền tảng đầy đủ: [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" ...md`](../) (PRD + SRS + chiến lược kỹ thuật/kinh doanh/rủi ro).
+1. Đọc phần "Shopass là gì" ngay dưới.
+2. Đọc tài liệu nền tảng đầy đủ: [`../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" — PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md`](../TÀI LIỆU NỀN TẢNG SẢN PHẨM "SănDeal" — PRD + SRS + CHIẾN LƯỢC KỸ THUẬT : KINH DOANH : RỦI RO.md) (PRD + SRS + chiến lược kỹ thuật/kinh doanh/rủi ro).
 3. Đọc [`BACKLOG.md`](BACKLOG.md) để thấy bức tranh tổng: 4 phase, 16 module, 90 task.
-4. Mở một task mẫu để xem một spec trông thế nào: [`price/TASK-PRICE-002-price-snapshot-hypertable.md`](price/TASK-PRICE-002-price-snapshot-hypertable.md).
+4. Mở một task mẫu để xem một spec trông thế nào: [`price/TASK-PRICE-002-price-snapshot-hypertable/spec.md`](price/TASK-PRICE-002-price-snapshot-hypertable/spec.md).
 
 Nếu bạn là agent triển khai (sắp build code):
 
@@ -20,7 +20,7 @@ Nếu bạn là agent triển khai (sắp build code):
 3. Mở [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md), lấy task ở layer thấp nhất mà mọi `depends_on` đã `done`.
 4. Đọc file task đó, build theo `new_files` + `sub_tasks`, chạy test §5, đối chiếu acceptance criteria §4, lật status tới `done`.
 
-## SănDeal là gì
+## Shopass là gì
 
 Nền tảng SaaS-tiện ích săn deal / theo dõi giá / tối ưu mua sắm đa sàn (Shopee + TikTok Shop + Lazada) cho Việt Nam và Đông Nam Á. Ba trụ cột: (A) browser extension Manifest V3 "session piggyback" đọc giỏ hàng/voucher của chính người dùng + backend scraping giá quy mô lớn + thuật toán sale ảo / dự đoán đáy giá / tối ưu voucher; (B) free-tier tài trợ bằng affiliate + Premium 29k-79k VND/tháng; (C) minh bạch đạo đức hậu-Honey, tuân thủ PDPL (Luật 91/2025/QH15). Moat: dữ liệu lịch sử giá tích lũy + so sánh chéo 3 sàn + niềm tin.
 
@@ -84,7 +84,7 @@ Phân bố phase: P0 = 5 task (~33h), P1 = 46 task (~303h), P2 = 25 task (~177h)
 
 ## Đọc một task thế nào
 
-Mỗi task là một file engineering-spec@1: frontmatter YAML + 11 mục thân. File mẫu chuẩn (gold standard): [`price/TASK-PRICE-002-price-snapshot-hypertable.md`](price/TASK-PRICE-002-price-snapshot-hypertable.md).
+Mỗi task là một file engineering-spec@1: frontmatter YAML + 11 mục thân. File mẫu chuẩn (gold standard): [`price/TASK-PRICE-002-price-snapshot-hypertable/spec.md`](price/TASK-PRICE-002-price-snapshot-hypertable/spec.md).
 
 Frontmatter chính: `id`, `title`, `module`, `priority` (MUST/SHOULD/COULD/MAY), `status`, `phase`, `slice`, `depends_on` (task phải xong trước), `blocks` (task phụ thuộc vào cái này), `source_pages` (trỏ về tài liệu nguồn), `source_decisions` (DEC-<MODULE>-NN: quyết định thiết kế đã chốt), `language`, `service` (vị trí code), `new_files` (file cần tạo), `modified_files`, `allowed_tools`/`disallowed_tools`, `effort_hours`, `sub_tasks` (chia nhỏ + giờ), `risk_if_skipped`.
 
@@ -149,7 +149,7 @@ Backlog dẫn xuất từ tài liệu nền tảng SănDeal v1.0 (16/06/2026), �
 
 ## Câu hỏi thường gặp (người mới)
 
-- Code ở đâu? Chưa có. Đây là 90 spec để build; `services/`, `extension/`, `web/`, `mobile/` sẽ được agent tạo theo `new_files` của từng task.
+- Code ở đâu? Phần lõi đã có trong `services/`, `extension/`, `web/`. `mobile/` chưa có trong repo (P3; xem `docs/TASK-COVERAGE.md`). Spec nằm ở thư mục này; agent build theo `new_files` của từng task.
 - Build cái gì trước? Layer 0 trong IMPLEMENTATION-ORDER: TASK-EXT-001 + TASK-INFRA-001/002/003.
 - Một task có "đủ" để build không? Có. Mỗi task tự chứa (frontmatter + §1-§11) và đã qua audit độc lập 10/10, không cần hỏi lại tác giả.
-- AGENTS.md và SHIP-GUIDE.md khác gì? AGENTS.md (gốc) là giao thức memory CyberOS; SHIP-GUIDE.md là conventions build SănDeal. Hai thứ tách biệt, bổ trợ nhau.
+- AGENTS.md và SHIP-GUIDE.md khác gì? AGENTS.md (gốc) là giao thức memory CyberOS; SHIP-GUIDE.md là conventions build Shopass. Hai thứ tách biệt, bổ trợ nhau.

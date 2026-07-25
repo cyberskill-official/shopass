@@ -3,7 +3,7 @@ id: TASK-TRUST-006
 title: "Device fingerprint + phát hiện multi-account - hash thiết bị bảo toàn riêng tư (không PII), ghi cạnh device vào đồ thị quan hệ, gắn cờ cụm nhiều tài khoản chung thiết bị"
 module: TRUST
 priority: SHOULD
-status: done
+status: ready_to_implement
 verify: T
 phase: P3
 milestone: P3 - slice 1

@@ -3,7 +3,7 @@ id: TASK-B2B-001
 title: "Pipeline dữ liệu xu hướng thị trường ẩn danh - aggregate giá theo category x thời gian từ price_daily, cổng k-anonymity (k>=50), KHÔNG lộ user hay SKU đơn lẻ, sinh bảng market_trend_daily nguồn cho mọi sản phẩm B2B"
 module: B2B
 priority: SHOULD
-status: done
+status: ready_to_implement
 verify: T
 phase: P3
 milestone: P3 - slice 1

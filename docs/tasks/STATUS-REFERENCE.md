@@ -17,7 +17,7 @@ Một task mang đúng một status tại mỗi thời điểm. Tất cả lower
 | 5 | `reviewing` | Reviewer đang đọc diff đối chiếu mệnh đề §1 + ma trận AC §4. | workflow ship |
 | 6 | `ready_to_test` | Reviewer duyệt; chờ tester. | workflow ship |
 | 7 | `testing` | Tester chạy coverage gate (mỗi mệnh đề §1 có test pass trong báo cáo). | workflow ship |
-| 8 | `done` | Tester chứng nhận - mọi mệnh đề truy được tới test pass; task đã ship. Terminal thành công. | workflow ship |
+| 8 | `done` | Tester chứng nhận - mọi mệnh đề truy được tới test pass; **và** human ghi final acceptance (HITL §1.4). Terminal thành công. Agent KHÔNG tự set. | human acceptance |
 
 ### 1.2 Off-ramp (do người vận hành quyết, không sức ép thời gian)
 
@@ -33,26 +33,31 @@ Một task mang đúng một status tại mỗi thời điểm. Tất cả lower
 - Blocker không chí mạng phát hiện khi `reviewing`/`testing` (spec mơ hồ, thiếu phụ thuộc) -> status rớt về `ready_to_implement`.
 - Lý do ghi vào một dòng comment trên BACKLOG hoặc một issue ngoài.
 
-### 1.4 HITL - con người trong vòng lặp là TÙY CHỌN
+### 1.4 HITL - con người trong vòng lặp là BẮT BUỘC
 
-Workflow ship tự lật ô status theo đường §1.1 khi mỗi cổng pass. Người vận hành có thể override bất kỳ ô nào sang ô khác bất kỳ lúc nào - không có ràng buộc chuyển trạng thái cứng. Đường workflow mặc định là gợi ý lịch sự; ô trên BACKLOG là nguồn sự thật.
+Human acceptance is mandatory, not optional. Aligns with `.cyberos/AGENT-ENTRY.md` and `.cyberos/cuo/STATUS-REFERENCE.md`. The ship workflow may drive machine-verifiable transitions, but **two transitions are human-acceptance gates that the agent MUST NOT cross by itself**:
+
+- **Review acceptance** (`reviewing` → `ready_to_test`): a human reviewer records approval after reading the diff against §1 clauses and the AC matrix.
+- **Final acceptance** (`testing` → `done`): a human records acceptance after machine gates are green. **The agent NEVER self-sets `done`.**
+
+The agent brings the task up to each gate with evidence and halts. Green machine gates are necessary, never sufficient. An operator retains override power (park, resurrect, re-audit, or explicitly skip a gate for a trivial task) — that override must be a recorded human action, not an agent default.
 
 Các thao tác HITL thường gặp:
 - Re-audit một task đã done: lật `done` -> `ready_to_review` để buộc chạy lại cổng review + test.
-- Skip review cho task tầm thường: lật `ready_to_review` -> `ready_to_test`.
+- Skip review cho task tầm thường: operator (không phải agent) lật `ready_to_review` -> `ready_to_test`.
 - Park một task đang dở: lật `implementing` -> `on_hold`.
 - Hồi sinh một task đã closed: lật `closed` -> `ready_to_implement`.
 
 ## 2. Trạng thái khởi tạo
 
-Mọi task trong backlog SănDeal hiện ở `ready_to_implement` (đã qua audit 10/10, sẵn sàng vào hàng đợi build). Khi một agent bắt đầu build một task, lật sang `implementing` rồi theo đường §1.1 tới `done`.
+Task chưa có implementation (xem [`docs/TASK-COVERAGE.md`](../TASK-COVERAGE.md)) ở `ready_to_implement` khi spec đã qua audit. Khi một agent bắt đầu build một task, lật sang `implementing` rồi theo đường §1.1 **tới cổng HITL** — không tự ghi `done`.
 
 ## 3. Cách một agent ship chọn task tiếp theo
 
-1. Mở [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md): lấy task ở layer thấp nhất mà mọi `depends_on` đã `done`.
+1. Mở [`IMPLEMENTATION-ORDER.md`](IMPLEMENTATION-ORDER.md): lấy task ở layer thấp nhất mà mọi `depends_on` đã `done` (human-accepted). Đối chiếu [`TASK-COVERAGE.md`](../TASK-COVERAGE.md) để biết code nào thực sự có trên disk.
 2. Trong cùng layer, ưu tiên `MUST` trước `SHOULD` trước `COULD`.
 3. Lật status task sang `implementing`, build theo `new_files`/`sub_tasks`, chạy test §5, đối chiếu AC §4.
-4. Đi tiếp theo vòng đời §1.1 tới `done`; cập nhật ô status tương ứng trên BACKLOG.
+4. Đi tiếp theo vòng đời §1.1 tới `ready_to_review` / `testing`, rồi **dừng** cho human verdict; cập nhật ô status trên BACKLOG chỉ trong phạm vi agent được phép (không gồm `done`).
 
 ---
 
