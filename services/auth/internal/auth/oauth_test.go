@@ -15,7 +15,7 @@ type fakeSocialRepo struct {
 	nextID  int64
 	created []struct{ email, locale string }
 	links   []struct {
-		uid              int64
+		uid               int64
 		provider, subject string
 	}
 }
@@ -37,7 +37,7 @@ func (f *fakeSocialRepo) FindByEmail(_ context.Context, email string) (AppUser, 
 func (f *fakeSocialRepo) LinkSocial(_ context.Context, uid int64, provider, subject string) error {
 	f.socials[provider+":"+subject] = uid
 	f.links = append(f.links, struct {
-		uid              int64
+		uid               int64
 		provider, subject string
 	}{uid, provider, subject})
 	return nil

@@ -25,8 +25,8 @@ func TestParse_ValidPDP(t *testing.T) {
 	require.NoError(t, json.Unmarshal(raw, &resp))
 	snap, err := resp.toSnapshot(90112, t0)
 	require.NoError(t, err)
-	require.Equal(t, int64(89_000), snap.Price)        // 8900000000 / 100000
-	require.Equal(t, int64(149_000), *snap.ListPrice)   // 14900000000 / 100000
+	require.Equal(t, int64(89_000), snap.Price)       // 8900000000 / 100000
+	require.Equal(t, int64(149_000), *snap.ListPrice) // 14900000000 / 100000
 	require.True(t, snap.FlashSale)
 	require.Equal(t, int32(37), *snap.Stock)
 	require.Equal(t, int32(1240), *snap.Sold)

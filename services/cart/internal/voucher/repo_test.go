@@ -62,7 +62,7 @@ func insert(t *testing.T, r *Repo, v Voucher) {
 	require.NoError(t, err)
 }
 
-func ptr(v int64) *int64    { return &v }
+func ptr(v int64) *int64      { return &v }
 func ptrStr(v string) *string { return &v }
 
 func shopVoucher(pid int16, code string, shop string, now time.Time) Voucher {
@@ -88,7 +88,7 @@ func TestListActive_FiltersByWindow(t *testing.T) {
 		DiscountValue: 50_000, ValidFrom: now.AddDate(0, 0, -10), ValidTo: now.AddDate(0, 0, -1)})
 	insert(t, r, Voucher{PlatformID: 1, Code: "ACTIVE", Type: TypePlatform, DiscountType: DiscountAmount,
 		DiscountValue: 50_000, ValidFrom: now.AddDate(0, 0, -1), ValidTo: now.AddDate(0, 0, 5)})
-	
+
 	out, err := r.ListActive(ctx, 1, nil, now)
 	require.NoError(t, err)
 	codes := codesOf(out)
@@ -102,7 +102,7 @@ func TestListActive_ShopVoucherScopedToCartShops(t *testing.T) {
 	now := time.Now()
 	insert(t, r, shopVoucher(1, "SHOPA", "shopA", now))
 	insert(t, r, shopVoucher(1, "SHOPB", "shopB", now))
-	
+
 	out, err := r.ListActive(ctx, 1, []string{"shopA"}, now)
 	require.NoError(t, err)
 	codes := codesOf(out)
@@ -117,7 +117,7 @@ func TestBigintRoundTrip(t *testing.T) {
 	insert(t, r, Voucher{PlatformID: 1, Code: "CAP", Type: TypePlatform, DiscountType: DiscountAmount,
 		DiscountValue: 70_000, Cap: ptr(int64(70_000)), MinSpend: ptr(int64(500_000)),
 		ValidFrom: t0, ValidTo: t0.AddDate(0, 1, 0)})
-	
+
 	out, err := r.ListActive(ctx, 1, nil, t0.AddDate(0, 0, 1))
 	require.NoError(t, err)
 	require.Len(t, out, 1)

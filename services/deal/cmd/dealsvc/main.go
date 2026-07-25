@@ -24,7 +24,8 @@ const nightlyScoreLockKey = 1001
 const refreshPriorsLockKey = 1002
 
 type httpNotif struct {
-	url string
+	url    string
+	client *http.Client
 }
 
 func (h *httpNotif) Enqueue(ctx context.Context, item batch.NotifItem) error {
@@ -37,13 +38,13 @@ func (h *httpNotif) Enqueue(ctx context.Context, item batch.NotifItem) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	
-	resp, err := http.DefaultClient.Do(req)
+
+	resp, err := h.client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("notifsvc returned status %d", resp.StatusCode)
 	}
@@ -74,7 +75,10 @@ func main() {
 	}
 
 	// Initialize batches
-	b := batch.New(pool, log, &httpNotif{url: notifURL})
+	b := batch.New(pool, log, &httpNotif{
+		url:    notifURL,
+		client: &http.Client{Timeout: 10 * time.Second},
+	})
 
 	// RUN_ONCE=1 triggers a single nightly-score pass and exits (manual/smoke trigger).
 	if os.Getenv("RUN_ONCE") == "1" {
@@ -105,7 +109,14 @@ func main() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
-	httpSrv := &http.Server{Addr: dealAddr, Handler: mux}
+	httpSrv := &http.Server{
+		Addr:              dealAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	go func() {
 		log.Info("dealsvc chart http listening", "addr", dealAddr)
 		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

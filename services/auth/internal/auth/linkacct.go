@@ -29,7 +29,7 @@ func (s *Service) LinkAccount(ctx context.Context, userID int64, platformID int1
 	if looksLikeRawCredential(extUserRef) {
 		return ErrExtRefNotAnonymized
 	}
-	
+
 	// Delegate to repo to upsert
 	return s.repo.UpsertPlatformAccount(ctx, PlatformAccount{
 		UserID:     userID,

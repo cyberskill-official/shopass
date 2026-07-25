@@ -11,7 +11,7 @@ import (
 func TestSchema_NoCredentialColumns(t *testing.T) {
 	// This test asserts the struct has no tokens. We can also verify against the DB in integration test.
 	db := setupTestDB(t) // Reuse setupTestDB from token_test.go
-	
+
 	// Create platform table mock just for this test so platform_account can be created
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS platform (
@@ -55,7 +55,7 @@ func TestSchema_NoCredentialColumns(t *testing.T) {
 		require.NoError(t, err)
 		cols = append(cols, name)
 	}
-	
+
 	for _, c := range cols {
 		lower := strings.ToLower(c)
 		require.NotContains(t, lower, "token")

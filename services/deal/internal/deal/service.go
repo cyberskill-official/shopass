@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"shopass/services/deal/internal/fakesale"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
+	"shopass/services/deal/internal/fakesale"
 )
 
 type PriceRepo interface {
@@ -46,12 +46,12 @@ func (s *Service) DetectFakeSale(ctx context.Context, productID int64, currentPr
 		// Log error or fallback, but here we just return error if we can't fetch history
 		return fakesale.Unknown, err
 	}
-	
+
 	rawVerdict := fakesale.DetectFakeSale(hist, currentPrice, lp)
-	
+
 	// Record OTel counter
 	s.verdict.Add(ctx, 1, metric.WithAttributes()) // Normally add attributes for verdict string
-	// But let's keep it simple or use string representation if possible. Wait, we can't easily convert fakesale.Verdict to string here if it doesn't have a String() method. 
+	// But let's keep it simple or use string representation if possible. Wait, we can't easily convert fakesale.Verdict to string here if it doesn't have a String() method.
 	// We'll just record it.
 
 	return rawVerdict, nil

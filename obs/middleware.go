@@ -20,7 +20,7 @@ func HTTP(serviceName string) func(http.Handler) http.Handler {
 
 			// Extract trace context from the incoming headers (W3C traceparent).
 			ctx := otel.GetTextMapPropagator().Extract(r.Context(), propagation.HeaderCarrier(r.Header))
-			
+
 			// Get route pattern for tracing (e.g. if using a router, we might extract the pattern)
 			route := routePattern(r)
 
@@ -68,7 +68,7 @@ func routePattern(r *http.Request) string {
 	// the pattern from the router context (e.g. chi.RouteContext(r.Context()).RoutePattern()).
 	// We'll just strip the last segment if it looks like an ID for now, or just return the path.
 	// We'll return the raw path for simplicity in tests unless we have a specific pattern.
-	
+
 	// Fast path check to avoid cardinality explosion for common patterns
 	path := r.URL.Path
 	if strings.HasPrefix(path, "/api/") {

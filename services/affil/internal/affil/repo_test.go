@@ -15,7 +15,7 @@ func setupWithUserProduct(t *testing.T) (*Repo, int64, int64) {
 	// For this test, we assume a local DB or we can mock.
 	// Assuming an existing test DB is available at POSTGRES_URL or we skip if not set.
 	// To comply with the test schema, we will try connecting to localhost postgres.
-	
+
 	ctx := context.Background()
 	// Use a fallback URL if needed for local testing
 	dsn := "postgres://postgres:postgres@localhost:5432/shopass_test?sslmode=disable"
@@ -23,7 +23,7 @@ func setupWithUserProduct(t *testing.T) (*Repo, int64, int64) {
 	if err != nil {
 		t.Skip("Postgres not available, skipping repo tests")
 	}
-	
+
 	// Try to ping
 	if err := pool.Ping(ctx); err != nil {
 		t.Skip("Postgres ping failed, skipping repo tests")

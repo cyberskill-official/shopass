@@ -13,9 +13,9 @@ var (
 type Purpose string
 
 const (
-	PurposeCartRead    Purpose = "cart_read"
-	PurposeTracking    Purpose = "price_tracking"
-	PurposeMarketing   Purpose = "marketing_notification"
+	PurposeCartRead     Purpose = "cart_read"
+	PurposeTracking     Purpose = "price_tracking"
+	PurposeMarketing    Purpose = "marketing_notification"
 	PurposeAnalyticsB2B Purpose = "analytics_b2b"
 )
 

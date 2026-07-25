@@ -15,6 +15,7 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"shopass/obs"
 	"shopass/services/auth/internal/auth"
 )
 
@@ -53,7 +54,7 @@ func main() {
 	tokens.AddSigningKey(env("AUTH_KEY_ID", "auth-key-1"), priv)
 
 	regsvc := auth.NewService(repo, auth.Argon2Params{
-		Time: 1, Memory: 64 * 1024, Parallelism: 2, SaltLen: 16, KeyLen: 32,
+		Time: 3, Memory: 64 * 1024, Parallelism: 2, SaltLen: 16, KeyLen: 32,
 	})
 
 	// OAuth callback currently returns a token pair directly. Keep it disabled
@@ -82,8 +83,16 @@ func main() {
 	mux := http.NewServeMux()
 	h.routes(mux)
 
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           obs.HTTP("authsvc")(mux),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Info("authsvc listening", "addr", addr, "social", len(providers) > 0)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Error("serve", "err", err)
 		os.Exit(1)
 	}

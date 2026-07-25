@@ -150,12 +150,12 @@ func TestDropPct_Median7Reference(t *testing.T) {
 func TestRealSale_OnlyOnSaleXin(t *testing.T) {
 	e, _ := setupEngine(t)
 	seedRule(t, e, "real_sale", nil)
-	
+
 	e.deal.(*mockDealService).verdict = SaleXin
 	if !e.evalOnce(t, Snapshot{ProductID: pid, Price: 79_000}) {
 		t.Errorf("Expected true for SaleXin")
 	}
-	
+
 	e.deal.(*mockDealService).verdict = SaleAo
 	if e.evalOnce(t, Snapshot{ProductID: pid, Price: 79_000}) {
 		t.Errorf("Expected false for SaleAo")

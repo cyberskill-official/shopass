@@ -40,7 +40,7 @@ func TestLimiter_HasJitter(t *testing.T) {
 			distinct++
 		}
 	}
-	
+
 	if distinct == 0 {
 		t.Errorf("Expected distinct gaps due to jitter, but all were roughly equal")
 	}

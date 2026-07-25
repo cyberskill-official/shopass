@@ -42,24 +42,24 @@ func (s *TokenService) AddSigningKey(kid string, priv *rsa.PrivateKey) {
 
 func (s *TokenService) IssueAccess(u AppUser) (string, error) {
 	now := time.Now()
-	
+
 	tier := u.Tier
 	if tier == "" {
 		tier = "free"
 	}
-	
+
 	c := Claims{
-		UserID: u.ID, 
-		Locale: u.Locale, 
+		UserID: u.ID,
+		Locale: u.Locale,
 		Tier:   tier,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    s.iss, 
+			Issuer:    s.iss,
 			Audience:  jwt.ClaimStrings{s.aud},
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(s.accessTTL)),
 		},
 	}
-	
+
 	tok := jwt.NewWithClaims(jwt.SigningMethodRS256, c)
 	tok.Header["kid"] = s.currentKID
 	return tok.SignedString(s.signingKey)

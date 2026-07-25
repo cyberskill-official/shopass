@@ -139,5 +139,3 @@ func ScheduleAlerts(now time.Time, alerts []Alert, rng RNG) map[int64]time.Time 
 	}
 	return out
 }
-
-

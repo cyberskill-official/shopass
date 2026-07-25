@@ -115,7 +115,7 @@ func doWishlistReq(t *testing.T, h *WishlistHandler, method, path, bodyStr strin
 	return rec
 }
 
-func ptr(v int64) *int64 { return &v }
+func ptr(v int64) *int64  { return &v }
 func itoa(i int64) string { return strconv.FormatInt(i, 10) }
 
 func TestList_ScopedToUser(t *testing.T) {

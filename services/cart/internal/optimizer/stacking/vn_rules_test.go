@@ -7,7 +7,7 @@ import (
 	"shopass/services/cart/internal/optimizer"
 )
 
-func ptr(v int64) *int64 { return &v }
+func ptr(v int64) *int64    { return &v }
 func sptr(s string) *string { return &s }
 
 func shopV(shopID string, dt optimizer.DiscountType, dv int64, minSpend *int64, stackGrp string) optimizer.Voucher {

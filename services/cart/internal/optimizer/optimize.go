@@ -23,16 +23,16 @@ func OptimizeCart(items []CartItem, vouchers Vouchers, rules StackRules) Optimiz
 			if !meetsMinSpend(shopCombo, pv, fs, items) { // ngưỡng đơn
 				continue
 			}
-			
+
 			shopDiscount := sumShopDiscounts(shopCombo, items)
 			platDiscount := discountOf(pv, cartTotal)
 			freeDiscount := freeshipValue(fs, cartTotal)
-			
+
 			total := shopDiscount + platDiscount + freeDiscount
 			if total > best.Discount || (total == best.Discount && len(best.Combo) == 0 && total > 0) {
 				best = OptimizeResult{
-					Discount:  total,
-					Combo:     combine(shopCombo, pv, fs),
+					Discount: total,
+					Combo:    combine(shopCombo, pv, fs),
 					Breakdown: Breakdown{
 						Shop:     shopDiscount,
 						Platform: platDiscount,
@@ -151,7 +151,7 @@ func sortedValues(m map[string]Voucher) []Voucher {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	
+
 	var vals []Voucher
 	for _, k := range keys {
 		vals = append(vals, m[k])

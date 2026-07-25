@@ -70,7 +70,7 @@ func (r *pgRepo) createDPIAVersion(ctx context.Context, activityID int64, in DPI
 	var lastVersion int
 	var oldStatus string
 	var oldFiledAt *time.Time
-	
+
 	err = tx.QueryRow(ctx, `
 		SELECT version, status, filed_at 
 		FROM dpia 
@@ -146,8 +146,8 @@ func (r *pgRepo) overdue(ctx context.Context) ([]ActivityStatus, error) {
 		}
 
 		status := Status(
-			ProcessingActivity{StartedAt: startedAt}, 
-			DPIA{FiledAt: filedAt, LastReviewedAt: lastReviewedAt}, 
+			ProcessingActivity{StartedAt: startedAt},
+			DPIA{FiledAt: filedAt, LastReviewedAt: lastReviewedAt},
 			now,
 		)
 		if status == "overdue" || status == "review_overdue" {
@@ -192,8 +192,8 @@ func (r *pgRepo) report(ctx context.Context) ([]ActivityStatus, error) {
 		}
 
 		status := Status(
-			ProcessingActivity{StartedAt: startedAt}, 
-			DPIA{FiledAt: filedAt, LastReviewedAt: lastReviewedAt}, 
+			ProcessingActivity{StartedAt: startedAt},
+			DPIA{FiledAt: filedAt, LastReviewedAt: lastReviewedAt},
 			now,
 		)
 		res = append(res, ActivityStatus{

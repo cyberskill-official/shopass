@@ -7,8 +7,8 @@ import (
 type CaptchaKind int
 
 const (
-	CaptchaNone CaptchaKind = iota
-	CaptchaSlider           // Shopee slider/puzzle
+	CaptchaNone   CaptchaKind = iota
+	CaptchaSlider             // Shopee slider/puzzle
 	CaptchaPuzzle
 	CaptchaVerifyPage
 )

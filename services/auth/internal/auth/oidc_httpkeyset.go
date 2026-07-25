@@ -25,9 +25,12 @@ type HTTPKeySet struct {
 	ttl     time.Duration
 }
 
+// jwksHTTP fetches provider JWKS; callers may replace do in tests.
+var jwksHTTP = &http.Client{Timeout: 10 * time.Second}
+
 // NewHTTPKeySet targets a JWKS URL (e.g. https://www.googleapis.com/oauth2/v3/certs).
 func NewHTTPKeySet(url string) *HTTPKeySet {
-	return &HTTPKeySet{url: url, do: http.DefaultClient.Do, ttl: time.Hour, cached: StaticKeySet{Keys: map[string]*rsa.PublicKey{}}}
+	return &HTTPKeySet{url: url, do: jwksHTTP.Do, ttl: time.Hour, cached: StaticKeySet{Keys: map[string]*rsa.PublicKey{}}}
 }
 
 func (h *HTTPKeySet) KeyByKID(ctx context.Context, kid string) (*rsa.PublicKey, error) {

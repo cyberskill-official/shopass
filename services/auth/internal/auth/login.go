@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// In a real application, Login might live in a higher-level Service struct, 
+// In a real application, Login might live in a higher-level Service struct,
 // but based on TASK-AUTH-002, we can implement it here.
 func (s *TokenService) Login(ctx context.Context, email, password string) (TokenPair, error) {
 	u, err := s.repo.FindByEmail(ctx, email)

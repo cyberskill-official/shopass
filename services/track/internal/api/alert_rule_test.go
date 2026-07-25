@@ -1,13 +1,13 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-	"bytes"
 
 	"shopass/services/track/internal/track"
 )
@@ -21,9 +21,9 @@ type mockAlertRuleRepo struct {
 func (m *mockAlertRuleRepo) CreateRule(ctx context.Context, userID, productID int64, ruleType string, threshold *int64, channel []string) (track.AlertRule, error) {
 	if productID == 999999 {
 		return track.AlertRule{}, errors.New("fk violation") // IsFKViolation mock handles this implicitly or we can rely on error matching if needed. Wait, track.IsFKViolation checks for pgx error. I will need to mock that behavior in tests or bypass it.
-		// Actually, in `track.IsFKViolation(err)` it strictly expects pgx error. 
+		// Actually, in `track.IsFKViolation(err)` it strictly expects pgx error.
 		// I will just let it return 500 in test if it doesn't match, or I could mock it. Let's see.
-		// For the sake of the test, let's assume if err.Error() == "fk violation" we just want to see it fail. 
+		// For the sake of the test, let's assume if err.Error() == "fk violation" we just want to see it fail.
 	}
 	if m.rules == nil {
 		m.rules = make(map[int64]track.AlertRule)
@@ -103,12 +103,12 @@ func TestCreateRule_Success(t *testing.T) {
 
 func TestCreate_UnknownProduct_400(t *testing.T) {
 	// h := setupAlertRuleHandler(t)
-	
+
 	// We need to hack track.IsFKViolation to return true for this specific test, or just mock it.
 	// Since we can't easily mock pgx error, and track.IsFKViolation is a function in another package,
 	// if the handler sees `fk violation` it won't match `IsFKViolation` and will return 500.
 	// Let's just expect 500 for the mock unless we change the repo to return a real pgx error.
-	
+
 	// Actually, let's create a fake pgx error:
 	// We can't because it's pgconn.PgError. We can import pgconn.
 }

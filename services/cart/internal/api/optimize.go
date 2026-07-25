@@ -41,7 +41,7 @@ func (h *OptimizeHandler) OptimizeCart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rules := stacking.RulesForCountry(req.Country, policy)
-	
+
 	result := optimizer.OptimizeCart(req.Items, req.Vouchers, rules)
 
 	w.Header().Set("Content-Type", "application/json")

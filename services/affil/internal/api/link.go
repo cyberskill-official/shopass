@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"shopass/services/affil/internal/auth"
 	"shopass/services/affil/internal/affil"
+	"shopass/services/affil/internal/auth"
 )
 
 type LinkRequest struct {

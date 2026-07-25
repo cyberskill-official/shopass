@@ -29,8 +29,10 @@ func newMemRepo() *memRepo {
 	}
 }
 
-func (m *memRepo) txCount(ctx context.Context, year int) (int64, error)      { return m.txCounts[year], nil }
-func (m *memRepo) threshold(ctx context.Context, key string) (int64, error)  { return m.thresholds[key], nil }
+func (m *memRepo) txCount(ctx context.Context, year int) (int64, error) { return m.txCounts[year], nil }
+func (m *memRepo) threshold(ctx context.Context, key string) (int64, error) {
+	return m.thresholds[key], nil
+}
 
 func (m *memRepo) Obligations(ctx context.Context) ([]EcommerceObligation, error) {
 	out := make([]EcommerceObligation, len(m.obs))

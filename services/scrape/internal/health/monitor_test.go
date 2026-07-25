@@ -39,11 +39,11 @@ func TestMonitor_AlertDedup(t *testing.T) {
 	m, sink := newMonitor(t)
 	feedFails(t, m, 1, "v1", 100) // đẩy lên broken
 	feedFails(t, m, 1, "v1", 100) // vẫn broken, should dedup
-	
-	if sink.alertCount != 1 { // Could be more if degraded then broken? 
+
+	if sink.alertCount != 1 { // Could be more if degraded then broken?
 		// Actually at first it hits degraded, alerts. Then broken, alerts again.
-		// Wait, Report updates state. Let's see how many state changes. 
-		// Healthy -> Degraded -> Broken. So it could alert twice. 
+		// Wait, Report updates state. Let's see how many state changes.
+		// Healthy -> Degraded -> Broken. So it could alert twice.
 		// But let's check what the spec says: "chỉ alert một lần trong cooldown".
 		// Oh, my `Alert` dedups by platform/version. If it alerts Degraded, then Broken in the same cooldown it might skip Broken!
 		// Let's modify the dedup test logic if it fails.

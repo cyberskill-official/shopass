@@ -41,7 +41,7 @@ func TestCostGuard_DowngradeThenBlock(t *testing.T) {
 
 func TestCost_IntegerMicroUSD(t *testing.T) {
 	// 1,75 USD/GB x 2GB = 3,50 USD = 3_500_000 micro-USD, chính xác
-	got := CostMicroUSD(/*usdPerGBMicro=*/ 1_750_000, /*bytes=*/ 2<<30)
+	got := CostMicroUSD( /*usdPerGBMicro=*/ 1_750_000 /*bytes=*/, 2<<30)
 	if got != 3_500_000 {
 		t.Errorf("Expected 3_500_000, got %d", got)
 	}

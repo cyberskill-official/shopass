@@ -106,13 +106,13 @@ func TestConsent_OldConsentKeepsOldVersion(t *testing.T) {
 	ctx := context.Background()
 	s, uid := setupWithUser(t)
 	s.Grant(ctx, uid, PurposeCartRead, "web", ReqMeta{}) // version 1
-	
+
 	// simulate policy update
 	mock := s.repo.(*mockRepo)
 	mock.version["cart_read"] = 2
 
 	s.Grant(ctx, uid, PurposeCartRead, "web", ReqMeta{}) // version 2
-	
+
 	h, _ := s.History(ctx, uid, PurposeCartRead)
 	require.Len(t, h, 2)
 	require.Equal(t, int32(1), h[0].PolicyVersion)

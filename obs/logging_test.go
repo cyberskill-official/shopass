@@ -36,7 +36,7 @@ func TestLog_HasTraceAndRequestID(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", srv.URL, nil)
 	req.Header.Set("X-Request-Id", "req-123")
-	
+
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()

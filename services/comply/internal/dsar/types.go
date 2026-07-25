@@ -40,8 +40,8 @@ type ExportBundle struct {
 }
 
 type EraseResult struct {
-	WishlistDeleted    int  `json:"wishlist_deleted"`
-	PaymentsAnonymized int  `json:"payments_anonymized"`
-	ConsentLogRetained bool `json:"consent_log_retained"`
+	WishlistDeleted    int    `json:"wishlist_deleted"`
+	PaymentsAnonymized int    `json:"payments_anonymized"`
+	ConsentLogRetained bool   `json:"consent_log_retained"`
 	Status             string `json:"status"`
 }

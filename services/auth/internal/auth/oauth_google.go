@@ -8,9 +8,13 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"shopass/services/auth/internal/auth/pkce"
 )
+
+// outboundHTTP is used for Google token exchange when no custom doer is injected.
+var outboundHTTP = &http.Client{Timeout: 10 * time.Second}
 
 const (
 	googleAuthEndpoint  = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -26,13 +30,13 @@ type httpDoer func(*http.Request) (*http.Response, error)
 // literals (§1 #9). The HTTP doer is injectable so the exchange is testable; a
 // real token exchange is the only part that needs live Google credentials.
 type GoogleProvider struct {
-	clientID     string
-	clientSecret string
-	redirectURI  string
-	authEndpoint string
+	clientID      string
+	clientSecret  string
+	redirectURI   string
+	authEndpoint  string
 	tokenEndpoint string
-	verifier     *IDTokenVerifier
-	do           httpDoer
+	verifier      *IDTokenVerifier
+	do            httpDoer
 }
 
 // NewGoogleProvider builds the provider with an id_token verifier pinned to
@@ -45,7 +49,7 @@ func NewGoogleProvider(clientID, clientSecret, redirectURI string, keys KeySet) 
 		authEndpoint:  googleAuthEndpoint,
 		tokenEndpoint: googleTokenEndpoint,
 		verifier:      NewIDTokenVerifier(keys, GoogleIssuer, clientID),
-		do:            http.DefaultClient.Do,
+		do:            outboundHTTP.Do,
 	}
 }
 

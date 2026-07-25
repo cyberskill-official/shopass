@@ -40,12 +40,12 @@ func (l *Limiter) Wait(ctx context.Context, platformID int16) error {
 	}
 
 	elapsed := time.Since(l.last[platformID])
-	
+
 	var wait time.Duration
 	if elapsed < target {
 		wait = target - elapsed
 	}
-	
+
 	l.last[platformID] = time.Now().Add(wait)
 	l.mu.Unlock()
 

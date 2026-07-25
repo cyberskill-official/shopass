@@ -15,9 +15,9 @@ import (
 // --- mock repo ---
 
 type mockNotifRepo struct {
-	mu           sync.Mutex
+	mu            sync.Mutex
 	notifications map[int64]*notif.Notification
-	dlqs         []dlqEntry
+	dlqs          []dlqEntry
 }
 
 type dlqEntry struct {
@@ -207,7 +207,7 @@ func TestFanout_TransientRetries(t *testing.T) {
 	w, repo := newTestWorker(t)
 	id := seedPending(t, repo, "push")
 	w.router = routeAll(constDispatcher("push", ClassTransient, errors.New("429")))
-	
+
 	require.NoError(t, w.Handle(context.Background(), id))
 	require.Equal(t, "queued", statusOf(t, repo, id))
 	require.GreaterOrEqual(t, attemptsOf(t, repo, id), 1)
@@ -219,7 +219,7 @@ func TestFanout_MaxAttempts_ToDLQ(t *testing.T) {
 	w.maxAttempts = 3
 	id := seedPending(t, repo, "sms")
 	w.router = routeAll(constDispatcher("sms", ClassTransient, errors.New("timeout")))
-	
+
 	ctx := context.Background()
 	for i := 0; i < 5; i++ {
 		expireLease(t, repo, id) // giả lập tới hạn re-claim giữa các lần
@@ -233,7 +233,7 @@ func TestFanout_PermanentStraightToDLQ(t *testing.T) {
 	w, repo := newTestWorker(t)
 	id := seedPending(t, repo, "push")
 	w.router = routeAll(constDispatcher("push", ClassPermanent, errors.New("token gỡ app")))
-	
+
 	require.NoError(t, w.Handle(context.Background(), id))
 	require.Equal(t, "failed", statusOf(t, repo, id))
 	require.Equal(t, "permanent", dlqReason(t, repo, id))

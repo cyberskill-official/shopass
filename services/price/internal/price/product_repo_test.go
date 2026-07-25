@@ -78,10 +78,10 @@ func TestUpsert_Conflict_Idempotent(t *testing.T) {
 	ctx := context.Background()
 	a, _ := r.Upsert(ctx, TrackedProduct{PlatformID: plat, PlatformItemID: "i-123", Title: ptr("Tên cũ")})
 	b, _ := r.Upsert(ctx, TrackedProduct{PlatformID: plat, PlatformItemID: "i-123", Title: ptr("Tên mới")})
-	require.Equal(t, a.ID, b.ID)              // cùng một dòng
-	require.Equal(t, "Tên mới", *b.Title)     // metadata đã cập nhật
+	require.Equal(t, a.ID, b.ID)                             // cùng một dòng
+	require.Equal(t, "Tên mới", *b.Title)                    // metadata đã cập nhật
 	require.Equal(t, a.FirstSeen.Unix(), b.FirstSeen.Unix()) // first_seen bất biến
-	require.Equal(t, 1, countProducts(t, r))   // không nhân bản
+	require.Equal(t, 1, countProducts(t, r))                 // không nhân bản
 }
 
 func TestUnique_PlatformItem(t *testing.T) {
