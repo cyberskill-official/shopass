@@ -25,6 +25,8 @@ export interface ParseDomResult {
 export type Message =
   | { type: "CART_READ"; platform: "shopee" | "tiktok" | "lazada"; items: CartItem[]; vouchers: VoucherItem[] }
   | { type: "PING" }
+  | { type: "START_REALTIME" }
+  | { type: "STOP_REALTIME" }
   | ParseDomRequest
   | ParseDomResult
   | TestCodesRequest;
@@ -70,6 +72,6 @@ export interface SyncEnvelope {
 }
 
 export interface AuthState {
-  jwt?: string;                 // JWT SănDeal (storage.session, RAM-only)
+  jwt?: string;                 // JWT Shopass (storage.session, RAM-only)
   // KHÔNG có trường token/cookie sàn
 }

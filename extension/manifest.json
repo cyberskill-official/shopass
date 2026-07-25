@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SănDeal",
+  "name": "Shopass",
   "version": "1.0.0",
   "minimum_chrome_version": "120",
   "homepage_url": "https://github.com/shopass/sandeal-extension",
@@ -8,19 +8,14 @@
     "service_worker": "background/service-worker.js",
     "type": "module"
   },
-  "permissions": ["storage", "alarms", "offscreen", "declarativeNetRequest"],
+  "permissions": ["storage", "alarms", "offscreen"],
   "host_permissions": [
     "https://shopee.vn/*",
     "https://*.tiktok.com/*",
     "https://www.lazada.vn/*"
   ],
-  "declarative_net_request": {
-    "rule_resources": [
-      { "id": "sandeal_rules", "enabled": true, "path": "dnr/rules.json" }
-    ]
-  },
   "options_page": "ui/settings.html",
-  "action": { "default_title": "SănDeal" },
+  "action": { "default_title": "Shopass" },
   "content_scripts": [
     {
       "matches": ["https://shopee.vn/*"],

@@ -1,4 +1,4 @@
-# SănDeal Extension - Disclosure dữ liệu
+# Shopass Extension - Disclosure dữ liệu
 
 ## Dữ liệu extension GỬI về server (đúng tập tối thiểu)
 - platform: sàn đang xem (shopee | tiktok | lazada)
