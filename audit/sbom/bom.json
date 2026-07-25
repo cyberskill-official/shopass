@@ -6,14 +6,14 @@
     "component": {
       "type": "application",
       "name": "sandeal-extension",
-      "version": "1.4.0"
-    }
+      "version": "NOT_GENERATED"
+    },
+    "properties": [
+      {
+        "name": "sandeal:sbom_status",
+        "value": "NOT_RUN — generate-sbom.sh fails closed until a real CycloneDX tool is wired"
+      }
+    ]
   },
-  "components": [
-    {
-      "type": "library",
-      "name": "react",
-      "version": "18.2.0"
-    }
-  ]
+  "components": []
 }

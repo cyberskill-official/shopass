@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
+# Fail-closed vulnerability scan. Do not claim "0 high CVEs" without scanning.
 set -euo pipefail
 
-echo "Scanning for vulnerabilities..."
-cd extension
-# Giả sử chúng ta dùng npm audit hoặc trivy để quét dựa trên package-lock.json
-# npm audit --audit-level=high
-
-# Để mục đích test, giả vờ có 0 vuln
-echo "Found 0 high CVEs"
+echo "Vulnerability scan is not wired to a real tool (e.g. npm audit / trivy / osv-scanner)."
+echo "Refusing to report a clean CVE result. Wire a real scanner, then re-run."
+echo "CVE scan status: NOT_RUN (fail-closed)"
+exit 1
