@@ -17,6 +17,16 @@ interface GraphQLBody {
   operationName?: string | null;
 }
 
+/** Reject oversized GraphQL POST bodies before parsing (DoS guard). */
+export const MAX_BODY_BYTES = 256 * 1024; // 256 KiB
+
+export class BodyTooLargeError extends Error {
+  constructor(message = "request body too large") {
+    super(message);
+    this.name = "BodyTooLargeError";
+  }
+}
+
 function sendJSON(res: ServerResponse, status: number, body: unknown): void {
   const payload = JSON.stringify(body);
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -24,8 +34,24 @@ function sendJSON(res: ServerResponse, status: number, body: unknown): void {
 }
 
 async function readBody(req: IncomingMessage): Promise<GraphQLBody> {
+  const declared = req.headers["content-length"];
+  if (declared !== undefined) {
+    const n = Number(declared);
+    if (Number.isFinite(n) && n > MAX_BODY_BYTES) {
+      throw new BodyTooLargeError();
+    }
+  }
+
   const chunks: Buffer[] = [];
-  for await (const c of req) chunks.push(c as Buffer);
+  let total = 0;
+  for await (const c of req) {
+    const buf = c as Buffer;
+    total += buf.length;
+    if (total > MAX_BODY_BYTES) {
+      throw new BodyTooLargeError();
+    }
+    chunks.push(buf);
+  }
   if (chunks.length === 0) return {};
   return JSON.parse(Buffer.concat(chunks).toString("utf8")) as GraphQLBody;
 }
@@ -41,7 +67,11 @@ export async function handleGraphQL(
   let body: GraphQLBody;
   try {
     body = await readBody(req);
-  } catch {
+  } catch (err) {
+    if (err instanceof BodyTooLargeError) {
+      sendJSON(res, 413, { errors: [{ message: err.message }] });
+      return;
+    }
     sendJSON(res, 400, { errors: [{ message: "invalid JSON body" }] });
     return;
   }

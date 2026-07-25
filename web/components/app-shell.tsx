@@ -76,6 +76,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 md:hidden"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="app-shell-mobile-nav"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="sr-only">Mở menu</span>
@@ -90,7 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="border-t border-slate-200 bg-white px-4 py-4 md:hidden shadow-lg">
+          <div id="app-shell-mobile-nav" className="border-t border-slate-200 bg-white px-4 py-4 md:hidden shadow-lg">
             <nav className="flex flex-col gap-2">
               {links.map((link) => {
                 const isActive = pathname?.startsWith(link.href);

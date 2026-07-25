@@ -123,10 +123,11 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
+                <label htmlFor="login-email" className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
                   Địa chỉ Email
                 </label>
                 <input
+                  id="login-email"
                   type="email"
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   value={email}
@@ -136,10 +137,11 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
+                <label htmlFor="login-password" className="mb-2 block text-xs font-extrabold uppercase tracking-wide text-slate-500">
                   Mật khẩu
                 </label>
                 <input
+                  id="login-password"
                   type="password"
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   value={password}
