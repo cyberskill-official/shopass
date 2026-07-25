@@ -1,0 +1,16 @@
+# Default owners for review requests.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+*       @zintaen
+
+# Core product surfaces
+/web/                 @zintaen
+/extension/           @zintaen
+/services/            @zintaen
+/docs/                @zintaen
+
+# CI and repo governance
+/.github/             @zintaen
+
+# Additional maintainers (CyberSkill)
+# Jay <gia-bao.tran@cyberskill.world> — add GitHub handle here when known.
