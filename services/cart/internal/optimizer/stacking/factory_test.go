@@ -15,7 +15,19 @@ func TestFactory_DefaultsToNoStack(t *testing.T) {
 	require.False(t, r.ValidStack(&pv, &fs, nil)) // mặc định no-stack (DEC-CART-23)
 }
 
-func TestFactory_SelectsByCountry(t *testing.T) {
-	require.IsType(t, newVNRules(), RulesForCountry("VN", region.CountryPolicy{}))
-	require.IsType(t, newMYPHRules(), RulesForCountry("MY", region.CountryPolicy{}))
+func TestFactory_UsesPolicyStackingAllowed(t *testing.T) {
+	r := RulesForCountry("VN", region.CountryPolicy{VoucherStackingAllowed: true})
+	pv := platV(optimizer.DiscountAmount, 50_000, nil, "p")
+	fs := freeV(30_000, nil, "f")
+	require.True(t, r.ValidStack(&pv, &fs, nil))
+}
+
+func TestFactory_UsesPolicyFreeshipGrouping(t *testing.T) {
+	r := RulesForCountry("MY", region.CountryPolicy{
+		VoucherStackingAllowed:      true,
+		FreeshipGroupedWithPlatform: true,
+	})
+	pv := platV(optimizer.DiscountAmount, 50_000, nil, "p")
+	fs := freeV(30_000, nil, "f")
+	require.False(t, r.ValidStack(&pv, &fs, nil))
 }

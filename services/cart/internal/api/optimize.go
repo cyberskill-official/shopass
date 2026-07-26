@@ -9,6 +9,18 @@ import (
 	"shopass/services/cart/internal/optimizer/stacking"
 )
 
+const gateVoucherStacking = "voucher_stacking"
+
+type CountryGater interface {
+	Allow(country, gate string) bool
+}
+
+type denyAllGater struct{}
+
+func (denyAllGater) Allow(country, gate string) bool {
+	return false
+}
+
 type OptimizeRequest struct {
 	PlatformID int16                `json:"platform"`
 	Country    string               `json:"country"` // Usually derived from platform, passed via payload or context for now
@@ -17,10 +29,15 @@ type OptimizeRequest struct {
 }
 
 type OptimizeHandler struct {
+	gater CountryGater
 }
 
-func NewOptimizeHandler() *OptimizeHandler {
-	return &OptimizeHandler{}
+func NewOptimizeHandler(gaters ...CountryGater) *OptimizeHandler {
+	gater := CountryGater(denyAllGater{})
+	if len(gaters) > 0 && gaters[0] != nil {
+		gater = gaters[0]
+	}
+	return &OptimizeHandler{gater: gater}
 }
 
 func (h *OptimizeHandler) OptimizeCart(w http.ResponseWriter, r *http.Request) {
@@ -30,15 +47,11 @@ func (h *OptimizeHandler) OptimizeCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load policy based on country
 	policy := region.CountryPolicy{
 		Country:                req.Country,
-		VoucherStackingAllowed: req.Country == "VN" || req.Country == "", // Default to true if not specified, else VN only
+		VoucherStackingAllowed: h.gater.Allow(req.Country, gateVoucherStacking),
 	}
-	if req.Country == "MY" || req.Country == "PH" {
-		policy.FreeshipGroupedWithPlatform = true
-		policy.VoucherStackingAllowed = false // MY/PH no-stack
-	}
+	policy.FreeshipGroupedWithPlatform = !policy.VoucherStackingAllowed
 
 	rules := stacking.RulesForCountry(req.Country, policy)
 

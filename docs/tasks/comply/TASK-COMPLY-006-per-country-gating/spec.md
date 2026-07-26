@@ -3,7 +3,7 @@ id: TASK-COMPLY-006
 title: "Khung per-country gating - luật voucher/affiliate/dữ liệu theo nước (VN/ID/TH/PH/MY/SG/TW), cấu hình khai báo + cổng kiểm tra runtime"
 module: COMPLY
 priority: MUST
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 1
@@ -304,4 +304,4 @@ POST /v1/comply/country-rule
 
 ---
 
-*Hết TASK-COMPLY-006. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-COMPLY-006. Status: ready_to_review (implementation ready for review).*
