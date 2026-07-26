@@ -1,6 +1,9 @@
 package sms
 
-import "context"
+import (
+	"context"
+	"log/slog"
+)
 
 type Message struct {
 	To        string
@@ -20,41 +23,35 @@ const (
 )
 
 type Provider interface {
+	Name() string
 	Send(ctx context.Context, msg Message) (SendResult, error)
 }
 
-type SpeedSMS struct {
-	SendFn func(ctx context.Context, msg Message) (SendResult, error)
+// LogProvider is the CI/dev-safe default: log intent and report sent.
+type LogProvider struct {
+	log  *slog.Logger
+	name string
 }
 
-func (s SpeedSMS) Send(ctx context.Context, msg Message) (SendResult, error) {
-	if s.SendFn != nil {
-		return s.SendFn(ctx, msg)
+func NewLogProvider(log *slog.Logger, name string) LogProvider {
+	if log == nil {
+		log = slog.Default()
 	}
+	if name == "" {
+		name = "noop"
+	}
+	return LogProvider{log: log, name: name}
+}
+
+func (p LogProvider) Name() string { return p.name }
+
+func (p LogProvider) Send(_ context.Context, msg Message) (SendResult, error) {
+	p.log.Info("sms noop provider accepted message",
+		"provider", p.name,
+		"to", msg.To,
+		"brand", msg.Brand,
+		"high_value", msg.HighValue,
+		"otp", msg.OTP,
+	)
 	return ResultSent, nil
 }
-
-type Twilio struct {
-	SendFn func(ctx context.Context, msg Message) (SendResult, error)
-}
-
-func (t Twilio) Send(ctx context.Context, msg Message) (SendResult, error) {
-	if t.SendFn != nil {
-		return t.SendFn(ctx, msg)
-	}
-	return ResultSent, nil
-}
-
-// Guard rejects non–high-value / non-OTP SMS (cost model).
-func Guard(msg Message) error {
-	if msg.HighValue || msg.OTP {
-		return nil
-	}
-	return errNotHighValue
-}
-
-type guardError string
-
-func (e guardError) Error() string { return string(e) }
-
-const errNotHighValue = guardError("sms: only high_value or otp allowed")
