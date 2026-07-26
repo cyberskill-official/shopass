@@ -17,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteURL}/lich-sale`, lastModified: new Date() },
     { url: `${siteURL}/so-sanh/shopass-vs-beecost`, lastModified: new Date() },
     { url: `${siteURL}/thay-the-honey`, lastModified: new Date() },
+    { url: `${siteURL}/blog`, lastModified: new Date() },
+    { url: `${siteURL}/changelog`, lastModified: new Date() },
+    ...postsByDateDesc().map((p) => ({
+      url: `${siteURL}/blog/${p.slug}`,
+      lastModified: new Date(p.date),
+    })),
   ];
   return [...keywords, ...legal];
 }
