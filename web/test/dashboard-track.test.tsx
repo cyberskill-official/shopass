@@ -13,6 +13,15 @@ jest.mock("../lib/track/api", () => ({
   trackShopeeProduct: jest.fn(),
 }));
 
+jest.mock("../lib/referral/api", () => ({
+  getReferralMe: jest.fn().mockResolvedValue({
+    code: "SDTEST1",
+    uses: 0,
+    has_referrer: false,
+    reward_note: "test",
+  }),
+}));
+
 describe("Dashboard tracking flow", () => {
   const listTrackedProductsMock = listTrackedProducts as jest.MockedFunction<typeof listTrackedProducts>;
   const trackShopeeProductMock = trackShopeeProduct as jest.MockedFunction<typeof trackShopeeProduct>;

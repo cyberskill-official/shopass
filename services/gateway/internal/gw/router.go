@@ -91,6 +91,8 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			bill.ServeHTTP(w, r)
 		case path == "/v1/leads/waitlist":
 			bill.ServeHTTP(w, r)
+		case path == "/v1/referral/me", path == "/v1/referral/attribute":
+			bill.ServeHTTP(w, r)
 		default:
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 		}
