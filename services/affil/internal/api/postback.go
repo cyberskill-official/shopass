@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -16,10 +17,16 @@ type PostbackPayload struct {
 	Status     string `json:"status"` // e.g. "approved", "rejected", "pending"
 }
 
+// PayoutHoldCreator is TRUST-005: create payout_hold on confirm (never pay immediately).
+type PayoutHoldCreator interface {
+	OnConversionConfirmed(ctx context.Context, conversionID, beneficiaryID, amount int64) error
+}
+
 // Handler contains dependencies for the API
 type PostbackHandler struct {
 	repo    *affil.Repo
 	secrets affil.SecretReader
+	holds   PayoutHoldCreator
 }
 
 func NewPostbackHandler(repo *affil.Repo, secrets affil.SecretReader) *PostbackHandler {
@@ -27,6 +34,12 @@ func NewPostbackHandler(repo *affil.Repo, secrets affil.SecretReader) *PostbackH
 		repo:    repo,
 		secrets: secrets,
 	}
+}
+
+// WithPayoutHolds wires TRUST-005 hold creation after network confirm.
+func (h *PostbackHandler) WithPayoutHolds(holds PayoutHoldCreator) *PostbackHandler {
+	h.holds = holds
+	return h
 }
 
 func (h *PostbackHandler) HandlePostback(w http.ResponseWriter, req *http.Request) {
@@ -67,6 +80,11 @@ func (h *PostbackHandler) HandlePostback(w http.ResponseWriter, req *http.Reques
 	switch p.Status { // map trạng thái network -> vòng đời (§1 #8)
 	case "approved":
 		_ = h.repo.ConfirmConversion(req.Context(), cid)
+		if h.holds != nil {
+			if seed, err := h.repo.HoldSeedByID(req.Context(), cid); err == nil {
+				_ = h.holds.OnConversionConfirmed(req.Context(), seed.ConversionID, seed.BeneficiaryID, seed.Commission)
+			}
+		}
 	case "rejected":
 		_ = h.repo.RejectConversion(req.Context(), cid, "network rejected")
 	default:

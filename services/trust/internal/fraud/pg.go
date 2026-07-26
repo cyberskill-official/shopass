@@ -67,6 +67,27 @@ func (s *PGClusterSizer) ClusterSize(ctx context.Context, userID int64) (int, er
 	return size, err
 }
 
+func (s *PGClusterSizer) SameCluster(ctx context.Context, a, b int64) (bool, error) {
+	if s == nil || s.db == nil {
+		return false, nil
+	}
+	if a == b {
+		return true, nil
+	}
+	var linked bool
+	err := s.db.QueryRow(ctx, `
+		WITH RECURSIVE reach(uid) AS (
+			SELECT $1::bigint
+			UNION
+			SELECT CASE WHEN e.a_user = reach.uid THEN e.b_user ELSE e.a_user END
+			FROM account_link_edge e
+			JOIN reach ON reach.uid IN (e.a_user, e.b_user)
+		)
+		SELECT EXISTS (SELECT 1 FROM reach WHERE uid = $2)
+	`, a, b).Scan(&linked)
+	return linked, err
+}
+
 type PGSignalStore struct {
 	db PGDB
 }
