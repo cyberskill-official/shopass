@@ -321,3 +321,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: next.config compress + image formats/remotePatterns; dynamic recharts on landing + chart; ListSkeleton/RouteError on alerts/chart; marketing skip-link + single h1; jest-axe on landing + keyword fixture; LHCI soft workflow (continue-on-error) for `/`, keyword, `/bang-gia`.
 - stephen_ask: Spot-check product chart on mid-range Android/4G once; promote LHCI to hard gate after two green weeks.
 - notes: Soft gate only — budgets warn, job does not block merge yet.
+
+## [2026-07-26] R48 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #81 merged)
+- evidence: Operator "Go do all remainings"; CI green on #81 (incl. soft Lighthouse).
+- stephen_ask: -
+- notes: Next agent-doable: R20 k6, R32 PDPL.
