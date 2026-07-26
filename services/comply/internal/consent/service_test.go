@@ -61,6 +61,16 @@ func (m *mockRepo) history(ctx context.Context, userID int64, purposeKey string)
 	return res, nil
 }
 
+func (m *mockRepo) historyAll(ctx context.Context, userID int64) ([]ConsentRecord, error) {
+	var res []ConsentRecord
+	for _, r := range m.records {
+		if r.UserID == userID {
+			res = append(res, r)
+		}
+	}
+	return res, nil
+}
+
 func setupWithUser(t *testing.T) (*Service, int64) {
 	return NewService(newMockRepo()), 123
 }
@@ -117,4 +127,18 @@ func TestConsent_OldConsentKeepsOldVersion(t *testing.T) {
 	require.Len(t, h, 2)
 	require.Equal(t, int32(1), h[0].PolicyVersion)
 	require.Equal(t, int32(2), h[1].PolicyVersion) // khong tu nang cap dong cu
+}
+
+func TestConsent_HistoryAllReturnsEveryPurposeForUser(t *testing.T) {
+	ctx := context.Background()
+	s, uid := setupWithUser(t)
+	require.NoError(t, s.Grant(ctx, uid, PurposeCartRead, "web", ReqMeta{}))
+	require.NoError(t, s.Grant(ctx, uid, PurposeMarketing, "web", ReqMeta{}))
+	require.NoError(t, s.Grant(ctx, uid+1, PurposeCartRead, "web", ReqMeta{}))
+
+	h, err := s.HistoryAll(ctx, uid)
+	require.NoError(t, err)
+	require.Len(t, h, 2)
+	require.Equal(t, PurposeCartRead, Purpose(h[0].PurposeKey))
+	require.Equal(t, PurposeMarketing, Purpose(h[1].PurposeKey))
 }

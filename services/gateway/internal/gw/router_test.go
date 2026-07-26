@@ -27,17 +27,19 @@ func testDeps(t *testing.T) Deps {
 	deal := testUpstream(t, "deal")
 	notif := testUpstream(t, "notif")
 	bill := testUpstream(t, "bill")
+	comply := testUpstream(t, "comply")
 	bff := testUpstream(t, "bff")
 	return Deps{
 		JWKS: &mockJWKS{},
 		Upstreams: Upstreams{
-			AuthHandler:  auth,
-			TrackHandler: track,
-			PriceHandler: price,
-			DealHandler:  deal,
-			NotifHandler: notif,
-			BillHandler:  bill,
-			BFFHandler:   bff,
+			AuthHandler:   auth,
+			TrackHandler:  track,
+			PriceHandler:  price,
+			DealHandler:   deal,
+			NotifHandler:  notif,
+			BillHandler:   bill,
+			ComplyHandler: comply,
+			BFFHandler:    bff,
 		},
 	}
 }
@@ -96,6 +98,11 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		{http.MethodPost, "/v1/leads/waitlist", false, "bill"},
 		{http.MethodGet, "/v1/referral/me", true, "bill"},
 		{http.MethodPost, "/v1/referral/attribute", true, "bill"},
+		{http.MethodPost, "/v1/consent/grant", true, "comply"},
+		{http.MethodGet, "/v1/consent/history", true, "comply"},
+		{http.MethodPost, "/v1/dsar", true, "comply"},
+		{http.MethodPost, "/v1/comply/breach/open", true, "comply"},
+		{http.MethodGet, "/v1/comply/breach/overdue", true, "comply"},
 		{http.MethodPost, "/v1/tools/fake-sale-check", false, "deal"},
 		{http.MethodPost, "/graphql", true, "bff"},
 	}

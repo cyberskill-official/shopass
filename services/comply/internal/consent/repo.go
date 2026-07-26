@@ -10,6 +10,7 @@ type Repo interface {
 	append(ctx context.Context, rec ConsentRecord) error
 	effectiveVersion(ctx context.Context, purposeKey string) (int32, error)
 	history(ctx context.Context, userID int64, purposeKey string) ([]ConsentRecord, error)
+	historyAll(ctx context.Context, userID int64) ([]ConsentRecord, error)
 }
 
 type pgRepo struct {
@@ -104,6 +105,37 @@ func (r *pgRepo) history(ctx context.Context, userID int64, purposeKey string) (
 			&rec.Granted, &rec.Source, &rec.TS, &ip, &ua,
 		); err != nil {
 			return nil, err
+		}
+		res = append(res, rec)
+	}
+	return res, rows.Err()
+}
+
+func (r *pgRepo) historyAll(ctx context.Context, userID int64) ([]ConsentRecord, error) {
+	query := `
+		SELECT id, user_id, purpose_key, policy_version, granted, source, ts, ip, user_agent
+		FROM consent_record
+		WHERE user_id = $1
+		ORDER BY ts ASC, id ASC
+	`
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var res []ConsentRecord
+	for rows.Next() {
+		var rec ConsentRecord
+		var ip, ua sql.NullString
+		if err := rows.Scan(
+			&rec.ID, &rec.UserID, &rec.PurposeKey, &rec.PolicyVersion,
+			&rec.Granted, &rec.Source, &rec.TS, &ip, &ua,
+		); err != nil {
+			return nil, err
+		}
+		if ua.Valid {
+			rec.UserAgent = &ua.String
 		}
 		res = append(res, rec)
 	}

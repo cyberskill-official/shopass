@@ -76,3 +76,8 @@ func (s *Service) History(ctx context.Context, userID int64, p Purpose) ([]Conse
 	}
 	return s.repo.history(ctx, userID, string(p))
 }
+
+// HistoryAll returns every consent row for a user for DSAR export and audit.
+func (s *Service) HistoryAll(ctx context.Context, userID int64) ([]ConsentRecord, error) {
+	return s.repo.historyAll(ctx, userID)
+}
