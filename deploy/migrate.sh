@@ -41,7 +41,7 @@ if [ "$has_platform" = "1" ] && [ "$applied_count" = "0" ]; then
   fi
   echo "baselining an independently verified existing database"
   for f in /migrations/db/*.up.sql; do mark_applied "$f"; done
-  for d in auth track price ml deal scrape notif comply cart affil bill trust; do
+  for d in auth track price ml deal scrape notif comply cart affil bill trust b2b; do
     for f in /migrations/services/"$d"/migrations/*.sql; do
       [ -e "$f" ] || continue
       case "$f" in *.down.sql) continue ;; esac
@@ -63,7 +63,7 @@ apply() {
 }
 
 for f in /migrations/db/*.up.sql; do apply "$f"; done
-for d in auth track price ml deal scrape notif comply cart affil bill trust; do
+for d in auth track price ml deal scrape notif comply cart affil bill trust b2b; do
   for f in /migrations/services/"$d"/migrations/*.sql; do
     [ -e "$f" ] || continue
     case "$f" in *.down.sql) continue ;; esac
