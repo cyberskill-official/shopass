@@ -355,3 +355,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Confirm production incident contacts; tabletop breach runbook; spot-check 3 inventory fields.
 - notes: Next agent-doable: R33 CI compliance gates.
 
+## [2026-07-26] R33 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: CI job `Compliance gates (R33)` wires no_cleartext + consent_coverage + inventory_pii + DPIA review; docs `DPIA.md`, `CONSENT-SURFACES.md`, `CI-WAIVERS.md`; overdue DPIA red-path asserted in CI; deferred consent surfaces waived `reviewed:R33-bootstrap` until IsAllowed wired on track/notif/b2b.
+- stephen_ask: Read gate scripts once; confirm waiver tags require a human id; plan removal of R33-bootstrap waivers.
+- notes: Local green + overdue red via `DPIA_TODAY=2099-01-01`.
+

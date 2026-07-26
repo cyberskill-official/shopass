@@ -215,3 +215,29 @@ jobs:
           # cyberos-shared is an overlay on production, not a standalone file
           docker compose -f deploy/docker-compose.production.yml \
             -f deploy/docker-compose.cyberos-shared.yml config --quiet
+
+  # R33 — NFR-COMPLY-001 automated gates (required check).
+  compliance:
+    name: Compliance gates (R33)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.25.12"
+      - name: no-cleartext (auditscan)
+        run: bash services/comply/scripts/no_cleartext_gate.sh
+      - name: consent coverage (inventory surfaces)
+        run: bash services/comply/scripts/consent_coverage_gate.sh
+      - name: inventory PII drift
+        run: bash services/comply/scripts/inventory_pii_gate.sh
+      - name: DPIA review dates
+        run: bash services/comply/scripts/dpia_review_gate.sh
+      - name: Red-path selftest (overdue DPIA must fail)
+        run: |
+          set -e
+          if DPIA_TODAY=2099-01-01 bash services/comply/scripts/dpia_review_gate.sh; then
+            echo "expected overdue DPIA to fail"
+            exit 1
+          fi
+          echo "overdue DPIA correctly failed"
