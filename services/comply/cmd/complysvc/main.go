@@ -18,6 +18,7 @@ import (
 	"shopass/services/comply/internal/breach"
 	"shopass/services/comply/internal/consent"
 	"shopass/services/comply/internal/dsar"
+	"shopass/services/comply/internal/gating"
 )
 
 func env(key, fallback string) string {
@@ -59,6 +60,13 @@ func main() {
 		log.Error("sql db ping", "err", err)
 		os.Exit(1)
 	}
+
+	gatingRegistry := gating.NewRegistry(gating.NewPgRuleSource(sqlDB))
+	if err := gatingRegistry.Reload(ctx); err != nil {
+		log.Error("gating reload", "err", err)
+		os.Exit(1)
+	}
+	log.Info("gating registry loaded", "vn_voucher_stacking", gatingRegistry.Allow("VN", gating.GateVoucherStacking))
 
 	consentSvc := consent.NewService(consent.NewRepo(sqlDB))
 	dsarSvc := dsar.NewService(

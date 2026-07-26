@@ -99,4 +99,4 @@ test-web: ## Extension + web jest suites
 	cd web && npm install && npm test
 
 test-ml: ## ml pytest suite
-	cd services/ml && pip install -r requirements.txt && pytest tests/
+	cd services/ml && pip install -r requirements.txt && PYTHONPATH=. pytest tests/
