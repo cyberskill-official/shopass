@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "Shopass",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Theo dõi giá Shopee, TikTok Shop, Lazada — phát hiện sale ảo, cảnh báo khi giá chạm đáy.",
+    "description": "Extension description"
+  },
+  "actionTitle": {
+    "message": "Shopass",
+    "description": "Toolbar button title"
+  }
+}

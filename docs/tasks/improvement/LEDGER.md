@@ -368,3 +368,39 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Plan removal of reviewed:R33-bootstrap consent waivers when IsAllowed lands on track/notif/b2b.
 - notes: Agent-unblocked Wave-3 compliance batch complete. Remaining need Stephen (R11/R12/R15/R19/R23/R24/R36/R40/R49) or account/outreach tasks.
 
+## [2026-07-26] R37 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `docs/compliance/SCRAPING-POSTURE.md` — per-platform ToS (Shopee/TikTok/Lazada VN), public-data scope aligned with DATA-INVENTORY, robots/proxy/pacing/deny-by-default stance (scrapesvc), price_snapshot retention pointer, takedown owner Stephen Cheng + info@cyberskill.world (48h/7d SLA), affiliate R29 posture, VN+EN press FAQ (3×3), Stephen ask (VN counsel half-day).
+- stephen_ask: Read memo; confirm takedown inbox routing; decide VN counsel pre-launch (recommended yes, half-day).
+- notes: Draft — not counsel-reviewed. No fake case citations.
+
+## [2026-07-26] R19 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `docs/ops/RETENTION-POLICY.md` — propose 18mo raw / forever `price_daily` / compress 30d / chunk 7d; fixture cost estimate; notes `0020_compression_policy.up.sql` already encodes the policy.
+- stephen_ask: Sign off horizons; confirm jobs visible in `timescaledb_information.jobs` on staging/prod.
+- notes: No new migration — already present; this is the explicit product decision record.
+
+## [2026-07-26] R36 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Extension OSS prep — `README.md`, `SECURITY.md`, `CONTRIBUTING.md`, `REPRODUCIBLE-BUILD.md`; MIT LICENSE already present. Publish blocked on founder approval + mirror location.
+- stephen_ask: Approve go-public + repo name (`shopass-extension` recommended); run gitleaks on final public history before push.
+- notes: Docs only — no public mirror created.
+
+## [2026-07-26] R49 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Icons 16/32/48/128 + promo tile; `_locales` vi/en + `default_locale`; manifest icons/action; `store/` LISTING-VI/EN, DATA-DISCLOSURE, SCREENSHOTS checklist, `package.sh`; build copies icons/locales.
+- stephen_ask: Approve placeholder mark (or supply brand); capture 5×1280 screenshots; create Chrome ($5)/Edge/Cốc Cốc accounts and submit.
+- notes: Screenshots still TODO capture; localhost host stripped only in store zip script.
+
+## [2026-07-26] R56 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `docs/growth/PARTNER-ONE-PAGER.md`, `KOC-KIT.md`, `PARTNER-KOC-TARGETS.md` (10 partners + 20 KOC slots + UTM/ref tracking).
+- stephen_ask: Prune target list before any outreach; log first 3 conversations.
+- notes: Research kits only — no outreach performed.
+
+## [2026-07-26] R58 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `docs/growth/BRAND-SHEET.md` — Shopass public name, colors, handle checklist; notes placeholder extension mark.
+- stephen_ask: Confirm final name/domain; register handles; supply final logo.
+- notes: Handle registration + full repo grep sweep incomplete until name locked.
+

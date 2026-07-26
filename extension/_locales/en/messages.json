@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "Shopass",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Track prices on Shopee, TikTok Shop, and Lazada — spot fake sales and get alerts near the bottom.",
+    "description": "Extension description"
+  },
+  "actionTitle": {
+    "message": "Shopass",
+    "description": "Toolbar button title"
+  }
+}
