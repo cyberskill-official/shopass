@@ -1,9 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "Shopass",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "default_locale": "vi",
   "version": "1.0.0",
   "minimum_chrome_version": "120",
   "homepage_url": "https://shopass.cyberskill.world",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
@@ -26,7 +34,14 @@
     ]
   },
   "options_page": "ui/settings.html",
-  "action": { "default_title": "Shopass" },
+  "action": {
+    "default_title": "__MSG_actionTitle__",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["https://shopee.vn/*"],

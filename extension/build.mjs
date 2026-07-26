@@ -38,6 +38,16 @@ const ctx = await esbuild.context({
   metafile: false,
 });
 
+function copyDir(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const ent of fs.readdirSync(src, { withFileTypes: true })) {
+    const from = path.join(src, ent.name);
+    const to = path.join(dest, ent.name);
+    if (ent.isDirectory()) copyDir(from, to);
+    else fs.copyFileSync(from, to);
+  }
+}
+
 function copyAssets() {
   // Ensure directories exist
   fs.mkdirSync('dist/ui', { recursive: true });
@@ -48,6 +58,8 @@ function copyAssets() {
   fs.copyFileSync('src/ui/onboarding.html', 'dist/ui/onboarding.html');
   fs.mkdirSync('dist/dnr', { recursive: true });
   fs.copyFileSync('src/dnr/rules.json', 'dist/dnr/rules.json');
+  copyDir('icons', 'dist/icons');
+  copyDir('_locales', 'dist/_locales');
   console.log('Static assets copied to dist.');
 }
 
