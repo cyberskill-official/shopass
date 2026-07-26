@@ -236,7 +236,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | ready_to_implement | TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-005 | 10h |
+| **TASK-AFFIL-005** | Cashback layering (chia % cho user, hold tới khi affiliate confirm, delay payout) | SHOULD | ready_to_review | TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-005 | 10h |
 
 ### P3.2 - B2B - dữ liệu + analytics
 

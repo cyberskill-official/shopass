@@ -3,44 +3,91 @@ package cashback
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
+const (
+	StatusPending    = "pending"
+	StatusAvailable  = "available"
+	StatusPaid       = "paid"
+	StatusClawedBack = "clawed_back"
+
+	TierFree    = "free"
+	TierPremium = "premium"
+
+	DisclosureNote = "Cashback pending co the bi huy neu don bi huy hoac hoan."
+)
+
+// Conversion is the confirmed affiliate conversion payload for cashback.
+type Conversion struct {
+	ID          int64
+	UserID      int64
+	Commission  int64
+	UserTier    string
+	ConfirmedAt time.Time
+}
+
 type Entry struct {
+	ID           int64
 	ConversionID int64
 	UserID       int64
 	Commission   int64
 	UserShare    int64
 	KeptMargin   int64
 	Status       string
+	AvailableAt  time.Time
+	PaidAt       *time.Time
+	CreatedAt    time.Time
 }
 
 type Store interface {
-	InsertHeld(ctx context.Context, e Entry) error
+	InsertPending(ctx context.Context, e Entry) error
 	GetByConversion(ctx context.Context, conversionID int64) (Entry, bool, error)
-	MarkReleased(ctx context.Context, conversionID int64) error
+	ListDuePending(ctx context.Context, now time.Time) ([]Entry, error)
+	MarkAvailable(ctx context.Context, conversionID int64) error
 	MarkClawedBack(ctx context.Context, conversionID int64) error
-	SumReleasedUnpaid(ctx context.Context, userID int64) (int64, error)
-	CreatePayoutRequest(ctx context.Context, userID, amount int64) error
+	SumAvailable(ctx context.Context, userID int64) (int64, error)
+	ListAvailable(ctx context.Context, userID int64) ([]Entry, error)
+	MarkPaid(ctx context.Context, conversionIDs []int64, paidAt time.Time) error
+	CreatePayoutRequest(ctx context.Context, userID, amount int64, gatewayRef string) (int64, error)
+	Summary(ctx context.Context, userID int64) (UserSummary, error)
 }
 
+// HoldChecker is TRUST-005: true while payout/cashback must stay held.
 type HoldChecker interface {
-	// Blocked returns true when TRUST-005 still holds / investigates the conversion.
 	Blocked(ctx context.Context, conversionID int64) (bool, error)
 }
 
+// Metrics records cashback counters (VND). Optional; may be nil.
+type Metrics interface {
+	Pending(vnd int64)
+	Released(vnd int64)
+	Clawback(vnd int64)
+	Paid(vnd int64)
+}
+
 type Config struct {
-	ShareRateBPS    int64 // basis points, e.g. 5000 = 50%
-	PayoutThreshold int64
+	ShareRateFreeBPS    int64 // basis points, e.g. 3000 = 30%
+	ShareRatePremiumBPS int64 // e.g. 5000 = 50%
+	PayoutThreshold     int64
+	InvestigationWindow time.Duration
 }
 
 func DefaultConfig() Config {
-	return Config{ShareRateBPS: 5000, PayoutThreshold: 50_000}
+	return Config{
+		ShareRateFreeBPS:    3000,
+		ShareRatePremiumBPS: 5000,
+		PayoutThreshold:     50_000,
+		InvestigationWindow: 7 * 24 * time.Hour,
+	}
 }
 
 type Ledger struct {
-	Cfg   Config
-	Store Store
-	Hold  HoldChecker
+	Cfg     Config
+	Store   Store
+	Hold    HoldChecker
+	Metrics Metrics
+	Payer   Payer
 }
 
 func Split(commission, shareRateBPS int64) (userShare, kept int64) {
@@ -49,52 +96,72 @@ func Split(commission, shareRateBPS int64) (userShare, kept int64) {
 	return userShare, kept
 }
 
-// OnConfirmed records a held cashback entry (BIGINT VND). Idempotent per conversion.
-func (l *Ledger) OnConfirmed(ctx context.Context, conversionID, userID, commission int64) (Entry, error) {
-	if existing, ok, err := l.Store.GetByConversion(ctx, conversionID); err != nil {
+func (c Config) ShareRateBPS(tier string) int64 {
+	switch tier {
+	case TierPremium:
+		if c.ShareRatePremiumBPS > 0 {
+			return c.ShareRatePremiumBPS
+		}
+	default:
+		if c.ShareRateFreeBPS > 0 {
+			return c.ShareRateFreeBPS
+		}
+	}
+	return DefaultConfig().ShareRateFreeBPS
+}
+
+// OnConfirmed records a pending cashback entry (BIGINT VND). Idempotent per conversion.
+func (l *Ledger) OnConfirmed(ctx context.Context, c Conversion) (Entry, error) {
+	if c.Commission < 0 {
+		return Entry{}, fmt.Errorf("cashback: negative commission")
+	}
+	if existing, ok, err := l.Store.GetByConversion(ctx, c.ID); err != nil {
 		return Entry{}, err
 	} else if ok {
 		return existing, nil
 	}
-	share, kept := Split(commission, l.Cfg.ShareRateBPS)
+	confirmedAt := c.ConfirmedAt.UTC()
+	if confirmedAt.IsZero() {
+		confirmedAt = time.Now().UTC()
+	}
+	window := l.Cfg.InvestigationWindow
+	if window <= 0 {
+		window = DefaultConfig().InvestigationWindow
+	}
+	share, kept := Split(c.Commission, l.Cfg.ShareRateBPS(c.UserTier))
 	e := Entry{
-		ConversionID: conversionID,
-		UserID:       userID,
-		Commission:   commission,
+		ConversionID: c.ID,
+		UserID:       c.UserID,
+		Commission:   c.Commission,
 		UserShare:    share,
 		KeptMargin:   kept,
-		Status:       "held",
+		Status:       StatusPending,
+		AvailableAt:  confirmedAt.Add(window),
+		CreatedAt:    confirmedAt,
 	}
-	if err := l.Store.InsertHeld(ctx, e); err != nil {
+	if err := l.Store.InsertPending(ctx, e); err != nil {
 		return Entry{}, err
+	}
+	if l.Metrics != nil {
+		l.Metrics.Pending(share)
 	}
 	return e, nil
 }
 
-func (l *Ledger) TryRelease(ctx context.Context, conversionID int64) error {
-	if l.Hold != nil {
-		blocked, err := l.Hold.Blocked(ctx, conversionID)
-		if err != nil {
-			return err
-		}
-		if blocked {
-			return fmt.Errorf("cashback: still held by trust")
-		}
-	}
-	return l.Store.MarkReleased(ctx, conversionID)
-}
-
+// Clawback marks a pending/available entry clawed_back (network reject / fraud).
 func (l *Ledger) Clawback(ctx context.Context, conversionID int64) error {
-	return l.Store.MarkClawedBack(ctx, conversionID)
-}
-
-func (l *Ledger) MaybeRequestPayout(ctx context.Context, userID int64) (bool, error) {
-	sum, err := l.Store.SumReleasedUnpaid(ctx, userID)
-	if err != nil || sum < l.Cfg.PayoutThreshold {
-		return false, err
+	e, ok, err := l.Store.GetByConversion(ctx, conversionID)
+	if err != nil || !ok {
+		return err
 	}
-	if err := l.Store.CreatePayoutRequest(ctx, userID, sum); err != nil {
-		return false, err
+	if e.Status == StatusPaid || e.Status == StatusClawedBack {
+		return nil
 	}
-	return true, nil
+	if err := l.Store.MarkClawedBack(ctx, conversionID); err != nil {
+		return err
+	}
+	if l.Metrics != nil {
+		l.Metrics.Clawback(e.UserShare)
+	}
+	return nil
 }
