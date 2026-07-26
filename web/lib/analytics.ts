@@ -10,7 +10,10 @@ export type AnalyticsEvent =
   | "trust-click"
   | "pricing-view"
   | "tier-click"
-  | "waitlist-submit";
+  | "waitlist-submit"
+  | "tool-submit"
+  | "verdict-shown"
+  | "lead-captured";
 
 export type AnalyticsPayload = Record<string, string | number | boolean | undefined>;
 

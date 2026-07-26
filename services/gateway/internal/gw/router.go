@@ -85,6 +85,8 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			notif.ServeHTTP(w, r)
 		case strings.HasPrefix(path, "/v1/products/") && strings.HasSuffix(path, "/chart"):
 			deal.ServeHTTP(w, r)
+		case path == "/v1/tools/fake-sale-check":
+			deal.ServeHTTP(w, r)
 		case path == "/v1/billing/checkout", strings.HasPrefix(path, "/v1/billing/ipn/"):
 			bill.ServeHTTP(w, r)
 		case path == "/v1/leads/waitlist":

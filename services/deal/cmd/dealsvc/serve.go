@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -52,6 +53,24 @@ func (r *chartRepo) QueryDaily(ctx context.Context, productID int64, from time.T
 		out = append(out, p)
 	}
 	return out, rows.Err()
+}
+
+func (r *chartRepo) FindProductID(ctx context.Context, platformCode, platformItemID string) (int64, bool, error) {
+	var id int64
+	err := r.pool.QueryRow(ctx, `
+		SELECT tp.id
+		FROM tracked_product tp
+		JOIN platform p ON p.id = tp.platform_id
+		WHERE lower(p.code) = lower($1) AND tp.platform_item_id = $2
+		LIMIT 1
+	`, platformCode, platformItemID).Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, false, nil
+		}
+		return 0, false, err
+	}
+	return id, true, nil
 }
 
 func (r *chartRepo) QueryRawTail(ctx context.Context, productID int64) ([]api.SnapshotPoint, error) {

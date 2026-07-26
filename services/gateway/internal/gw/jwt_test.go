@@ -119,3 +119,13 @@ func TestJWT_Waitlist_Public(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	require.Equal(t, "bill", rr.Header().Get("X-Upstream"))
 }
+
+func TestJWT_FakeSaleCheck_Public(t *testing.T) {
+	deps := testDeps(t)
+	h := NewHandler(deps)
+	req := httptest.NewRequest(http.MethodPost, "/v1/tools/fake-sale-check", strings.NewReader(`{"item_url":"https://shopee.vn/x-i.1.2"}`))
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "deal", rr.Header().Get("X-Upstream"))
+}

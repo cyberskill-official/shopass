@@ -26,6 +26,9 @@ export function LandingPage() {
             <Link href="/login" className="hidden text-sm font-bold text-slate-600 hover:text-sky-800 sm:block">
               Đăng nhập
             </Link>
+            <Link href="/kiem-tra-sale-ao" className="hidden text-sm font-bold text-slate-600 hover:text-sky-800 sm:block">
+              Sale ảo?
+            </Link>
             <Link href="/bang-gia" className="hidden text-sm font-bold text-slate-600 hover:text-sky-800 sm:block">
               Bảng giá
             </Link>
@@ -161,6 +164,14 @@ export function LandingPage() {
             {" · "}
             <Link href="/bang-gia" className="hover:text-sky-800 hover:underline">
               Bảng giá
+            </Link>
+            {" · "}
+            <Link href="/kiem-tra-sale-ao" className="hover:text-sky-800 hover:underline">
+              Kiểm tra sale ảo
+            </Link>
+            {" · "}
+            <Link href="/lich-sale" className="hover:text-sky-800 hover:underline">
+              Lịch sale
             </Link>
           </p>
         </div>
