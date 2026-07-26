@@ -18,12 +18,20 @@ export default function WishlistPage() {
         Tính năng phân loại và quản lý danh sách sản phẩm yêu thích đang được phát triển. Trong thời gian dùng thử (Closed Beta), mọi sản phẩm bạn theo dõi sẽ được hiển thị chung trên Bảng điều khiển.
       </p>
 
-      <Link
-        href="/dashboard"
-        className="mt-8 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-blue-600"
-      >
-        Về Bảng điều khiển
-      </Link>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href="/onboarding"
+          className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-blue-600"
+        >
+          Theo dõi sản phẩm đầu tiên
+        </Link>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700"
+        >
+          Về Bảng điều khiển
+        </Link>
+      </div>
     </section>
   );
 }

@@ -1,4 +1,6 @@
 const defaultNextPath = "/dashboard";
+/** Post-signup aha path (R45). Prefer this when `signup=1` and no explicit next. */
+export const onboardingNextPath = "/onboarding";
 
 // Login's `next` parameter is attacker-controlled. Normalize it with the URL
 // parser and only retain same-origin locations, rather than relying on a

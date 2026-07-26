@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import type { AlertRule } from "@/lib/alerts/api";
 
 const RULE_TYPE_LABELS: Record<string, string> = {
@@ -19,8 +20,14 @@ export function AlertList({
 }) {
   if (alerts.length === 0) {
     return (
-      <div className="bg-gray-50 p-6 text-center rounded-lg border border-dashed border-gray-300">
-        <p className="text-gray-500">Bạn chưa có cảnh báo nào. Hãy tạo một cảnh báo ở trên.</p>
+      <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+        <p className="text-gray-500">Bạn chưa có cảnh báo nào.</p>
+        <Link
+          href="/onboarding"
+          className="mt-4 inline-flex rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-extrabold text-white"
+        >
+          Bật cảnh báo đầu tiên (2 phút)
+        </Link>
       </div>
     );
   }
