@@ -34,15 +34,15 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
-| R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | ready_to_review |
+| R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | done (PR #63) |
 | R19 | Data retention + chunk policy decision | B | S | - | decision | todo |
 | R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | todo |
 | R25 | Pluggable CAPTCHA path (manual queue first) | C | M | R24 | budget (optional solver) | todo |
 | R26 | ML model versioning + evaluation gate | C | M | - | - | todo |
 | R27 | Cold-start backfill + honest history-depth UI | C | M | R24 | - | todo |
 | R30 | Google OAuth live end-to-end test | C | S | R11 | creds (Google client) | todo |
-| R31 | DNR rules integration tests | C | S | - | - | ready_to_review |
-| R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | ready_to_review |
+| R31 | DNR rules integration tests | C | S | - | - | done (PR #63) |
+| R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | done (PR #63) |
 | R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | todo |
 | R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | todo |
 | R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | todo |
