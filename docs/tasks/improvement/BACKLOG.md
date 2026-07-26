@@ -45,7 +45,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | done (PR #63) |
 | R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | todo |
 | R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | done (PR #65) |
-| R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | ready_to_review |
+| R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | done |
 | R41 | Programmatic SEO: public price-history pages (pilot) | E | L | R24 | - | todo |
 | R43 | Lead-magnet tools (fake-sale checker first) | E | M | R38 | - | todo |
 | R45 | Onboarding to first-alert aha moment | E | M | R38 | - | todo |
