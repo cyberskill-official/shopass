@@ -295,3 +295,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `docs/growth/KEYWORD-MAP.md` (~35 targets); batch-1 = 10 new keyword pages (13 total) with unique intros/FAQs/related links; template upgrade + calendar CTA→`/lich-sale`; JSON-LD FAQ/ItemList.
 - stephen_ask: HITL read 3 random pages for template-smell.
 - notes: Interlink sketch in KEYWORD-MAP.md.
+
+## [2026-07-26] R42 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #77 merged)
+- evidence: Operator "Go"; CI green on #77.
+- stephen_ask: -
+- notes: Next: R52 referral UI.
