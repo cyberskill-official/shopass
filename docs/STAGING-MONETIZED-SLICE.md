@@ -89,4 +89,6 @@ B2B, mobile, APNs/email/SMS, cashback, antifraud, SEA comply, Lazada/TikTok live
 
 **Accepted (operator, 2026-07-26):** Paths 1–2 under current DoD — `make simulate-prices` + `make grant-premium` (FCM send, `HTTPS_PROXY` live scrape, and real payment sandboxes remain deferred).
 
+**Reaffirmed (operator “Suggested next steps” / implement, 2026-07-26):** same DoD; helpers already on `main` (PR #56); Wave‑1 R1/R2/R4/R5/R17 already `done`. Next engineering is post‑R1 product-goal pick (Trust / Comply / Channels) or secrets when provisioned — not B2B/mobile first.
+
 Agent must not self-set CyberOS product/improvement task status to `done` without a separate human verdict at the review and final-acceptance gates.
