@@ -24,7 +24,7 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
 # Production topology: docker-compose.production.yml + Caddy + gateway
 ```
 
-Health: `pricesvc`, `tracksvc`, `dealsvc`, `notifsvc`, `billsvc`, `authsvc`, `web`.
+Health: `gateway` (`:8080`), `web` (`:3000`); private services (`pricesvc`, `tracksvc`, `dealsvc`, `notifsvc`, `billsvc`, `authsvc`, `bff`) have no host ports (TASK-INFRA-006).
 
 ## Path 1 — Price → alert → notify
 
@@ -47,7 +47,7 @@ Health: `pricesvc`, `tracksvc`, `dealsvc`, `notifsvc`, `billsvc`, `authsvc`, `we
 
 ### Primary (review while sandboxes deferred)
 
-1. As free user, `POST /v1/alerts` with `bottom_predicted` → **402** + `upgrade_path: /billing`.
+1. As free user, `POST http://127.0.0.1:8080/v1/alerts` with Bearer JWT and `bottom_predicted` → **402** + `upgrade_path: /billing`. (Forged `X-User-Id` without JWT → **401**.)
 2. Temporary bypass (keeps billsvc gating real; skips checkout/IPN):
 
 ```bash
@@ -55,16 +55,17 @@ make grant-premium USER_ID=<uid>
 ```
 
 3. Confirm `subscription.status = 'active'` for that user.
-4. Retry `bottom_predicted` create → **201**.
+4. Retry `bottom_predicted` create via gateway with JWT → **201**.
 
 ### Optional full pay path (when sandboxes / local HMAC ready)
 
-1. Open `/billing`, choose plan + gateway → `POST /v1/billing/checkout` → pay URL / VietQR payload.
+1. Open `/billing`, choose plan + gateway → `POST /v1/billing/checkout` (via web → gateway) → pay URL / VietQR payload.
 2. Simulate IPN (sandbox or signed local body with `MOMO_SECRET_KEY`):
 
 ```bash
 # body must match pending payment amount; X-Signature = HMAC-SHA256 hex of raw body
-curl -X POST "$GATEWAY/v1/billing/ipn/momo" \
+# IPN is public (no JWT); still goes through gateway host port.
+curl -X POST "http://127.0.0.1:8080/v1/billing/ipn/momo" \
   -H "Content-Type: application/json" \
   -H "X-Signature: $SIG" \
   -d '{"order_ref":"order_<uid>_premium_basic","transaction_id":"t1","amount":29000,"status":"paid"}'
