@@ -220,9 +220,9 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | ready_to_review | TASK-NOTIF-003 | 5h |
-| **TASK-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | ready_to_review | TASK-NOTIF-003 | 4h |
-| **TASK-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | ready_to_review | TASK-NOTIF-003 | 6h |
+| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | done | TASK-NOTIF-003 | 5h |
+| **TASK-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | done | TASK-NOTIF-003 | 4h |
+| **TASK-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | done | TASK-NOTIF-003 | 6h |
 
 ---
 
@@ -259,17 +259,17 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | ready_to_review | TASK-INFRA-005, TASK-CART-004 | 8h |
-| **TASK-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | ready_to_review | TASK-COMPLY-001, TASK-COMPLY-006 | 8h |
+| **TASK-COMPLY-006** | Khung per-country gating (luật voucher/affiliate/dữ liệu theo nước) | MUST | done | TASK-INFRA-005, TASK-CART-004 | 8h |
+| **TASK-COMPLY-007** | Adapter bảo vệ dữ liệu SEA (Indonesia PDP, Thailand PDPA) | SHOULD | done | TASK-COMPLY-001, TASK-COMPLY-006 | 8h |
 | **TASK-COMPLY-008** | Tuân thủ luật TMĐT VN (NĐ 52/2013 + 85/2021, MOIT, dự thảo livestream/affiliate 2025) | SHOULD | done | TASK-COMPLY-001 | 6h |
 
 ### P3.5 - TRUST - anti-fraud ở quy mô
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | ready_to_review | TASK-BILL-004, TASK-AFFIL-001 | 10h |
-| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | ready_to_review | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
-| **TASK-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | ready_to_review | TASK-TRUST-004 | 6h |
+| **TASK-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | done | TASK-BILL-004, TASK-AFFIL-001 | 10h |
+| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | done | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
+| **TASK-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | done | TASK-TRUST-004 | 6h |
 
 ---
 
