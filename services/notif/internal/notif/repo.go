@@ -117,6 +117,93 @@ func (r *Repo) ClaimPushBatch(ctx context.Context, n int) ([]PushJob, error) {
 	return jobs, rows.Err()
 }
 
+// ClaimIOSPushBatch claims queued push rows for APNs (platform=ios).
+func (r *Repo) ClaimIOSPushBatch(ctx context.Context, n int) ([]PushJob, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT n.id, n.user_id, t.address AS token, n.payload
+		FROM notification n
+		JOIN user_channel_token t
+		  ON t.user_id = n.user_id AND t.channel = 'push' AND t.verified = true
+		 AND t.platform = 'ios'
+		WHERE n.channel = 'push' AND n.status = 'queued'
+		ORDER BY n.scheduled_at NULLS FIRST, n.id
+		FOR UPDATE OF n SKIP LOCKED
+		LIMIT $1`, n)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var jobs []PushJob
+	for rows.Next() {
+		var j PushJob
+		if err := rows.Scan(&j.NotifID, &j.UserID, &j.Token, &j.Payload); err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs, rows.Err()
+}
+
+// ClaimEmailBatch claims queued email notifications with verified email addresses.
+func (r *Repo) ClaimEmailBatch(ctx context.Context, n int) ([]PushJob, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT n.id, n.user_id, t.address AS token, n.payload
+		FROM notification n
+		JOIN user_channel_token t
+		  ON t.user_id = n.user_id AND t.channel = 'email' AND t.verified = true
+		WHERE n.channel = 'email' AND n.status = 'queued'
+		ORDER BY n.scheduled_at NULLS FIRST, n.id
+		FOR UPDATE OF n SKIP LOCKED
+		LIMIT $1`, n)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var jobs []PushJob
+	for rows.Next() {
+		var j PushJob
+		if err := rows.Scan(&j.NotifID, &j.UserID, &j.Token, &j.Payload); err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs, rows.Err()
+}
+
+// ClaimSMSBatch claims queued SMS notifications with verified phone addresses.
+func (r *Repo) ClaimSMSBatch(ctx context.Context, n int) ([]PushJob, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT n.id, n.user_id, t.address AS token, n.payload
+		FROM notification n
+		JOIN user_channel_token t
+		  ON t.user_id = n.user_id AND t.channel = 'sms' AND t.verified = true
+		WHERE n.channel = 'sms' AND n.status = 'queued'
+		ORDER BY n.scheduled_at NULLS FIRST, n.id
+		FOR UPDATE OF n SKIP LOCKED
+		LIMIT $1`, n)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var jobs []PushJob
+	for rows.Next() {
+		var j PushJob
+		if err := rows.Scan(&j.NotifID, &j.UserID, &j.Token, &j.Payload); err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, j)
+	}
+	return jobs, rows.Err()
+}
+
+// InvalidateEmail marks email channel tokens unverified (hard bounce / complaint).
+func (r *Repo) InvalidateEmail(ctx context.Context, userID int64) error {
+	_, err := r.pool.Exec(ctx,
+		`UPDATE user_channel_token SET verified=false, updated_at=now()
+		 WHERE user_id=$1 AND channel='email'`, userID)
+	return err
+}
+
 // MarkSent transitions a notification from queued→sent (idempotent: only updates if still queued).
 func (r *Repo) MarkSent(ctx context.Context, id int64) error {
 	_, err := r.pool.Exec(ctx,
