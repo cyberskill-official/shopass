@@ -1,15 +1,28 @@
 "use client";
 
 import React, { type FormEvent, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { fetchChart, submitBrowserPrice } from "@/lib/chart/fetch-chart";
-import { PriceChart } from "@/components/price-chart/price-chart";
 import { VerdictBadge } from "@/components/price-chart/verdict-badge";
 import { MaturityNotice } from "@/components/price-chart/maturity-notice";
 import { RangeSelector } from "@/components/price-chart/range-selector";
 import { BottomAlertCta } from "@/components/onboarding/bottom-alert-cta";
+import { RouteError } from "@/components/ui/route-error";
 import type { ChartResponse, Range } from "@/lib/chart/types";
+
+const PriceChart = dynamic(
+  () => import("@/components/price-chart/price-chart").then((m) => m.PriceChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[400px] items-center justify-center rounded-2xl bg-slate-50 text-sm font-bold text-slate-500">
+        Đang tải biểu đồ…
+      </div>
+    ),
+  },
+);
 
 export default function ProductChartPage() {
   const params = useParams();
@@ -98,16 +111,11 @@ export default function ProductChartPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Quay lại danh sách
         </button>
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-red-100 bg-red-50 py-16 px-6 text-center shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-red-500 shadow-sm">
-            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-          </div>
-          <h2 className="mt-5 text-xl font-black text-red-900">Không thể tải dữ liệu</h2>
-          <p className="mt-2 text-sm text-red-700">{error}</p>
-          <button onClick={() => window.location.reload()} className="mt-6 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 border border-slate-200">
-            Thử lại
-          </button>
-        </div>
+        <RouteError
+          title="Không thể tải dữ liệu"
+          message={error}
+          onRetry={() => setRefreshKey((v) => v + 1)}
+        />
       </div>
     );
   }

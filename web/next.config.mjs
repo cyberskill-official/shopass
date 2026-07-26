@@ -30,6 +30,13 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  compress: true,
+  images: {
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      { protocol: "https", hostname: "shopass.cyberskill.world" },
+    ],
+  },
   async redirects() {
     return [
       // Spec R44 used the old product name in the slug; keep SEO alias.

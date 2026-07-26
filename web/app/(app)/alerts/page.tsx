@@ -3,6 +3,8 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { AlertForm } from "@/components/alerts/alert-form";
 import { AlertList } from "@/components/alerts/alert-list";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { RouteError } from "@/components/ui/route-error";
 import {
   deleteAlert,
   listAlerts,
@@ -80,11 +82,13 @@ export default function AlertsPage() {
       <AlertForm onCreated={() => void refresh()} />
 
       {loading ? (
-        <p className="text-sm text-slate-500">Đang tải cảnh báo…</p>
+        <ListSkeleton rows={4} />
       ) : error ? (
-        <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {error}
-        </p>
+        <RouteError
+          title="Không thể tải cảnh báo"
+          message={error}
+          onRetry={() => void refresh()}
+        />
       ) : (
         <AlertList
           alerts={alerts}

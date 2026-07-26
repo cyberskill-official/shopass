@@ -6,14 +6,24 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <header className="bg-blue-600 text-white shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Shopass</h1>
-        <nav>
-          <Link href="/login" className="hover:underline">Đăng nhập</Link>
+    <div className="flex min-h-screen flex-col bg-white">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-slate-900"
+      >
+        Bỏ qua điều hướng
+      </a>
+      <header className="flex items-center justify-between bg-blue-600 px-6 py-4 text-white shadow-sm">
+        <Link href="/" className="text-xl font-bold">
+          Shopass
+        </Link>
+        <nav aria-label="Tài khoản">
+          <Link href="/login" className="hover:underline">
+            Đăng nhập
+          </Link>
         </nav>
       </header>
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         {children}
       </main>
       <footer className="bg-gray-100 px-6 py-6 text-center text-sm text-gray-600">
