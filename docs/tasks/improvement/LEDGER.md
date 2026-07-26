@@ -289,3 +289,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator continue-the-rest; CI green on #75.
 - stephen_ask: -
 - notes: Agent-unblocked Wave-2/3 growth batch paused. Remaining need Stephen (R11/R12/R15/R19/R23/R24/R36/R40/R49) or heavy Wave-3 (R32/R42/R48/R20).
+
+## [2026-07-26] R42 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `docs/growth/KEYWORD-MAP.md` (~35 targets); batch-1 = 10 new keyword pages (13 total) with unique intros/FAQs/related links; template upgrade + calendar CTA→`/lich-sale`; JSON-LD FAQ/ItemList.
+- stephen_ask: HITL read 3 random pages for template-smell.
+- notes: Interlink sketch in KEYWORD-MAP.md.
