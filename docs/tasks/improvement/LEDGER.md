@@ -347,3 +347,11 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: complysvc HTTP added for consent/DSAR/breach; same-DB DSAR adapters for app_user, track/wishlist/alerts, and bill payment PII; gateway/compose/prometheus wired; breach runbook and data inventory docs added; `go test ./...` in services/comply and services/gateway passed; CyberOS gate green with `PYENV_VERSION=3.12.13 PYTHONPATH=.`.
 - stephen_ask: HITL review acceptance for R32; confirm production incident contacts before use.
 - notes: Did not set done. First unqualified CyberOS gate failed because local pyenv lacks Python 3.11 required by services/ml/.python-version; rerun passed using installed Python 3.12.13 and PYTHONPATH.
+
+## [2026-07-26] R32 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #84 merged)
+- evidence: Operator "Go do all remainings"; CI green on #84.
+- stephen_ask: Confirm production incident contacts; tabletop breach runbook; spot-check 3 inventory fields.
+- notes: Next agent-doable: R33 CI compliance gates.
+
