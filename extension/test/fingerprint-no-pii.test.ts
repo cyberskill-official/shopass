@@ -1,6 +1,8 @@
 import { TextEncoder } from "node:util";
 import { webcrypto } from "node:crypto";
 
+import { hashDeviceSignals } from "../src/fingerprint/hash";
+
 const g = globalThis as typeof globalThis & {
   TextEncoder?: typeof TextEncoder;
   crypto?: Crypto;
@@ -11,8 +13,6 @@ if (typeof g.TextEncoder === "undefined") {
 if (typeof g.crypto === "undefined" || typeof g.crypto.subtle === "undefined") {
   Object.defineProperty(g, "crypto", { value: webcrypto, configurable: true });
 }
-
-import { hashDeviceSignals } from "../src/fingerprint/hash";
 
 describe("fingerprint hash", () => {
   it("produces stable hex digest without embedding raw UA", async () => {
