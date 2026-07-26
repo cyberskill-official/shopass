@@ -70,18 +70,23 @@ echo "== build service binaries =="
 ( cd "$ROOT/services/price"  && go build -o "$BIN/pricesvc"  ./cmd/pricesvc )
 ( cd "$ROOT/services/scrape" && go build -o "$BIN/scrapesvc" ./cmd/scrapesvc )
 ( cd "$ROOT/services/deal"   && go build -o "$BIN/dealsvc"   ./cmd/dealsvc )
+( cd "$ROOT/services/notif"  && go build -o "$BIN/notifsvc"  ./cmd/notifsvc )
 
 echo "== seed =="
 "${PSQL[@]}" >/dev/null <<SQL
-TRUNCATE bottom_alert_log, alert_rule, price_forecast, price_snapshot CASCADE;
+TRUNCATE bottom_alert_log, alert_rule, price_forecast, price_snapshot, notification, user_channel_token CASCADE;
 INSERT INTO platform (id, code, country) VALUES (1,'shopee','VN') ON CONFLICT (id) DO NOTHING;
 INSERT INTO app_user (id) VALUES (999) ON CONFLICT (id) DO NOTHING;
 INSERT INTO tracked_product (id, platform_id, platform_item_id, first_seen)
   VALUES (100, 1, '555:777', now() - INTERVAL '100 days') ON CONFLICT (id) DO NOTHING;
 INSERT INTO alert_rule (user_id, product_id, rule_type, active) VALUES (999,100,'bottom_predicted',true);
+-- Verified web push token so real notifsvc can enqueue (FCM dispatcher may stay idle without creds).
+INSERT INTO user_channel_token (user_id, channel, platform, address, verified)
+VALUES (999, 'push', 'web', 'smoke-fcm-token', true)
+ON CONFLICT (user_id, channel, platform) DO UPDATE SET address = EXCLUDED.address, verified = true;
 SQL
 
-echo "== fake Shopee (:18090) + fake notif (:18091) =="
+echo "== fake Shopee (:18090) =="
 python3 - <<'PY' & pids+=($!)
 import http.server,json
 class H(http.server.BaseHTTPRequestHandler):
@@ -91,41 +96,38 @@ class H(http.server.BaseHTTPRequestHandler):
     def log_message(s,*a):pass
 http.server.HTTPServer(("127.0.0.1",18090),H).serve_forever()
 PY
-python3 - <<'PY' & pids+=($!)
-import http.server
-class H(http.server.BaseHTTPRequestHandler):
-    def do_POST(s):
-        s.rfile.read(int(s.headers.get("Content-Length",0)))
-        open("/tmp/smoke_notif.log","a").write("1\n")
-        s.send_response(200);s.end_headers();s.wfile.write(b"ok")
-    def log_message(s,*a):pass
-http.server.HTTPServer(("127.0.0.1",18091),H).serve_forever()
-PY
-: > /tmp/smoke_notif.log
 
-echo "== pricesvc (:18081) =="
-DATABASE_URL="$DSN" PRICE_ADDR=":18081" "$BIN/pricesvc" >/tmp/smoke_pricesvc.log 2>&1 & pids+=($!)
+SMOKE_PRICE_TOKEN="${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}"
+echo "== pricesvc (:18081) + real notifsvc (:18091) =="
+DATABASE_URL="$DSN" PRICE_ADDR=":18081" PRICE_INTERNAL_SERVICE_TOKEN="$SMOKE_PRICE_TOKEN" \
+  "$BIN/pricesvc" >/tmp/smoke_pricesvc.log 2>&1 & pids+=($!)
+# FCM_PROJECT_ID unset → enqueue-only (dispatcher idle); proves deal→DB notification path.
+DATABASE_URL="$DSN" PORT="18091" "$BIN/notifsvc" >/tmp/smoke_notifsvc.log 2>&1 & pids+=($!)
 sleep 2
 
 echo "== STEP 1: scrape -> price ingest =="
-SHOPEE_BASE_URL="http://127.0.0.1:18090" PRICE_BASE_URL="http://127.0.0.1:18081" SCRAPE_SEED="100:555:777" "$BIN/scrapesvc"
+SHOPEE_BASE_URL="http://127.0.0.1:18090" PRICE_BASE_URL="http://127.0.0.1:18081" \
+PRICE_INTERNAL_SERVICE_TOKEN="$SMOKE_PRICE_TOKEN" \
+SCRAPE_SEED="100:555:777" "$BIN/scrapesvc"
+# pricesvc also needs the token when smoke builds with required env — set both for safety
 snap="$("${PSQL[@]}" -c "SELECT price FROM price_snapshot WHERE product_id=100")"
 echo "  price_snapshot(100).price = ${snap:-NONE}"
 
-echo "== STEP 2: forecast (represents ml output; Prophet fit needs CmdStan) =="
+echo "== STEP 2: forecast (mature SKU fixture; see docs/FORECAST-COLD-START.md) =="
 "${PSQL[@]}" >/dev/null <<SQL
 INSERT INTO price_forecast (product_id, run_date, horizon_day, yhat, yhat_lower, yhat_upper, p_bottom_14d, model_kind, scored_at)
 VALUES (100, current_date, 14, 100000, 90000, 110000, 0.85, 'lgbm', now());
 SQL
 
-echo "== STEP 3: dealsvc RUN_ONCE -> alert =="
+echo "== STEP 3: dealsvc RUN_ONCE -> real notifsvc =="
 DATABASE_URL="$DSN" NOTIFSVC_URL="http://127.0.0.1:18091/notify" RUN_ONCE=1 "$BIN/dealsvc"
 alerts="$("${PSQL[@]}" -c "SELECT count(*) FROM bottom_alert_log WHERE user_id=999 AND product_id=100")"
-notifs="$(wc -l < /tmp/smoke_notif.log | tr -d ' ')"
+notifs="$("${PSQL[@]}" -c "SELECT count(*) FROM notification WHERE user_id=999 AND status IN ('queued','sent')")"
 
 echo "== RESULT =="
 if [ "${snap:-}" = "199000" ] && [ "${alerts:-0}" -ge 1 ] && [ "${notifs:-0}" -ge 1 ]; then
-  echo "  PASS: scraped 199000 -> price_snapshot -> forecast -> alert fired (bottom_alert_log=$alerts, notif=$notifs)"
+  echo "  PASS: scraped 199000 -> price_snapshot -> forecast -> alert + notification (bottom_alert_log=$alerts, notification=$notifs)"
 else
   echo "  FAIL: snap=$snap alerts=$alerts notifs=$notifs"; exit 1
 fi
+
