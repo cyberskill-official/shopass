@@ -2,6 +2,7 @@ package referral
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -55,6 +56,23 @@ func setup() (*Service, *mockRepo, *mockEventBus) {
 	bus := &mockEventBus{}
 	s := NewService(repo, bus)
 	return s, repo, bus
+}
+
+type mockFraudHooks struct {
+	edges     [][2]int64
+	assessed  []int64
+	edgeErr   error
+	assessErr error
+}
+
+func (m *mockFraudHooks) UpsertReferralEdge(ctx context.Context, referrerID, refereeID int64) error {
+	m.edges = append(m.edges, [2]int64{referrerID, refereeID})
+	return m.edgeErr
+}
+
+func (m *mockFraudHooks) Assess(ctx context.Context, userID int64, extras map[string]any) error {
+	m.assessed = append(m.assessed, userID)
+	return m.assessErr
 }
 
 func TestAttribute_Valid(t *testing.T) {
@@ -114,5 +132,50 @@ func TestAttribute_PublishesEvent_NoDirectReward(t *testing.T) {
 	s.Attribute(context.Background(), 200, "SD123")
 	if bus.CountOf("referral.attributed") != 1 {
 		t.Fatalf("expected 1 event published, got %d", bus.CountOf("referral.attributed"))
+	}
+}
+
+func TestAttribute_RecordsReferralFraudSignals(t *testing.T) {
+	repo := &mockRepo{
+		codes:      map[string]*ReferralCode{"SD123": &ReferralCode{ID: 1, UserID: 100, Code: "SD123"}},
+		attributed: make(map[int64]int64),
+	}
+	bus := &mockEventBus{}
+	hooks := &mockFraudHooks{}
+	s := NewService(repo, bus, WithReferralFraud(hooks, hooks))
+
+	err := s.Attribute(context.Background(), 200, "SD123")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(hooks.edges) != 1 || hooks.edges[0] != [2]int64{100, 200} {
+		t.Fatalf("expected referral edge 100 -> 200, got %#v", hooks.edges)
+	}
+	if len(hooks.assessed) != 1 || hooks.assessed[0] != 100 {
+		t.Fatalf("expected referrer fraud assessment, got %#v", hooks.assessed)
+	}
+}
+
+func TestAttribute_FraudSignalErrorsAreBestEffort(t *testing.T) {
+	repo := &mockRepo{
+		codes:      map[string]*ReferralCode{"SD123": &ReferralCode{ID: 1, UserID: 100, Code: "SD123"}},
+		attributed: make(map[int64]int64),
+	}
+	bus := &mockEventBus{}
+	hooks := &mockFraudHooks{
+		edgeErr:   errors.New("edge down"),
+		assessErr: errors.New("assess down"),
+	}
+	s := NewService(repo, bus, WithReferralFraud(hooks, hooks))
+
+	err := s.Attribute(context.Background(), 200, "SD123")
+	if err != nil {
+		t.Fatalf("fraud hook errors must not fail attribution: %v", err)
+	}
+	if repo.codes["SD123"].Uses != 1 {
+		t.Fatalf("expected uses to increment despite fraud hook errors")
+	}
+	if bus.CountOf("referral.attributed") != 1 {
+		t.Fatalf("expected event to publish despite fraud hook errors")
 	}
 }

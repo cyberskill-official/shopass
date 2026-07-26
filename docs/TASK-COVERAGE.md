@@ -4,11 +4,7 @@ Date: 2026-07-03 (status alignment 2026-07-25). This maps the 91 tasks to what a
 
 **Source of truth for implementation presence.** Task frontmatter `status: done` must not contradict this file. As of 2026-07-25 the 15 tasks listed under "no code" were reset to `ready_to_implement` (and BACKLOG.md matched). Spec `audit.md` scores of `10/10` mean the *spec* passed task-audit before build — they are not evidence that code shipped. CyberOS HITL still requires a human to set `done`; agents must not invent completion.
 
-<<<<<<< HEAD
-Headline: 75 of 90 tasks have code on disk; 15 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
-=======
-Headline: 76 of 91 tasks have code on disk; 15 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
->>>>>>> 2b571da (feat(comply): wire country gating into cart)
+Headline: 78 of 91 tasks have code on disk; 13 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
 
 ## Per-module status
 
@@ -25,28 +21,17 @@ Headline: 76 of 91 tasks have code on disk; 15 have none. About 77% of the decla
 | WEB | 5 | 100% | real | scaffold, landing/SEO, chart, wishlist UI, and the GraphQL BFF (TASK-WEB-005: read-only, behind gateway, resolvers delegate to REST, DataLoader anti-N+1, depth/cost caps). |
 | AUTH | 5 | 100% | real | JWT issue/refresh, password, account model, and social login (TASK-AUTH-004: OAuth Authorization Code + PKCE, id_token verify via JWKS, social_identity, takeover-safe email merge). Only the live Google token exchange is gated on a real client secret. |
 | PRICE | 5 | 100% | real | tracked_product, snapshot hypertable, history, and cross-platform compare (TASK-PRICE-004: GET /v1/compare, latest-per-product, server-side cheapest flag). |
-<<<<<<< HEAD
-| COMPLY | 8 | 62% | partial | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation present; TASK-COMPLY-006/007 (per-country extension, SEA) missing. |
-| NOTIF | 7 | 47% | partial | schema, FCM, fan-out, midnight-spike, and email MVP noop dispatcher present; TASK-NOTIF-005/007 (APNs, SMS) missing. |
-=======
 | COMPLY | 8 | 75% | partial | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, and TASK-COMPLY-006 per-country gating present; TASK-COMPLY-007 (SEA adapters) missing. |
-| NOTIF | 7 | 41% | partial | schema, FCM, fan-out, midnight-spike present; TASK-NOTIF-005/006/007 (APNs, email, SMS) missing. |
->>>>>>> 2b571da (feat(comply): wire country gating into cart)
-| TRUST | 6 | 41% | partial | open-source, data-minimization, security-audit present; TASK-TRUST-004/005/006 (anti-fraud, attribution-gaming, device fingerprint) missing. |
+| NOTIF | 7 | 47% | partial | schema, FCM, fan-out, midnight-spike, and email MVP noop dispatcher present; TASK-NOTIF-005/007 (APNs, SMS) missing. |
+| TRUST | 6 | 58% | partial | open-source, data-minimization, security-audit, and TASK-TRUST-004 anti-fraud PG + referral Assess present; TASK-TRUST-005/006 (attribution-gaming, device fingerprint) missing. |
 | B2B | 4 | 0% | missing | entire module absent (P3). |
 | MOBILE | 3 | 0% | missing | entire module absent (P3). |
 
-## The 15 tasks with no code
+## The 13 tasks with no code
 
-<<<<<<< HEAD
-TASK-AFFIL-005, TASK-NOTIF-005, TASK-NOTIF-007, TASK-COMPLY-006, TASK-COMPLY-007, TASK-TRUST-004, TASK-TRUST-005, TASK-TRUST-006, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
+TASK-AFFIL-005, TASK-NOTIF-005, TASK-NOTIF-007, TASK-COMPLY-007, TASK-TRUST-005, TASK-TRUST-006, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
 
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 15 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback, anti-fraud, SEA compliance, APNs/SMS notification channels - consistent with an MVP-first build.
-=======
-TASK-AFFIL-005, TASK-NOTIF-005, TASK-NOTIF-006, TASK-NOTIF-007, TASK-COMPLY-007, TASK-TRUST-004, TASK-TRUST-005, TASK-TRUST-006, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
-
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 15 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback, anti-fraud, SEA compliance, and the extra push channels - consistent with an MVP-first build.
->>>>>>> 2b571da (feat(comply): wire country gating into cart)
+All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 13 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback, anti-fraud, SEA compliance, and the extra push channels - consistent with an MVP-first build.
 
 ## The stubs that block a working MVP
 
