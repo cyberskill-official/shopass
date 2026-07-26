@@ -97,16 +97,17 @@ class H(http.server.BaseHTTPRequestHandler):
 http.server.HTTPServer(("127.0.0.1",18090),H).serve_forever()
 PY
 
+SMOKE_PRICE_TOKEN="${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}"
 echo "== pricesvc (:18081) + real notifsvc (:18091) =="
-DATABASE_URL="$DSN" PRICE_ADDR=":18081" "$BIN/pricesvc" >/tmp/smoke_pricesvc.log 2>&1 & pids+=($!)
+DATABASE_URL="$DSN" PRICE_ADDR=":18081" PRICE_INTERNAL_SERVICE_TOKEN="$SMOKE_PRICE_TOKEN" \
+  "$BIN/pricesvc" >/tmp/smoke_pricesvc.log 2>&1 & pids+=($!)
 # FCM_PROJECT_ID unset → enqueue-only (dispatcher idle); proves deal→DB notification path.
 DATABASE_URL="$DSN" PORT="18091" "$BIN/notifsvc" >/tmp/smoke_notifsvc.log 2>&1 & pids+=($!)
 sleep 2
 
 echo "== STEP 1: scrape -> price ingest =="
-PRICE_INTERNAL_SERVICE_TOKEN="${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}" \
 SHOPEE_BASE_URL="http://127.0.0.1:18090" PRICE_BASE_URL="http://127.0.0.1:18081" \
-PRICE_INTERNAL_SERVICE_TOKEN="${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}" \
+PRICE_INTERNAL_SERVICE_TOKEN="$SMOKE_PRICE_TOKEN" \
 SCRAPE_SEED="100:555:777" "$BIN/scrapesvc"
 # pricesvc also needs the token when smoke builds with required env — set both for safety
 snap="$("${PSQL[@]}" -c "SELECT price FROM price_snapshot WHERE product_id=100")"
