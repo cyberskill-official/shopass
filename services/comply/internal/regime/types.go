@@ -3,8 +3,8 @@ package regime
 import "errors"
 
 var (
-	ErrCountryNotOpen     = errors.New("regime: country not open")
-	ErrUnsupportedRegime  = errors.New("regime: unsupported")
+	ErrCountryNotOpen    = errors.New("regime: country not open")
+	ErrUnsupportedRegime = errors.New("regime: unsupported")
 )
 
 type Profile struct {
