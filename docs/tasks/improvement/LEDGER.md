@@ -361,3 +361,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Read gate scripts once; confirm waiver tags require a human id; plan removal of R33-bootstrap waivers.
 - notes: Local green + overdue red via `DPIA_TODAY=2099-01-01`.
 
+## [2026-07-26] R33 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #88 merged)
+- evidence: Operator "Go do all remainings"; CI green on #88 including Compliance gates (R33) job + overdue DPIA red-path.
+- stephen_ask: Plan removal of reviewed:R33-bootstrap consent waivers when IsAllowed lands on track/notif/b2b.
+- notes: Agent-unblocked Wave-3 compliance batch complete. Remaining need Stephen (R11/R12/R15/R19/R23/R24/R36/R40/R49) or account/outreach tasks.
+
