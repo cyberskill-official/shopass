@@ -243,7 +243,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **TASK-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | ready_to_review | TASK-PRICE-002, TASK-COMPLY-003 | 10h |
-| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | ready_to_implement | TASK-B2B-001, TASK-BILL-001 | 8h |
+| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | ready_to_review | TASK-B2B-001, TASK-BILL-001 | 8h |
 | **TASK-B2B-003** | Seller-facing competitor price analytics | COULD | ready_to_implement | TASK-B2B-001 | 8h |
 | **TASK-B2B-004** | Premium API access (tiers, rate-limited) | COULD | ready_to_implement | TASK-INFRA-001, TASK-B2B-001 | 6h |
 
