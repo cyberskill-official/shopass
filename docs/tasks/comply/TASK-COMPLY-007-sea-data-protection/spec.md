@@ -3,7 +3,7 @@ id: TASK-COMPLY-007
 title: "Adapter bảo vệ dữ liệu SEA - Indonesia PDP Law + Thailand PDPA; lớp adapter theo regime trên khung consent/DSAR/breach VN"
 module: COMPLY
 priority: SHOULD
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 1
