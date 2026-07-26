@@ -70,7 +70,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R48 | Web performance + a11y pass, Lighthouse in CI | E | M | R38 | - | todo |
 | R50 | Zalo OA + Telegram public deal channels | F | M | R23, R41 | account | todo |
 | R51 | TikTok content engine (chart-verdict shorts) | F | M | R41 | account, outreach | todo |
-| R52 | Referral program UI surface | F | M | R38 | - | ready_to_review |
+| R52 | Referral program UI surface | F | M | R38 | - | done |
 | R53 | Launch calendar + press kit (timed to double-day sale) | F | M | R38, R49 | outreach | todo |
 | R54 | B2B lead magnet: VN price index report (gated) | F | M | R24 | - | todo |
 | R56 | Partnership + KOC affiliate probes | F | M | R52 | outreach | todo |

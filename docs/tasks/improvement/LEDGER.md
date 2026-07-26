@@ -308,3 +308,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `GET /v1/referral/me` + `POST /v1/referral/attribute` (bill PG repo); dashboard ReferralCard (code/copy/Zalo); signup `?ref=` → attribute after auto-login; self-referral blocked; analytics `share-click`/`referred-signup`; default reward proposal 1mo Premium both sides (pending Stephen economics).
 - stephen_ask: Approve reward economics; try self-referral fails.
 - notes: Rewards still delayed via anti-fraud event (DEC-BILL-19) — UI shows status/uses only.
+
+## [2026-07-26] R52 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #79 merged)
+- evidence: Operator "Go"; CI green on #79.
+- stephen_ask: -
+- notes: Next agent-doable: R48 Lighthouse/a11y, R20 k6, R32 PDPL.
