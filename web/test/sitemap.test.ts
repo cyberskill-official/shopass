@@ -18,5 +18,7 @@ describe("Sitemap", () => {
     expect(urls).toContain(`${siteURL}/bang-gia`);
     expect(urls).toContain(`${siteURL}/kiem-tra-sale-ao`);
     expect(urls).toContain(`${siteURL}/lich-sale`);
+    expect(urls).toContain(`${siteURL}/so-sanh/shopass-vs-beecost`);
+    expect(urls).toContain(`${siteURL}/thay-the-honey`);
   });
 });
