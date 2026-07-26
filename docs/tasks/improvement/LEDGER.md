@@ -224,3 +224,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/bang-gia` Free/Premium/Plus/Pro + FAQ; waitlist modal → `POST /api/waitlist` → gateway `POST /v1/leads/waitlist` → bill `marketing_lead` (migration 0006); public JWT path; analytics stubs `pricing-view`/`tier-click`/`waitlist-submit`; `NEXT_PUBLIC_CHECKOUT_LIVE` flip for R28; landing nav/footer + sitemap.
 - stephen_ask: HITL confirm tier prices (29k/49k/79k) still match intent before indexing.
 - notes: -
+
+## [2026-07-26] R39 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #67 merged)
+- evidence: Operator standing continue-in-batches; CI green on #67.
+- stephen_ask: -
+- notes: Next unblocked Wave-2: R43 (fake-sale checker), R45 (onboarding). Still needs_stephen: R11/R12/R15/R19/R23/R24/R36/R40/R49.
