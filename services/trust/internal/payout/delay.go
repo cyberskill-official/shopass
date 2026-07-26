@@ -35,9 +35,9 @@ func DefaultConfig() Config {
 }
 
 type Service struct {
-	Cfg  Config
+	Cfg   Config
 	Store Store
-	Risk RiskReader
+	Risk  RiskReader
 }
 
 // OnConversionConfirmed creates a payout hold — never pays immediately.

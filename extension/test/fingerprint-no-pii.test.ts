@@ -1,3 +1,17 @@
+import { TextEncoder } from "node:util";
+import { webcrypto } from "node:crypto";
+
+const g = globalThis as typeof globalThis & {
+  TextEncoder?: typeof TextEncoder;
+  crypto?: Crypto;
+};
+if (typeof g.TextEncoder === "undefined") {
+  g.TextEncoder = TextEncoder;
+}
+if (typeof g.crypto === "undefined" || typeof g.crypto.subtle === "undefined") {
+  Object.defineProperty(g, "crypto", { value: webcrypto, configurable: true });
+}
+
 import { hashDeviceSignals } from "../src/fingerprint/hash";
 
 describe("fingerprint hash", () => {

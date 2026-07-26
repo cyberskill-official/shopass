@@ -29,7 +29,7 @@ type HoldChecker interface {
 }
 
 type Config struct {
-	ShareRateBPS   int64 // basis points, e.g. 5000 = 50%
+	ShareRateBPS    int64 // basis points, e.g. 5000 = 50%
 	PayoutThreshold int64
 }
 

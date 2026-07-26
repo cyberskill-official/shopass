@@ -8,7 +8,7 @@ import (
 )
 
 type memCB struct {
-	byConv map[int64]Entry
+	byConv  map[int64]Entry
 	payouts []int64
 }
 
