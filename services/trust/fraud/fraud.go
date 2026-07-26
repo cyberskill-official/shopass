@@ -23,9 +23,12 @@ type PGClusterSizer = internal.PGClusterSizer
 type PGSignalStore = internal.PGSignalStore
 type PGAccountLinkStore = internal.PGAccountLinkStore
 type PGRewardHolder = internal.PGRewardHolder
+type PGDeviceEdges = internal.PGDeviceEdges
+type DeviceService = internal.DeviceService
 
 type PGDB interface {
 	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
@@ -55,4 +58,8 @@ func NewPGAccountLinkStore(db PGDB) *PGAccountLinkStore {
 
 func NewPGRewardHolder(db PGDB, log *slog.Logger) *PGRewardHolder {
 	return internal.NewPGRewardHolder(db, log)
+}
+
+func NewPGDeviceEdges(db PGDB) *PGDeviceEdges {
+	return internal.NewPGDeviceEdges(db)
 }
