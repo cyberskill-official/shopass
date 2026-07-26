@@ -117,3 +117,16 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Makefile seed/smoke refuse without APP_ENV=dev|development or ALLOW_SEED=1; deploy/README documents demo IDs 999/100.
 - stephen_ask: HITL accept → done.
 - notes: -
+
+## [2026-07-26] R3/R7/R8/R9 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #60 merged)
+- evidence: Operator "Merge then continue"; CI green on #60; proprietary+MIT license, Shopass domain endpoints, SessionGuard tests, seed guard.
+- stephen_ask: -
+- notes: DNS for shopass.cyberskill.world / api still operator infra; CWS listing assets remain R49.
+
+## [2026-07-26] R10 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: SHIP-GUIDE → Go 1.25.12; `toolchain go1.25.12` in every go.mod; CI setup-go 1.25.12; Dockerfile.go golang:1.25.12; govulncheck step (all modules incl. b2b/trust) before Go tests; local govulncheck clean on 1.25.12.
+- stephen_ask: HITL accept → done (skim triage).
+- notes: Version decision = keep 1.25 line, pin patch 1.25.12 (stdlib CVEs fixed through 1.25.12). Dep bumps for reachable findings: go-jose/v4 → v4.1.4 (secrets); golang.org/x/text → v0.39.0 (scrape/deal/bill).

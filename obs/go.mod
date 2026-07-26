@@ -2,6 +2,8 @@ module shopass/obs
 
 go 1.25.0
 
+toolchain go1.25.12
+
 require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/stretchr/testify v1.11.1

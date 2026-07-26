@@ -72,7 +72,7 @@ These are correct tests that need infrastructure the sandbox cannot provide. The
 git rm -r --cached services/ml/.venv audit/node_modules extension/node_modules web/node_modules
 ```
 
-- `go.mod` files declare `go 1.25.0`; SHIP-GUIDE mandates 1.22. Align the `go` directive after confirming the code uses no 1.23+ features.
+- ~~`go.mod` files declare `go 1.25.0`; SHIP-GUIDE mandates 1.22.~~ Resolved by R10 (2026-07-26): SHIP-GUIDE + CI + Dockerfile + `toolchain go1.25.12` aligned; govulncheck in CI.
 
 ## How to run each suite
 
