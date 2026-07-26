@@ -54,6 +54,8 @@ func (c *Client) Send(ctx context.Context, deviceToken string, payload []byte) (
 	req.Header.Set("authorization", "bearer "+tok)
 	req.Header.Set("apns-topic", c.topic)
 	req.Header.Set("apns-push-type", "alert")
+	req.Header.Set("apns-priority", "10")
+	req.Header.Set("apns-expiration", "0")
 	req.Header.Set("content-type", "application/json")
 
 	resp, err := c.http.Do(req)
