@@ -12,6 +12,7 @@ Shared Go helpers: Prometheus metrics (`HTTPObserve`, `MetricsHandler`), OTel tr
 | Availability | blackbox `probe_success` | `ShopassServiceDown` | fail for 2m |
 | R17 scrape | `shopass_job_last_success_unixtime{job_name="scrape"}` | `ShopassScrapeJobStale` | age > 450s |
 | R17 forecast | `shopass_job_last_success_unixtime{job_name="forecast"}` | `ShopassForecastJobStale` | age > 36h |
+| R26 model gate | `shopass_ml_gate_trips_total` (Pushgateway) | `ShopassModelGateTripped` | any increase in 1h |
 
 Rules live in `deploy/prometheus/rules/shopass.yml`. Bring up the stack with `deploy/docker-compose.observability.yml` (profile `observability`).
 

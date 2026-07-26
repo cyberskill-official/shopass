@@ -199,3 +199,15 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator standing "merge then continue remaining tasks in batches"; CI green on #63.
 - stephen_ask: -
 - notes: Next unblocked Wave-2 candidates: R26 (ML versioning), R38 (landing). Still needs_stephen: R11/R12/R15/R19/R23/R24/R36/R40/R49.
+
+## [2026-07-26] R26 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `model_run` migration 0003; gate MAPE≤1.2× trailing best; suppress p_bottom / category_prior fallback; artifact stub; Pushgateway counter + `ShopassModelGateTripped` alert; pytest `test_gate.py` + consecutive runs in forecast writer tests.
+- stephen_ask: HITL skim thresholds; confirm chart honesty when p_bottom suppressed.
+- notes: -
+
+## [2026-07-26] R38 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/` landing with R38 hero copy, recharts demo, how-it-works, trust strip (R34/R35/GitHub), FAQ+JSON-LD, signup/install CTAs with analytics stub; signed-in refresh cookie → `/dashboard`.
+- stephen_ask: HITL visual/copy review (company face).
+- notes: R40 events are buffered stubs until analytics vendor decision.
