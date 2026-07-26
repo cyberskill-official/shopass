@@ -256,3 +256,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/onboarding` paste→chart→「Báo tôi khi chạm đáy」; `createAhaAlert` prefers `bottom_predicted`, Free 402→`real_sale`; signup auto-login + `next=/onboarding`; empty states (dashboard/wishlist/alerts) deep-link; chart `BottomAlertCta`; analytics `first-track`/`first-alert`.
 - stephen_ask: HITL run once on a fresh account; note hesitation points.
 - notes: -
+
+## [2026-07-26] R45 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #71 merged)
+- evidence: Operator "Confirm, continue the rest"; CI green on #71.
+- stephen_ask: -
+- notes: Wave-2 agent-unblocked exhausted. Next: Wave-3 no-Stephen (R44 comparison, R47 blog, R42 keywords, R48 perf, R32 PDPL, R20 k6).
