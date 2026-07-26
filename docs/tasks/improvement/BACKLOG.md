@@ -63,7 +63,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R29 | Affiliate programs live + attribution logging | C | M | R24 | account (Shopee/TikTok affiliate) | todo |
 | R32 | PDPL minimum set: consent, DSAR, breach runbook | D | L | - | - | done |
 | R33 | CI compliance gates (no-cleartext, consent, DPIA) | D | M | R32 | - | done |
-| R37 | Scraping legal posture memo | D | S | - | decision (counsel review) | ready_to_review |
+| R37 | Scraping legal posture memo | D | S | - | decision (counsel review) | done |
 | R42 | Keyword cluster expansion (30-50 pages) | E | M | R38 | - | done |
 | R44 | Comparison pages (vs BeeCost, Honey alternative) | E | S | R38 | - | done |
 | R47 | Blog + changelog + RSS | E | S | R38 | - | done |
@@ -73,6 +73,6 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R52 | Referral program UI surface | F | M | R38 | - | done |
 | R53 | Launch calendar + press kit (timed to double-day sale) | F | M | R38, R49 | outreach | todo |
 | R54 | B2B lead magnet: VN price index report (gated) | F | M | R24 | - | todo |
-| R56 | Partnership + KOC affiliate probes | F | M | R52 | outreach | ready_to_review |
+| R56 | Partnership + KOC affiliate probes | F | M | R52 | outreach | done |
 | R57 | Support + feedback rails (Zalo OA inbox, in-app form, roadmap page) | F | S | R23 | - | todo |
 | R58 | Brand consistency sweep + handle registration | F | S | R8 | decision, account | ready_to_review |
