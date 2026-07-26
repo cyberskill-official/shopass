@@ -269,3 +269,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/so-sanh/shopass-vs-beecost` feature matrix (10 rows) + JSON-LD; `/thay-the-honey` trust story with Verge/Rakuten/Impact citations + link `/minh-bach`; alias redirect `sandeal-vs-beecost` → shopass; sitemap + landing footer.
 - stephen_ask: HITL verify every comparison row before indexing.
 - notes: Fact-check list = `SHOPASS_VS_BEECOST` in `web/lib/compare/beecost.ts` + Honey source URLs on page.
+
+## [2026-07-26] R44 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #73 merged)
+- evidence: Operator continue-the-rest; CI green on #73.
+- stephen_ask: -
+- notes: Next Wave-3 unblocked: R47 blog/changelog/RSS.
