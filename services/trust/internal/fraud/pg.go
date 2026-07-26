@@ -12,6 +12,7 @@ import (
 
 type PGDB interface {
 	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
@@ -199,7 +200,57 @@ func missingPayoutHoldSchema(err error) bool {
 	return pgErr.Code == "42P01" || pgErr.Code == "42703"
 }
 
+// PGDeviceEdges persists salted device hashes and writes device link edges.
+type PGDeviceEdges struct {
+	db PGDB
+}
+
+func NewPGDeviceEdges(db PGDB) *PGDeviceEdges {
+	return &PGDeviceEdges{db: db}
+}
+
+func (d *PGDeviceEdges) UpsertFingerprint(ctx context.Context, deviceHash string, userID int64) error {
+	if d == nil || d.db == nil || deviceHash == "" || userID == 0 {
+		return nil
+	}
+	_, err := d.db.Exec(ctx, `
+		INSERT INTO device_fingerprint (device_hash, user_id, first_seen, last_seen)
+		VALUES ($1, $2, now(), now())
+		ON CONFLICT (device_hash, user_id) DO UPDATE
+		SET last_seen = now()
+	`, deviceHash, userID)
+	return err
+}
+
+func (d *PGDeviceEdges) UsersSharingHash(ctx context.Context, deviceHash string) ([]int64, error) {
+	if d == nil || d.db == nil {
+		return nil, nil
+	}
+	rows, err := d.db.Query(ctx, `
+		SELECT user_id FROM device_fingerprint WHERE device_hash = $1
+	`, deviceHash)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []int64
+	for rows.Next() {
+		var uid int64
+		if err := rows.Scan(&uid); err != nil {
+			return nil, err
+		}
+		out = append(out, uid)
+	}
+	return out, rows.Err()
+}
+
+func (d *PGDeviceEdges) UpsertDeviceEdge(ctx context.Context, a, b int64) error {
+	links := NewPGAccountLinkStore(d.db)
+	return links.UpsertAccountLinkEdge(ctx, a, b, "device", 1.0)
+}
+
 var _ EventCounter = (*PGEventCounter)(nil)
 var _ ClusterSizer = (*PGClusterSizer)(nil)
 var _ SignalStore = (*PGSignalStore)(nil)
 var _ RewardHolder = (*PGRewardHolder)(nil)
+var _ DeviceEdgeWriter = (*PGDeviceEdges)(nil)

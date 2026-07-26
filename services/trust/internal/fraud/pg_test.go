@@ -45,6 +45,25 @@ func (f *fakePGDB) QueryRow(ctx context.Context, sql string, args ...any) pgx.Ro
 	return row
 }
 
+func (f *fakePGDB) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	f.queries = append(f.queries, queryCall{sql: sql, args: args})
+	return &fakeRows{}, nil
+}
+
+type fakeRows struct {
+	closed bool
+}
+
+func (r *fakeRows) Close()                                       { r.closed = true }
+func (r *fakeRows) Err() error                                   { return nil }
+func (r *fakeRows) CommandTag() pgconn.CommandTag                { return pgconn.NewCommandTag("") }
+func (r *fakeRows) FieldDescriptions() []pgconn.FieldDescription { return nil }
+func (r *fakeRows) Next() bool                                   { return false }
+func (r *fakeRows) Scan(dest ...any) error                       { return pgx.ErrNoRows }
+func (r *fakeRows) Values() ([]any, error)                       { return nil, nil }
+func (r *fakeRows) RawValues() [][]byte                          { return nil }
+func (r *fakeRows) Conn() *pgx.Conn                              { return nil }
+
 type fakeRow struct {
 	values []any
 	err    error

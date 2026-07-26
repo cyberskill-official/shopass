@@ -30,8 +30,15 @@ SănDeal chỉ thu thập chính xác những trường dữ liệu tối thiể
 | ID sản phẩm (`productId`) | Hiện lịch sử giá + cảnh báo sale ảo | Đồng thuận - mục đích theo dõi giá |
 | Giá hiển thị (`price`) | Theo dõi biến động giá để cảnh báo và vẽ biểu đồ | Đồng thuận - mục đích theo dõi giá |
 | Số lượng trong giỏ (`qty`) | Tính tối ưu voucher/giỏ hàng cho bạn | Đồng thuận - mục đích tối ưu giỏ |
+| Hash thiết bị (`device_hash`) | Phát hiện gian lận multi-account (liên kết tài khoản dùng chung thiết bị). Chỉ hash một chiều; **không** gửi user-agent đầy đủ, font list, hay canvas thô. **Không** dùng cho quảng cáo hay theo dõi hành vi. | Lợi ích hợp pháp / mục đích chống gian lận (PDPL) |
 
 Tất cả các trường khác đều bị loại bỏ ngay tại thiết bị của bạn trước khi gửi về máy chủ.
+
+### Device fingerprint (chống gian lận)
+
+- Client chỉ gửi `{ device_hash }` — một chuỗi hash; thuộc tính thô không rời máy.
+- Server gắn thêm salt (xoay được) trước khi lưu; mục đích duy nhất là chống gian lận / multi-account.
+- Nhiều tài khoản chung một hash là *tín hiệu điều tra*, không phải tự khóa tài khoản (chia sẻ thiết bị gia đình là hợp lý).
 
 ## Chính sách lưu trữ (Retention)
 
