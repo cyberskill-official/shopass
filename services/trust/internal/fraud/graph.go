@@ -1,6 +1,9 @@
 package fraud
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // ClusterSizer reports linked-account cluster size for a user.
 type ClusterSizer interface {
@@ -28,7 +31,7 @@ func (g Graph) Evaluate(ctx context.Context, userID int64) (signalResult, error)
 		Weight:    g.Cfg.GraphWeight,
 		Reason: Reason{
 			Signal:       "graph",
-			Detail:       "dense_account_cluster",
+			Detail:       fmt.Sprintf("linked-account cluster size %d met threshold %d", size, g.Cfg.GraphClusterMinSize),
 			Contribution: g.Cfg.GraphWeight,
 		},
 	}, nil

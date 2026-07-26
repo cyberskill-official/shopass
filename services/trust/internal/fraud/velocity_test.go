@@ -13,6 +13,8 @@ func TestVelocity_BurstTriggers(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, res.Triggered)
 	require.Equal(t, "velocity", res.Reason.Signal)
+	require.Contains(t, res.Reason.Detail, "99 referral redeems")
+	require.Contains(t, res.Reason.Detail, "threshold 10")
 }
 
 func TestVelocity_NormalDoesNotTrigger(t *testing.T) {

@@ -1,6 +1,9 @@
 package fraud
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // EventCounter counts subject events in a sliding window (injected for tests / SQL).
 type EventCounter interface {
@@ -28,7 +31,7 @@ func (v Velocity) Evaluate(ctx context.Context, userID int64) (signalResult, err
 		Weight:    v.Cfg.VelocityWeight,
 		Reason: Reason{
 			Signal:       "velocity",
-			Detail:       "redeem_burst",
+			Detail:       fmt.Sprintf("%d referral redeems in %d minutes exceeded threshold %d", n, v.Cfg.VelocityWindowMinutes, v.Cfg.VelocityRedeemMax),
 			Contribution: v.Cfg.VelocityWeight,
 		},
 	}, nil

@@ -17,6 +17,7 @@ import (
 	"shopass/services/bill/internal/gating"
 	"shopass/services/bill/internal/pay"
 	"shopass/services/bill/internal/referral"
+	trustfraud "shopass/services/trust/fraud"
 )
 
 func env(k, def string) string {
@@ -72,7 +73,22 @@ func main() {
 	ipn := api.NewIPNHandler(repo, repo, secrets)
 	waitlist := api.NewWaitlistHandler(pool)
 	referralRepo := referral.NewPGRepo(pool)
-	referralH := api.NewReferralHandler(referralRepo, log)
+	fraudEngine := trustfraud.NewEngine(
+		trustfraud.DefaultConfig(),
+		trustfraud.NewPGEventCounter(pool),
+		trustfraud.NewPGClusterSizer(pool),
+		trustfraud.NewPGSignalStore(pool),
+		trustfraud.NewPGRewardHolder(pool, log),
+	)
+	fraudAssessor := referral.AssessorFunc(func(ctx context.Context, userID int64, extras map[string]any) error {
+		_, err := fraudEngine.Assess(ctx, userID, extras)
+		return err
+	})
+	referralH := api.NewReferralHandler(
+		referralRepo,
+		log,
+		referral.WithReferralFraud(trustfraud.NewPGAccountLinkStore(pool), fraudAssessor),
+	)
 	gate := gating.NewGate(gating.NewSQLRepo(pool), repo, gating.NewSQLPlanCatalog(pool))
 	gatingH := api.NewGatingHandler(gate, os.Getenv("BILL_INTERNAL_SERVICE_TOKEN"))
 

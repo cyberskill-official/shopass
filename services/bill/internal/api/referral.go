@@ -23,13 +23,14 @@ type ReferralHandler struct {
 	log  *slog.Logger
 }
 
-func NewReferralHandler(repo *referral.PGRepo, log *slog.Logger) *ReferralHandler {
+func NewReferralHandler(repo *referral.PGRepo, log *slog.Logger, opts ...referral.Option) *ReferralHandler {
 	if log == nil {
 		log = slog.Default()
 	}
+	opts = append(opts, referral.WithLogger(log))
 	return &ReferralHandler{
 		repo: repo,
-		svc:  referral.NewService(repo, referralEventBus{log: log}),
+		svc:  referral.NewService(repo, referralEventBus{log: log}, opts...),
 		log:  log,
 	}
 }
