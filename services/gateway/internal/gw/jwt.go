@@ -76,6 +76,10 @@ func isPublic(r *http.Request) bool {
 	if r.Method == http.MethodPost && r.URL.Path == "/v1/leads/waitlist" {
 		return true
 	}
+	// Fake-sale checker lead magnet (R43) — public, rate-limited.
+	if r.Method == http.MethodPost && r.URL.Path == "/v1/tools/fake-sale-check" {
+		return true
+	}
 	if !strings.HasPrefix(r.URL.Path, "/v1/auth/") {
 		return false
 	}

@@ -10,11 +10,13 @@ describe("Sitemap", () => {
     }
   });
 
-  it("includes privacy, terms, transparency, and pricing pages", () => {
+  it("includes privacy, terms, transparency, pricing, and tool pages", () => {
     const urls = sitemap().map((e) => e.url);
     expect(urls).toContain(`${siteURL}/chinh-sach-bao-mat`);
     expect(urls).toContain(`${siteURL}/dieu-khoan`);
     expect(urls).toContain(`${siteURL}/minh-bach`);
     expect(urls).toContain(`${siteURL}/bang-gia`);
+    expect(urls).toContain(`${siteURL}/kiem-tra-sale-ao`);
+    expect(urls).toContain(`${siteURL}/lich-sale`);
   });
 });

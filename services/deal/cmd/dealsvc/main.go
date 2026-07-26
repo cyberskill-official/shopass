@@ -102,9 +102,12 @@ func main() {
 	if dealAddr == "" {
 		dealAddr = ":8082"
 	}
-	chartHandler := api.NewHandler(&chartRepo{pool: pool}, &dealService{pool: pool})
+	repo := &chartRepo{pool: pool}
+	dealSvc := &dealService{pool: pool}
+	chartHandler := api.NewHandler(repo, dealSvc)
+	checkHandler := api.NewFakeSaleCheckHandler(repo, repo, dealSvc)
 	mux := http.NewServeMux()
-	api.RegisterRoutes(mux, chartHandler)
+	api.RegisterRoutes(mux, chartHandler, checkHandler)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write([]byte(`{"ok":true}`))
