@@ -19,6 +19,7 @@ import (
 	"shopass/services/comply/internal/consent"
 	"shopass/services/comply/internal/dsar"
 	"shopass/services/comply/internal/gating"
+	"shopass/services/comply/internal/regime"
 )
 
 func env(key, fallback string) string {
@@ -67,6 +68,14 @@ func main() {
 		os.Exit(1)
 	}
 	log.Info("gating registry loaded", "vn_voucher_stacking", gatingRegistry.Allow("VN", gating.GateVoucherStacking))
+
+	regimeRegistry := regime.NewRegistry(gatingRegistry, regime.DefaultAdapters()...)
+	if vnProfile, err := regime.ResolveProfile(ctx, regimeRegistry, "VN"); err != nil {
+		log.Warn("regime profile VN unavailable", "err", err)
+	} else {
+		log.Info("regime registry ready", "vn_code", vnProfile.Code, "vn_dsar_days", vnProfile.DSARDays)
+	}
+	_ = regimeRegistry // selection live for future consent/DSAR/breach consumers
 
 	consentSvc := consent.NewService(consent.NewRepo(sqlDB))
 	dsarSvc := dsar.NewService(
