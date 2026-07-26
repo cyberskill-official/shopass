@@ -211,3 +211,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/` landing with R38 hero copy, recharts demo, how-it-works, trust strip (R34/R35/GitHub), FAQ+JSON-LD, signup/install CTAs with analytics stub; signed-in refresh cookie → `/dashboard`.
 - stephen_ask: HITL visual/copy review (company face).
 - notes: R40 events are buffered stubs until analytics vendor decision.
+
+## [2026-07-26] R26/R38 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #65 merged)
+- evidence: Operator standing continue-in-batches; CI green on #65.
+- stephen_ask: -
+- notes: Next unblocked Wave-2: R39 (pricing, depends R38), R45/R43 (depend R38). R27 blocked on R24.
