@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"shopass/services/notif/internal/notif"
 )
@@ -74,10 +75,9 @@ func (s *Server) handleNotify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "store error", http.StatusInternalServerError)
 		return
 	}
-	// Phase A: push only (email/SMS land in later NOTIF tasks).
-	channel, ok := notif.ResolveChannel([]string{"push"}, caps, false)
+	channel, ok := notif.ResolveChannel([]string{"push", "email"}, caps, false)
 	if !ok {
-		http.Error(w, "no verified push channel", http.StatusUnprocessableEntity)
+		http.Error(w, "no verified push or email channel", http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -137,6 +137,9 @@ func (s *Server) handleNotify(w http.ResponseWriter, r *http.Request) {
 
 type deviceRequest struct {
 	FCMToken string `json:"fcm_token"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Channel  string `json:"channel"`
 	Platform string `json:"platform"`
 }
 
@@ -151,28 +154,48 @@ func (s *Server) handleRegisterDevice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
-	if req.FCMToken == "" {
-		http.Error(w, "fcm_token required", http.StatusBadRequest)
+	channel, platform, address, ok := resolveDeviceRegistration(req)
+	if !ok {
+		http.Error(w, "fcm_token or email required", http.StatusBadRequest)
 		return
 	}
-	platform := req.Platform
-	if platform == "" {
-		platform = "web"
-	}
-	switch platform {
-	case "web", "android", "ios":
-	default:
-		http.Error(w, "invalid platform", http.StatusBadRequest)
-		return
-	}
-	if err := s.store.UpsertToken(r.Context(), userID, "push", platform, req.FCMToken); err != nil {
+	if err := s.store.UpsertToken(r.Context(), userID, channel, platform, address); err != nil {
 		s.log.Error("upsert token", "err", err, "user_id", userID)
 		http.Error(w, "store error", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "platform": platform})
+	_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "channel": channel, "platform": platform})
+}
+
+func resolveDeviceRegistration(req deviceRequest) (channel, platform, address string, ok bool) {
+	emailAddress := req.Email
+	if emailAddress == "" {
+		emailAddress = req.Address
+	}
+	if req.Channel == "email" || emailAddress != "" {
+		if !strings.Contains(emailAddress, "@") {
+			return "", "", "", false
+		}
+		return "email", "email", emailAddress, true
+	}
+	if req.Channel != "" && req.Channel != "push" {
+		return "", "", "", false
+	}
+	if req.FCMToken == "" {
+		return "", "", "", false
+	}
+	platform = req.Platform
+	if platform == "" {
+		platform = "web"
+	}
+	switch platform {
+	case "web", "android", "ios":
+	default:
+		return "", "", "", false
+	}
+	return "push", platform, req.FCMToken, true
 }
 
 func (s *Server) handleDeleteDevice(w http.ResponseWriter, r *http.Request) {

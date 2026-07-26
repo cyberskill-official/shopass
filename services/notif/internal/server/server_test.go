@@ -84,6 +84,23 @@ func TestNotify_RejectsWithoutPushChannel(t *testing.T) {
 	require.Empty(t, store.inserted)
 }
 
+func TestNotify_FallsBackToEmailWhenPushUnavailable(t *testing.T) {
+	store := &mockStore{caps: notif.UserChannels{Email: true}}
+	h := New(store, nil).Handler()
+
+	body := `{"user_id":42,"product_id":7,"reason":"bottom_predicted","payload":{"p_bottom_14d":0.82}}`
+	req := httptest.NewRequest(http.MethodPost, "/notify", bytes.NewBufferString(body))
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusAccepted, rr.Code)
+	require.Len(t, store.inserted, 1)
+	require.Equal(t, "email", store.inserted[0].Channel)
+	require.Equal(t, []int64{1}, store.queuedIDs)
+	require.Contains(t, store.inserted[0].Payload["title"], "đáy")
+	require.NotEmpty(t, store.inserted[0].Payload["body"])
+}
+
 func TestRegisterDevice_RequiresUserHeader(t *testing.T) {
 	h := New(&mockStore{}, nil).Handler()
 	req := httptest.NewRequest(http.MethodPost, "/v1/devices", bytes.NewBufferString(`{"fcm_token":"t"}`))
@@ -110,4 +127,20 @@ func TestRegisterDevice_UpsertsWebToken(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.NewDecoder(rr.Body).Decode(&resp))
 	require.Equal(t, true, resp["ok"])
+}
+
+func TestRegisterDevice_UpsertsEmailToken(t *testing.T) {
+	store := &mockStore{}
+	h := New(store, nil).Handler()
+	req := httptest.NewRequest(http.MethodPost, "/v1/devices", bytes.NewBufferString(`{"email":"user@example.com"}`))
+	req.Header.Set("X-User-Id", "9")
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusCreated, rr.Code)
+	require.Len(t, store.tokens, 1)
+	require.Equal(t, int64(9), store.tokens[0].userID)
+	require.Equal(t, "email", store.tokens[0].channel)
+	require.Equal(t, "email", store.tokens[0].platform)
+	require.Equal(t, "user@example.com", store.tokens[0].address)
 }
