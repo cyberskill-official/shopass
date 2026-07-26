@@ -10,10 +10,16 @@ import (
 
 type WishlistHandler struct {
 	repo track.WishlistRepo
+	gate FeatureGate
 }
 
 func NewWishlistHandler(repo track.WishlistRepo) *WishlistHandler {
 	return &WishlistHandler{repo: repo}
+}
+
+func (h *WishlistHandler) WithGate(gate FeatureGate) *WishlistHandler {
+	h.gate = gate
+	return h
 }
 
 func (h *WishlistHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -92,6 +98,40 @@ func (h *WishlistHandler) HandleAddItem(w http.ResponseWriter, req *http.Request
 	if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
 		writeErr(w, http.StatusBadRequest, "invalid body")
 		return
+	}
+	if h.gate != nil {
+		exists, err := h.repo.HasItem(req.Context(), wid, body.ProductID)
+		if err != nil {
+			writeErr(w, http.StatusInternalServerError, "internal error")
+			return
+		}
+		if !exists {
+			used, err := h.repo.CountUserItems(req.Context(), userID)
+			if err != nil {
+				writeErr(w, http.StatusInternalServerError, "internal error")
+				return
+			}
+			allowed, limitReached, err := h.gate.Check(req.Context(), userID, "wishlist_items", &used)
+			if err != nil {
+				writeErr(w, http.StatusServiceUnavailable, "gating unavailable")
+				return
+			}
+			if !allowed {
+				status := http.StatusForbidden
+				if limitReached {
+					status = http.StatusPaymentRequired
+				}
+				w.Header().Set("Content-Type", "application/json; charset=utf-8")
+				w.WriteHeader(status)
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"error":          "wishlist_limit_reached",
+					"feature_key":    "wishlist_items",
+					"suggested_tier": "premium_basic",
+					"upgrade_path":   "/billing",
+				})
+				return
+			}
+		}
 	}
 	if err := h.repo.AddItem(req.Context(), wid, body.ProductID, body.TargetPrice); err != nil {
 		if track.IsFKViolation(err) {

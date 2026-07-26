@@ -30,6 +30,8 @@ type WishlistRepo interface {
 	ListWishlists(ctx context.Context, userID int64) ([]Wishlist, error)
 	OwnsWishlist(ctx context.Context, userID, wishlistID int64) (bool, error)
 	AddItem(ctx context.Context, wishlistID, productID int64, target *int64) error
+	HasItem(ctx context.Context, wishlistID, productID int64) (bool, error)
+	CountUserItems(ctx context.Context, userID int64) (int64, error)
 	RemoveItem(ctx context.Context, wishlistID, productID int64) error
 	DeleteWishlist(ctx context.Context, wishlistID int64) error
 	ListItems(ctx context.Context, wishlistID int64) ([]WishlistItem, error)
@@ -92,6 +94,25 @@ func (r *wishlistRepoImpl) AddItem(ctx context.Context, wishlistID, productID in
 		DO UPDATE SET target_price = EXCLUDED.target_price
 	`, wishlistID, productID, target)
 	return err
+}
+
+func (r *wishlistRepoImpl) HasItem(ctx context.Context, wishlistID, productID int64) (bool, error) {
+	var ok bool
+	err := r.db.QueryRowContext(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM wishlist_item WHERE wishlist_id = $1 AND product_id = $2
+		)`, wishlistID, productID).Scan(&ok)
+	return ok, err
+}
+
+func (r *wishlistRepoImpl) CountUserItems(ctx context.Context, userID int64) (int64, error) {
+	var n int64
+	err := r.db.QueryRowContext(ctx, `
+		SELECT COUNT(*)::bigint
+		FROM wishlist_item wi
+		JOIN wishlist w ON w.id = wi.wishlist_id
+		WHERE w.user_id = $1`, userID).Scan(&n)
+	return n, err
 }
 
 func (r *wishlistRepoImpl) RemoveItem(ctx context.Context, wishlistID, productID int64) error {

@@ -15,6 +15,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"shopass/services/track/internal/api"
+	"shopass/services/track/internal/billclient"
 	"shopass/services/track/internal/priceclient"
 	"shopass/services/track/internal/priming"
 	"shopass/services/track/internal/track"
@@ -61,8 +62,24 @@ func main() {
 	}
 	defer db.Close()
 
-	wh := api.NewWishlistHandler(track.NewWishlistRepo(db))
-	ah := api.NewAlertRuleHandler(track.NewAlertRuleRepo(db))
+	var featureGate api.FeatureGate
+	if billURL := os.Getenv("BILL_INTERNAL_URL"); billURL != "" {
+		billClient, err := billclient.New(billURL, os.Getenv("BILL_INTERNAL_SERVICE_TOKEN"), 5*time.Second)
+		if err != nil {
+			log.Error("bill client configuration", "err", err)
+			os.Exit(1)
+		}
+		featureGate = api.BillGate{CheckFn: func(ctx context.Context, userID int64, featureKey string, usage *int64) (bool, bool, error) {
+			res, err := billClient.Check(ctx, userID, featureKey, usage)
+			if err != nil {
+				return false, false, err
+			}
+			return res.Allowed, res.LimitReached, nil
+		}}
+	}
+
+	wh := api.NewWishlistHandler(track.NewWishlistRepo(db)).WithGate(featureGate)
+	ah := api.NewAlertRuleHandler(track.NewAlertRuleRepo(db)).WithGate(featureGate)
 	th := api.NewHandler(
 		track.NewShopeeVNPlatformMap(),
 		priceClient,

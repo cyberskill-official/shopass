@@ -101,6 +101,31 @@ func TestCreateRule_Success(t *testing.T) {
 	}
 }
 
+type stubGate struct {
+	allowed bool
+	err     error
+}
+
+func (s stubGate) Check(ctx context.Context, userID int64, featureKey string, usage *int64) (bool, bool, error) {
+	return s.allowed, !s.allowed, s.err
+}
+
+func TestCreateBottomPredicted_RequiresPremium(t *testing.T) {
+	h := setupAlertRuleHandler(t).WithGate(stubGate{allowed: false})
+	rec := doAlertReq(t, h, "POST", "/v1/alerts", `{"product_id":1, "rule_type":"bottom_predicted", "channel":["push"]}`, 1)
+	if rec.Code != http.StatusPaymentRequired {
+		t.Fatalf("expected 402, got %d", rec.Code)
+	}
+}
+
+func TestCreateBottomPredicted_AllowedWhenGatedIn(t *testing.T) {
+	h := setupAlertRuleHandler(t).WithGate(stubGate{allowed: true})
+	rec := doAlertReq(t, h, "POST", "/v1/alerts", `{"product_id":1, "rule_type":"bottom_predicted", "channel":["push"]}`, 1)
+	if rec.Code != 201 {
+		t.Fatalf("expected 201, got %d body=%s", rec.Code, rec.Body.String())
+	}
+}
+
 func TestCreate_UnknownProduct_400(t *testing.T) {
 	// h := setupAlertRuleHandler(t)
 

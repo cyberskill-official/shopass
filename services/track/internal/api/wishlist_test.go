@@ -74,6 +74,26 @@ func (m *mockWishlistRepo) AddItem(ctx context.Context, wishlistID, productID in
 	return nil
 }
 
+func (m *mockWishlistRepo) HasItem(ctx context.Context, wishlistID, productID int64) (bool, error) {
+	if m.items == nil || m.items[wishlistID] == nil {
+		return false, nil
+	}
+	_, ok := m.items[wishlistID][productID]
+	return ok, nil
+}
+
+func (m *mockWishlistRepo) CountUserItems(ctx context.Context, userID int64) (int64, error) {
+	var n int64
+	for wid, items := range m.items {
+		w, ok := m.lists[wid]
+		if !ok || w.UserID != userID {
+			continue
+		}
+		n += int64(len(items))
+	}
+	return n, nil
+}
+
 func (m *mockWishlistRepo) RemoveItem(ctx context.Context, wishlistID, productID int64) error {
 	if m.items[wishlistID] != nil {
 		delete(m.items[wishlistID], productID)
