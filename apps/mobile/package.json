@@ -3,10 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-native-keychain": "^10.0.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/react": "^19.1.0",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.0",
     "typescript": "^5.9.0"
