@@ -207,6 +207,7 @@ services:
       DEAL_UPSTREAM_URL: http://dealsvc:8082
       NOTIF_UPSTREAM_URL: http://notifsvc:8082
       BILL_UPSTREAM_URL: http://billsvc:8086
+      COMPLY_UPSTREAM_URL: http://complysvc:8087
       # Optional GraphQL BFF (profile bff). Default prod path is REST via /v1/* (R18).
       BFF_UPSTREAM_URL: ${BFF_UPSTREAM_URL:-}
     depends_on:
@@ -217,6 +218,7 @@ services:
       dealsvc: { condition: service_started }
       notifsvc: { condition: service_started }
       billsvc: { condition: service_started }
+      complysvc: { condition: service_started }
     networks: [private]
 
   tracksvc:
@@ -255,6 +257,19 @@ services:
       ZALOPAY_MAC_KEY: ${ZALOPAY_MAC_KEY:-}
       VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
       VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+
+  complysvc:
+    <<: *daemon
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/comply, CMD: ./cmd/complysvc }
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      COMPLY_ADDR: ":8087"
     depends_on:
       migrate: { condition: service_completed_successfully }
     networks: [private]

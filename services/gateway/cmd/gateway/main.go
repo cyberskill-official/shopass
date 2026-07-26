@@ -71,13 +71,14 @@ func main() {
 		Redis:     rdb,
 		JWKS:      verifier,
 		Upstreams: gw.Upstreams{
-			Auth:  env("AUTH_UPSTREAM_URL", "http://authsvc:8084"),
-			Track: env("TRACK_UPSTREAM_URL", "http://tracksvc:8083"),
-			Price: env("PRICE_UPSTREAM_URL", "http://pricesvc:8081"),
-			Deal:  env("DEAL_UPSTREAM_URL", "http://dealsvc:8082"),
-			Notif: env("NOTIF_UPSTREAM_URL", "http://notifsvc:8082"),
-			Bill:  env("BILL_UPSTREAM_URL", "http://billsvc:8086"),
-			BFF:   env("BFF_UPSTREAM_URL", "http://bff:8085"),
+			Auth:   env("AUTH_UPSTREAM_URL", "http://authsvc:8084"),
+			Track:  env("TRACK_UPSTREAM_URL", "http://tracksvc:8083"),
+			Price:  env("PRICE_UPSTREAM_URL", "http://pricesvc:8081"),
+			Deal:   env("DEAL_UPSTREAM_URL", "http://dealsvc:8082"),
+			Notif:  env("NOTIF_UPSTREAM_URL", "http://notifsvc:8082"),
+			Bill:   env("BILL_UPSTREAM_URL", "http://billsvc:8086"),
+			Comply: env("COMPLY_UPSTREAM_URL", "http://complysvc:8087"),
+			BFF:    env("BFF_UPSTREAM_URL", "http://bff:8085"),
 		},
 	}
 

@@ -2,7 +2,9 @@ package bill
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -25,6 +27,7 @@ func setup(t *testing.T) *Repo {
 	}
 	t.Cleanup(func() { pool.Close() })
 
+	_, _ = pool.Exec(ctx, `DELETE FROM payment`)
 	_, _ = pool.Exec(ctx, `DELETE FROM subscription`)
 	_, _ = pool.Exec(ctx, `DELETE FROM app_user`)
 
@@ -35,7 +38,8 @@ func setupWithUser(t *testing.T) (*Repo, int64) {
 	r := setup(t)
 	ctx := context.Background()
 	var uid int64
-	err := r.pool.QueryRow(ctx, `INSERT INTO app_user (email) VALUES ('test_bill_user@example.com') RETURNING id`).Scan(&uid)
+	email := fmt.Sprintf("test_bill_user_%s_%d@example.com", strings.NewReplacer("/", "_", " ", "_").Replace(t.Name()), time.Now().UnixNano())
+	err := r.pool.QueryRow(ctx, `INSERT INTO app_user (email) VALUES ($1) RETURNING id`, email).Scan(&uid)
 	require.NoError(t, err)
 	return r, uid
 }

@@ -49,6 +49,7 @@ scrape_configs:
           - http://tracksvc:8083/healthz
           - http://notifsvc:8082/healthz
           - http://billsvc:8086/healthz
+          - http://complysvc:8087/healthz
         labels:
           probe: healthz
     relabel_configs:

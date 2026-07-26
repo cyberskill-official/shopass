@@ -17,23 +17,25 @@ type Deps struct {
 // Upstreams are private Compose-network URLs. The gateway is the only place
 // where caller identity is verified and translated into trusted headers.
 type Upstreams struct {
-	Auth  string
-	Track string
-	Price string
-	Deal  string
-	Notif string
-	Bill  string
-	BFF   string
+	Auth   string
+	Track  string
+	Price  string
+	Deal   string
+	Notif  string
+	Bill   string
+	Comply string
+	BFF    string
 
 	// Handler fields are deliberately injectable for unit tests. Production
 	// leaves them nil and uses the private URLs above.
-	AuthHandler  http.Handler
-	TrackHandler http.Handler
-	PriceHandler http.Handler
-	DealHandler  http.Handler
-	NotifHandler http.Handler
-	BillHandler  http.Handler
-	BFFHandler   http.Handler
+	AuthHandler   http.Handler
+	TrackHandler  http.Handler
+	PriceHandler  http.Handler
+	DealHandler   http.Handler
+	NotifHandler  http.Handler
+	BillHandler   http.Handler
+	ComplyHandler http.Handler
+	BFFHandler    http.Handler
 }
 
 func NewHandler(deps Deps) http.Handler {
@@ -69,6 +71,7 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 	deal := handlerOrProxy(upstreams.DealHandler, upstreams.Deal)
 	notif := handlerOrProxy(upstreams.NotifHandler, upstreams.Notif)
 	bill := handlerOrProxy(upstreams.BillHandler, upstreams.Bill)
+	comply := handlerOrProxy(upstreams.ComplyHandler, upstreams.Comply)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
@@ -93,6 +96,8 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			bill.ServeHTTP(w, r)
 		case path == "/v1/referral/me", path == "/v1/referral/attribute":
 			bill.ServeHTTP(w, r)
+		case strings.HasPrefix(path, "/v1/consent"), path == "/v1/dsar", strings.HasPrefix(path, "/v1/comply/"):
+			comply.ServeHTTP(w, r)
 		default:
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 		}

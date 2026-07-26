@@ -61,7 +61,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R22 | Nightly end-to-end smoke in CI | B | M | R15 | - | todo |
 | R28 | Payments sandbox: MoMo/ZaloPay/VNPay real flows | C | L | R11 | account (merchant), creds | todo |
 | R29 | Affiliate programs live + attribution logging | C | M | R24 | account (Shopee/TikTok affiliate) | todo |
-| R32 | PDPL minimum set: consent, DSAR, breach runbook | D | L | - | - | todo |
+| R32 | PDPL minimum set: consent, DSAR, breach runbook | D | L | - | - | ready_to_review |
 | R33 | CI compliance gates (no-cleartext, consent, DPIA) | D | M | R32 | - | todo |
 | R37 | Scraping legal posture memo | D | S | - | decision (counsel review) | todo |
 | R42 | Keyword cluster expansion (30-50 pages) | E | M | R38 | - | done |

@@ -329,8 +329,16 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: -
 - notes: Next agent-doable: R20 k6, R32 PDPL.
 
+<<<<<<< HEAD
 ## [2026-07-26] R20 - evidence (ready_to_review)
 - agent/human: Auto
 - evidence: `loadtests/k6/nfr-infra-001.js` mixed 50 RPS chart+tracked-products; thresholds p95&lt;500/300; weekly workflow Mon 01:00 UTC (skips if secrets missing); baseline log `docs/non-functional-requirements/infra/NFR-INFRA-001-k6-baseline.md`. Compare/wishlist omitted (gateway 404 beta).
 - stephen_ask: Add `K6_ACCESS_TOKEN(S)` + `K6_PRODUCT_ID` secrets; prefer token pool vs rate-limit raise for 50 RPS.
 - notes: First green weekly row pending secrets + live API (R11).
+=======
+## [2026-07-26] R32 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: complysvc HTTP added for consent/DSAR/breach; same-DB DSAR adapters for app_user, track/wishlist/alerts, and bill payment PII; gateway/compose/prometheus wired; breach runbook and data inventory docs added; `go test ./...` in services/comply and services/gateway passed; CyberOS gate green with `PYENV_VERSION=3.12.13 PYTHONPATH=.`.
+- stephen_ask: HITL review acceptance for R32; confirm production incident contacts before use.
+- notes: Did not set done. First unqualified CyberOS gate failed because local pyenv lacks Python 3.11 required by services/ml/.python-version; rerun passed using installed Python 3.12.13 and PYTHONPATH.
+>>>>>>> 05c51fa (Implement R32 PDPL comply service)
