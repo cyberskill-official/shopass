@@ -1,20 +1,20 @@
 # Staging runbook — monetized vertical slice
 
-Proves: live (or fixture) Shopee scrape → `price_snapshot` → forecast → deal alert → notif enqueue/FCM → web chart/alerts, plus sandbox pay → subscription → gating.
+Proves: price into `price_snapshot` → forecast → deal alert → notif enqueue → web chart/alerts, plus Premium entitlement → gating.
 
 Password login only. Google OAuth stays disabled (`ENABLE_GOOGLE_OAUTH=false`).
 
 ## Prerequisites (operator)
 
-| Need | Env / secret |
-|------|----------------|
-| Compose stack | `deploy/.env` from `.env.example` |
-| Firebase (FCM) | `FCM_PROJECT_ID` + `FCM_SERVICE_ACCOUNT_JSON` (or `GOOGLE_APPLICATION_CREDENTIALS`) |
-| Residential proxy (live Shopee) | `HTTPS_PROXY` (+ legal OK) |
-| Payment sandboxes | `MOMO_*` / `ZALOPAY_*` / `VNPAY_*` + public HTTPS IPN host |
-| Internal tokens | `PRICE_INTERNAL_SERVICE_TOKEN`, `BILL_INTERNAL_SERVICE_TOKEN` |
+| Need | Env / secret | Status |
+|------|----------------|--------|
+| Compose stack | `deploy/.env` from `.env.example` | Required |
+| Internal tokens | `PRICE_INTERNAL_SERVICE_TOKEN`, `BILL_INTERNAL_SERVICE_TOKEN` | Required |
+| Firebase (FCM) | `FCM_PROJECT_ID` + `FCM_SERVICE_ACCOUNT_JSON` (or `GOOGLE_APPLICATION_CREDENTIALS`) | **Deferred** — Path 1 DoD is enqueue (`queued`) |
+| Residential proxy (live Shopee) | `HTTPS_PROXY` (+ legal OK) | **Deferred** — use `make simulate-prices` or fixture smoke |
+| Payment sandboxes | `MOMO_*` / `ZALOPAY_*` / `VNPAY_*` + public HTTPS IPN host | **Deferred** — use `make grant-premium` for review |
 
-Without Firebase, notifications stay **queued** (deal→notif path still validates). Without proxy, use fixture smoke for scrape.
+Without Firebase, notifications stay **queued** (deal→notif path still validates). Without proxy, simulate ingest or fixture smoke. Without pay sandboxes, grant Premium via SQL helper (gating still real).
 
 ## Bring-up
 
@@ -29,24 +29,38 @@ Health: `pricesvc`, `tracksvc`, `dealsvc`, `notifsvc`, `billsvc`, `authsvc`, `we
 ## Path 1 — Price → alert → notify
 
 1. **Register** / login (password). Note JWT.
-2. **Track** a Shopee product (`POST /v1/track` or dashboard).
-3. **Scrape** into snapshot:
-   - Fixture: `make smoke` / `scripts/smoke_loop.sh` (sets `SMOKE_ALLOW_DESTRUCTIVE=1` + smoke DB).
-   - Live: `HTTPS_PROXY=... SCRAPE_SEED=<productID>:<itemID>:<shopID> docker compose --profile jobs run --rm scrapesvc`
-4. Confirm row: `SELECT price FROM price_snapshot WHERE product_id = … ORDER BY captured_at DESC LIMIT 1;`
-5. **Forecast** (mature SKU): `docker compose --profile jobs run --rm mlforecast` (or wait for timer).
+2. **Track** a Shopee product (`POST /v1/track` or dashboard), or use seeded product `100`.
+3. **Price into snapshot** (prefer simulate while proxy is deferred):
+   - **Simulate drop (no scrape):** `make simulate-prices` → posts `199000 → 179000 → 149000` via pricesvc ingest for product `100`.
+   - Fixture scrape→notif: `scripts/smoke_loop.sh` (`SMOKE_ALLOW_DESTRUCTIVE=1` + smoke DB).
+   - Live (when proxy ready): `HTTPS_PROXY=... SCRAPE_SEED=<productID>:<itemID>:<shopID> docker compose --profile jobs run --rm scrapesvc`
+4. Confirm rows: `SELECT product_id, ts, price FROM price_snapshot WHERE product_id = 100 ORDER BY ts;`
+5. **Forecast** (mature SKU): `make seed` includes a forecast fixture, or `docker compose --profile jobs run --rm mlforecast`.
 6. **Register push token**: `POST /v1/devices` with `{ "fcm_token", "platform": "web" }` (or Alerts page paste form).
 7. **Alert rule**: create `bottom_predicted` on `/alerts` (requires Premium — see Path 2 if free).
-8. Trigger deal nightly / call dealsvc batch; expect `POST` to notifsvc `/notify` → `notification.status` → `queued` → `sent` when FCM configured.
-9. Open `/products/{id}/chart`.
+8. Trigger deal nightly / `make deal-once`; expect `POST` to notifsvc `/notify` → `notification.status` → `queued` (→ `sent` only when FCM is configured later).
+9. Open `/products/100/chart`.
 
-**DoD:** enqueue succeeds only with verified push token; failed enqueue does **not** write `bottom_alert_log`.
+**DoD:** enqueue succeeds only with verified push token; failed enqueue does **not** write `bottom_alert_log`. Live FCM `sent` is deferred.
 
 ## Path 2 — Pay → gate
 
+### Primary (review while sandboxes deferred)
+
 1. As free user, `POST /v1/alerts` with `bottom_predicted` → **402** + `upgrade_path: /billing`.
-2. Open `/billing`, choose plan + gateway → `POST /v1/billing/checkout` → pay URL / VietQR payload.
-3. Simulate IPN (sandbox or signed local body):
+2. Temporary bypass (keeps billsvc gating real; skips checkout/IPN):
+
+```bash
+make grant-premium USER_ID=<uid>
+```
+
+3. Confirm `subscription.status = 'active'` for that user.
+4. Retry `bottom_predicted` create → **201**.
+
+### Optional full pay path (when sandboxes / local HMAC ready)
+
+1. Open `/billing`, choose plan + gateway → `POST /v1/billing/checkout` → pay URL / VietQR payload.
+2. Simulate IPN (sandbox or signed local body with `MOMO_SECRET_KEY`):
 
 ```bash
 # body must match pending payment amount; X-Signature = HMAC-SHA256 hex of raw body
@@ -56,9 +70,11 @@ curl -X POST "$GATEWAY/v1/billing/ipn/momo" \
   -d '{"order_ref":"order_<uid>_premium_basic","transaction_id":"t1","amount":29000,"status":"paid"}'
 ```
 
-4. Confirm `subscription.status = 'active'`.
-5. Retry `bottom_predicted` create → **201**.
-6. Bad signature / amount mismatch → payment not paid; sub not activated.
+3. Confirm `subscription.status = 'active'`.
+4. Retry `bottom_predicted` create → **201**.
+5. Bad signature / amount mismatch → payment not paid; sub not activated.
+
+`make grant-premium` is local/staging review only (compose `db` on loopback). Do not use in production.
 
 ## Path 3 — Wishlist limit
 
@@ -66,8 +82,10 @@ Free tier `wishlist_items = 20`. Add items until **402** `wishlist_limit_reached
 
 ## Explicitly out of this runbook
 
-B2B, mobile, APNs/email/SMS, cashback, antifraud, SEA comply, Lazada/TikTok live, Vault `_FILE` full migration.
+B2B, mobile, APNs/email/SMS, cashback, antifraud, SEA comply, Lazada/TikTok live, Vault `_FILE` full migration, live FCM send, residential proxy scrape, real MoMo/ZaloPay/VNPay sandboxes.
 
 ## HITL
 
-Agent must not self-set CyberOS task status to `done`. Operator accepts after Paths 1–2 succeed on staging.
+**Accepted (operator, 2026-07-26):** Paths 1–2 under current DoD — `make simulate-prices` + `make grant-premium` (FCM send, `HTTPS_PROXY` live scrape, and real payment sandboxes remain deferred).
+
+Agent must not self-set CyberOS product/improvement task status to `done` without a separate human verdict at the review and final-acceptance gates.
