@@ -3,12 +3,10 @@
  * MUST NOT use webRequest blocking (DEC-EXT-20).
  * Rules MUST be a minimal static set (DEC-EXT-21).
  *
- * Empty rules.json + declarativeNetRequest permission is invalid: Chrome (and
- * reviewers) expect a real ruleset when the permission/resource is declared.
- * Until we have a concrete DNR need, the permission and
- * declarative_net_request block are omitted from manifest.json. Keep
- * rules.json as [] only as a placeholder for a future non-empty ruleset —
- * do not re-add the permission without at least one audited rule.
+ * R31: rules.json holds audited API allow rules (≤5) aligned with
+ * shared/allowlist.ts. host_permissions remain the hard Chrome boundary for
+ * outbound hosts; DNR documents the Shopass API allowlist for reviewers.
+ * Do not add block/redirect rules aimed at marketplace domains (DEC-EXT-21).
  */
 
 const MAX_ALLOWED_RULES = 5; // tối thiểu, đếm được, audit được

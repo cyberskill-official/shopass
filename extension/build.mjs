@@ -46,6 +46,8 @@ function copyAssets() {
   fs.copyFileSync('manifest.json', 'dist/manifest.json');
   fs.copyFileSync('src/ui/settings.html', 'dist/ui/settings.html');
   fs.copyFileSync('src/ui/onboarding.html', 'dist/ui/onboarding.html');
+  fs.mkdirSync('dist/dnr', { recursive: true });
+  fs.copyFileSync('src/dnr/rules.json', 'dist/dnr/rules.json');
   console.log('Static assets copied to dist.');
 }
 

@@ -20,13 +20,13 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | done (PR #61) |
 | R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | needs_stephen |
 | R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen |
-| R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | ready_to_review |
-| R14 | Centralized logs (Loki) | B | M | - | - | ready_to_review |
+| R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | done (PR #62) |
+| R14 | Centralized logs (Loki) | B | M | - | - | done (PR #62) |
 | R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen |
 | R16 | Zero-downtime deploys + migration guards | B | M | R15 | - | blocked |
-| R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | ready_to_review |
+| R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | done (PR #62) |
 | R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen |
-| R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | ready_to_review |
+| R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | done (PR #62) |
 | R40 | Analytics + funnel events + UTM discipline | E | S | - | decision (GA4 vs Plausible) | needs_stephen |
 | R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | needs_stephen |
 
@@ -34,15 +34,15 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
-| R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | todo |
+| R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | ready_to_review |
 | R19 | Data retention + chunk policy decision | B | S | - | decision | todo |
 | R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | todo |
 | R25 | Pluggable CAPTCHA path (manual queue first) | C | M | R24 | budget (optional solver) | todo |
 | R26 | ML model versioning + evaluation gate | C | M | - | - | todo |
 | R27 | Cold-start backfill + honest history-depth UI | C | M | R24 | - | todo |
 | R30 | Google OAuth live end-to-end test | C | S | R11 | creds (Google client) | todo |
-| R31 | DNR rules integration tests | C | S | - | - | todo |
-| R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | todo |
+| R31 | DNR rules integration tests | C | S | - | - | ready_to_review |
+| R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | ready_to_review |
 | R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | todo |
 | R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | todo |
 | R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | todo |

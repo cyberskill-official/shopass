@@ -207,7 +207,8 @@ services:
       DEAL_UPSTREAM_URL: http://dealsvc:8082
       NOTIF_UPSTREAM_URL: http://notifsvc:8082
       BILL_UPSTREAM_URL: http://billsvc:8086
-      BFF_UPSTREAM_URL: http://bff:8085
+      # Optional GraphQL BFF (profile bff). Default prod path is REST via /v1/* (R18).
+      BFF_UPSTREAM_URL: ${BFF_UPSTREAM_URL:-}
     depends_on:
       redis: { condition: service_healthy }
       authsvc: { condition: service_started }
@@ -216,7 +217,6 @@ services:
       dealsvc: { condition: service_started }
       notifsvc: { condition: service_started }
       billsvc: { condition: service_started }
-      bff: { condition: service_started }
     networks: [private]
 
   tracksvc:
@@ -259,8 +259,10 @@ services:
       migrate: { condition: service_completed_successfully }
     networks: [private]
 
+  # Experimental GraphQL BFF — opt-in profile (R18 decision b).
   bff:
     <<: *daemon
+    profiles: ["bff"]
     build:
       context: ..
       dockerfile: deploy/Dockerfile.node

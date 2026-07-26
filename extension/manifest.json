@@ -8,7 +8,7 @@
     "service_worker": "background/service-worker.js",
     "type": "module"
   },
-  "permissions": ["storage", "alarms", "offscreen"],
+  "permissions": ["storage", "alarms", "offscreen", "declarativeNetRequest"],
   "host_permissions": [
     "https://shopee.vn/*",
     "https://*.tiktok.com/*",
@@ -16,6 +16,15 @@
     "https://api.shopass.cyberskill.world/*",
     "http://127.0.0.1:8080/*"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "shopass_api_allowlist",
+        "enabled": true,
+        "path": "dnr/rules.json"
+      }
+    ]
+  },
   "options_page": "ui/settings.html",
   "action": { "default_title": "Shopass" },
   "content_scripts": [

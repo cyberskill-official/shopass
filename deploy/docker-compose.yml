@@ -157,7 +157,11 @@ services:
     depends_on:
       migrate: { condition: service_completed_successfully }
 
+  # Experimental GraphQL BFF (R18 decision b): not on the default data path.
+  # Web uses same-origin /api/* + gateway /v1/* REST. Opt in:
+  #   docker compose ... --profile bff up -d
   bff:
+    profiles: ["bff"]
     build:
       context: ..
       dockerfile: deploy/Dockerfile.node
@@ -189,7 +193,8 @@ services:
       DEAL_UPSTREAM_URL: http://dealsvc:8082
       NOTIF_UPSTREAM_URL: http://notifsvc:8082
       BILL_UPSTREAM_URL: http://billsvc:8086
-      BFF_UPSTREAM_URL: http://bff:8085
+      # Optional: only used when profile bff is up (R18).
+      BFF_UPSTREAM_URL: ${BFF_UPSTREAM_URL:-}
     ports: ["127.0.0.1:${GATEWAY_PORT:-8080}:8080"]
     depends_on:
       redis: { condition: service_healthy }
@@ -199,7 +204,6 @@ services:
       dealsvc: { condition: service_started }
       notifsvc: { condition: service_started }
       billsvc: { condition: service_started }
-      bff: { condition: service_started }
 
   # --- one-shot jobs: docker compose run --rm <name> ---
   # Live Shopee: set HTTPS_PROXY to a residential proxy (http.Client uses ProxyFromEnvironment).

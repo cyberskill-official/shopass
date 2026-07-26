@@ -181,6 +181,10 @@ export default function Home() {
               <Link href="/dieu-khoan" className="hover:text-blue-600 hover:underline">
                 Điều khoản
               </Link>
+              {" · "}
+              <Link href="/minh-bach" className="hover:text-blue-600 hover:underline">
+                Minh bạch
+              </Link>
             </p>
             <p className="mt-2">
               Sản phẩm đang trong giai đoạn Closed Beta.<br className="sm:hidden" /> Dữ liệu giá minh bạch cho người dùng Việt Nam.
