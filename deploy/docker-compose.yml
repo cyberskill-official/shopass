@@ -125,6 +125,24 @@ services:
     depends_on:
       migrate: { condition: service_completed_successfully }
 
+  billsvc:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.go
+      args: { SERVICE: services/bill, CMD: ./cmd/billsvc }
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
+      BILL_ADDR: ":8086"
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
+      ZALOPAY_APP_ID: ${ZALOPAY_APP_ID:-}
+      ZALOPAY_MAC_KEY: ${ZALOPAY_MAC_KEY:-}
+      VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
+      VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+    ports: ["127.0.0.1:${BILL_PORT:-8086}:8086"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
   bff:
     build:
       context: ..

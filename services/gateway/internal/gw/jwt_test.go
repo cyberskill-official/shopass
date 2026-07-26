@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -97,4 +98,14 @@ func TestJWT_PublicRoute_PassesWithoutToken(t *testing.T) {
 
 	h.ServeHTTP(rr, req)
 	require.Equal(t, 200, rr.Code)
+}
+
+func TestJWT_BillingIPN_Public(t *testing.T) {
+	deps := testDeps(t)
+	h := NewHandler(deps)
+	req := httptest.NewRequest(http.MethodPost, "/v1/billing/ipn/momo", strings.NewReader(`{}`))
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "bill", rr.Header().Get("X-Upstream"))
 }

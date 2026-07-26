@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"shopass/services/bill/internal/pay"
 )
@@ -22,9 +23,25 @@ type PaymentRepo interface {
 	InsertPending(ctx context.Context, orderRef string, userID int64, amount int64, gateway string)
 }
 
-// Dummy auth until TASK-INFRA-001 integration
-func userIDFromContext(ctx context.Context) int64 {
-	return 1
+func userIDFromContext(ctx context.Context) (int64, bool) {
+	v := ctx.Value("user_id")
+	id, ok := v.(int64)
+	return id, ok && id > 0
+}
+
+func userIDFromRequest(req *http.Request) (int64, bool) {
+	if id, ok := userIDFromContext(req.Context()); ok {
+		return id, true
+	}
+	raw := req.Header.Get("X-User-Id")
+	if raw == "" {
+		return 0, false
+	}
+	id, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil || id <= 0 {
+		return 0, false
+	}
+	return id, true
 }
 
 func writeErr(w http.ResponseWriter, code int, msg string) {
@@ -59,7 +76,11 @@ func NewHandler(plans PlanCatalog, gateways *pay.Registry, payments PaymentRepo)
 }
 
 func (h *Handler) HandleCheckout(w http.ResponseWriter, req *http.Request) {
-	userID := userIDFromContext(req.Context()) // mock TASK-INFRA-001
+	userID, ok := userIDFromRequest(req)
+	if !ok {
+		writeErr(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 	var body struct {
 		PlanTier string `json:"plan_tier"`
 		Gateway  string `json:"gateway"`
