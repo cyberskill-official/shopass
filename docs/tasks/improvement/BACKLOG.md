@@ -13,7 +13,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R3 | Add LICENSE (proprietary core + OSS extension) | A | S | - | decision | todo |
 | R4 | Real root metadata, kill "Create Next App" | A | S | - | - | done (web/app/layout.tsx + root-metadata.test.ts) |
 | R5 | Auth guard for the whole (app) route group | A | S | - | - | done (middleware + middleware-guard.test.ts) |
-| R6 | CSRF + origin checks + login rate limit | A | M | R1 | - | ready_to_review |
+| R6 | CSRF + origin checks + login rate limit | A | M | R1 | - | done |
 | R7 | Session restore on page reload | A | S | - | - | todo |
 | R8 | Extension env-config endpoints + domain decision | A | S | - | decision | todo |
 | R9 | Guard demo seed against prod | A | S | - | - | todo |
