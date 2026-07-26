@@ -10,14 +10,14 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 |----|-------|------|--------|-----------|---------------|--------|
 | R1 | Wire gateway into compose, kill X-User-Id trust | A | M | - | - | done (TASK-INFRA-006) |
 | R2 | Purge node_modules from git | A | S | - | - | done (already untracked; node_modules/ in .gitignore) |
-| R3 | Add LICENSE (proprietary core + OSS extension) | A | S | - | decision | ready_to_review |
+| R3 | Add LICENSE (proprietary core + OSS extension) | A | S | - | decision | done (PR #60) |
 | R4 | Real root metadata, kill "Create Next App" | A | S | - | - | done (web/app/layout.tsx + root-metadata.test.ts) |
 | R5 | Auth guard for the whole (app) route group | A | S | - | - | done (middleware + middleware-guard.test.ts) |
 | R6 | CSRF + origin checks + login rate limit | A | M | R1 | - | done |
-| R7 | Session restore on page reload | A | S | - | - | ready_to_review |
-| R8 | Extension env-config endpoints + domain decision | A | S | - | decision | ready_to_review |
-| R9 | Guard demo seed against prod | A | S | - | - | ready_to_review |
-| R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | todo |
+| R7 | Session restore on page reload | A | S | - | - | done (PR #60) |
+| R8 | Extension env-config endpoints + domain decision | A | S | - | decision | done (PR #60) |
+| R9 | Guard demo seed against prod | A | S | - | - | done (PR #60) |
+| R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | ready_to_review |
 | R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | todo |
 | R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | todo |
 | R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | todo |

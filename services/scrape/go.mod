@@ -2,6 +2,8 @@ module shopass/services/scrape
 
 go 1.25.0
 
+toolchain go1.25.12
+
 require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/playwright-community/playwright-go v0.2000.1
@@ -18,8 +20,8 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/text v0.39.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

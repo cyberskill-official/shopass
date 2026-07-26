@@ -29,8 +29,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          # go.mod declares go 1.25.0 (see docs/AUDIT-REPORT.md hygiene note).
-          go-version: "1.25"
+          # go.mod language go 1.25.0 + toolchain go1.25.12 (R10; patch for stdlib CVEs).
+          go-version: "1.25.12"
       - name: gofmt
         run: |
           set -e
@@ -63,6 +63,18 @@ jobs:
           done
           for f in services/deal/migrations/*.sql; do
             psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d shopass_deal_test -f "$f"
+          done
+      - name: govulncheck (all Go modules)
+        run: |
+          set -e
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          for mod in db obs region secrets \
+                     services/gateway services/auth services/price services/scrape \
+                     services/deal services/notif services/track services/cart \
+                     services/affil services/bill services/comply \
+                     services/b2b services/trust; do
+            echo "== govulncheck $mod =="
+            ( cd "$mod" && govulncheck ./... )
           done
       - name: Test all Go modules
         run: |
