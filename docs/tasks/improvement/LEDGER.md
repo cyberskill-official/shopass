@@ -192,3 +192,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/minh-bach` transparency page; links DISCLOSURE, allowlist, legal pages, repo; footer + sitemap.
 - stephen_ask: HITL skeptical read.
 - notes: R36 public mirror still placeholder.
+
+## [2026-07-26] R18/R31/R35 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #63 merged)
+- evidence: Operator standing "merge then continue remaining tasks in batches"; CI green on #63.
+- stephen_ask: -
+- notes: Next unblocked Wave-2 candidates: R26 (ML versioning), R38 (landing). Still needs_stephen: R11/R12/R15/R19/R23/R24/R36/R40/R49.
