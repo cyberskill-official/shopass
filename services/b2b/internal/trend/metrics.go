@@ -10,11 +10,11 @@ import (
 // When no OTel exporter is configured the global meter is a no-op; Snapshot
 // still exposes in-process totals for unit tests.
 type Metrics struct {
-	mu                sync.Mutex
-	PublishedTotal    int64
-	SuppressedTotal   int64
-	LastDurationMs    float64
-	JobRuns           int64
+	mu              sync.Mutex
+	PublishedTotal  int64
+	SuppressedTotal int64
+	LastDurationMs  float64
+	JobRuns         int64
 }
 
 func NewMetrics() *Metrics {
