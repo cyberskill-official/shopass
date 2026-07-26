@@ -47,7 +47,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | done (PR #65) |
 | R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | done |
 | R41 | Programmatic SEO: public price-history pages (pilot) | E | L | R24 | - | todo |
-| R43 | Lead-magnet tools (fake-sale checker first) | E | M | R38 | - | ready_to_review |
+| R43 | Lead-magnet tools (fake-sale checker first) | E | M | R38 | - | done |
 | R45 | Onboarding to first-alert aha moment | E | M | R38 | - | todo |
 | R46 | Track-by-email without an account | E | M | R23 | - | todo |
 | R55 | Closed beta program (50-200 users) | F | M | R11, R23 | outreach | todo |
