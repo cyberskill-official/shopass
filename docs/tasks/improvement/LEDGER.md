@@ -404,3 +404,17 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Confirm final name/domain; register handles; supply final logo.
 - notes: Handle registration + full repo grep sweep incomplete until name locked.
 
+## [2026-07-26] R37 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #90 merged)
+- evidence: Operator "Go do all remainings"; memo + takedown owner/inbox present; CI green on #90.
+- stephen_ask: Optional VN counsel half-day; confirm inbox routing.
+- notes: Counsel review still recommended, not required for memo acceptance.
+
+## [2026-07-26] R56 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #90 merged)
+- evidence: Operator continue/go; kits + target list delivered.
+- stephen_ask: Prune list; first 3 conversations.
+- notes: R19/R36/R49/R58 remain ready_to_review pending Stephen decisions/accounts/screenshots/handles.
+
