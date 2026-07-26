@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setAccessToken } from "@/lib/auth";
+import { trackEvent } from "@/lib/analytics";
+import {
+  attributeReferral,
+  capturePendingReferral,
+  clearPendingReferral,
+  readPendingReferral,
+} from "@/lib/referral/api";
 import { onboardingNextPath, safeNextPath } from "@/lib/safe-next";
 
 export default function LoginPage() {
@@ -24,10 +31,23 @@ export default function LoginPage() {
     setNextPath(
       safeNextPath(explicit ?? (signup ? onboardingNextPath : null), window.location.origin),
     );
+    capturePendingReferral(params.get("ref"));
   }, []);
 
-  const finishWithToken = (accessToken: string) => {
+  const finishWithToken = async (accessToken: string, applyReferral: boolean) => {
     setAccessToken(accessToken);
+    if (applyReferral) {
+      const pending = readPendingReferral();
+      if (pending) {
+        try {
+          await attributeReferral(pending);
+          trackEvent("referred-signup", { code: pending });
+          clearPendingReferral();
+        } catch {
+          // Spec: bad codes must not block signup/login.
+        }
+      }
+    }
     router.push(nextPath);
   };
 
@@ -65,7 +85,7 @@ export default function LoginPage() {
           setError("Phản hồi đăng nhập không hợp lệ");
           return;
         }
-        finishWithToken(data.accessToken);
+        await finishWithToken(data.accessToken, true);
         return;
       }
 
@@ -85,7 +105,7 @@ export default function LoginPage() {
         setError("Phản hồi đăng nhập không hợp lệ");
         return;
       }
-      finishWithToken(data.accessToken);
+      await finishWithToken(data.accessToken, false);
     } catch {
       setError("Không thể kết nối tới dịch vụ đăng nhập");
     } finally {

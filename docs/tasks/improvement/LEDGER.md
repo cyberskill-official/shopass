@@ -302,3 +302,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator "Go"; CI green on #77.
 - stephen_ask: -
 - notes: Next: R52 referral UI.
+
+## [2026-07-26] R52 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `GET /v1/referral/me` + `POST /v1/referral/attribute` (bill PG repo); dashboard ReferralCard (code/copy/Zalo); signup `?ref=` → attribute after auto-login; self-referral blocked; analytics `share-click`/`referred-signup`; default reward proposal 1mo Premium both sides (pending Stephen economics).
+- stephen_ask: Approve reward economics; try self-referral fails.
+- notes: Rewards still delayed via anti-fraud event (DEC-BILL-19) — UI shows status/uses only.

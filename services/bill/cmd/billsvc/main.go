@@ -16,6 +16,7 @@ import (
 	"shopass/services/bill/internal/bill"
 	"shopass/services/bill/internal/gating"
 	"shopass/services/bill/internal/pay"
+	"shopass/services/bill/internal/referral"
 )
 
 func env(k, def string) string {
@@ -70,11 +71,13 @@ func main() {
 	checkout := api.NewHandler(api.NewSQLPlanCatalog(repo), reg, api.NewCheckoutPayments(repo))
 	ipn := api.NewIPNHandler(repo, repo, secrets)
 	waitlist := api.NewWaitlistHandler(pool)
+	referralRepo := referral.NewPGRepo(pool)
+	referralH := api.NewReferralHandler(referralRepo, log)
 	gate := gating.NewGate(gating.NewSQLRepo(pool), repo, gating.NewSQLPlanCatalog(pool))
 	gatingH := api.NewGatingHandler(gate, os.Getenv("BILL_INTERNAL_SERVICE_TOKEN"))
 
 	mux := http.NewServeMux()
-	api.RegisterRoutes(mux, checkout, ipn, waitlist)
+	api.RegisterRoutes(mux, checkout, ipn, waitlist, referralH)
 	gatingH.RegisterRoutes(mux)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")

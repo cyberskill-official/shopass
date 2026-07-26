@@ -15,7 +15,9 @@ export type AnalyticsEvent =
   | "verdict-shown"
   | "lead-captured"
   | "first-track"
-  | "first-alert";
+  | "first-alert"
+  | "share-click"
+  | "referred-signup";
 
 export type AnalyticsPayload = Record<string, string | number | boolean | undefined>;
 

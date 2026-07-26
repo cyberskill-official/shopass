@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { ReferralCard } from "@/components/referral/referral-card";
 import {
   listTrackedProducts,
   trackShopeeProduct,
@@ -72,6 +73,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <ReferralCard />
+
       {/* Tracker Form Section */}
       <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-2xl shadow-indigo-100/50 sm:px-10 sm:py-12 lg:px-12">
         <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
