@@ -3,7 +3,7 @@
   "name": "Shopass",
   "version": "1.0.0",
   "minimum_chrome_version": "120",
-  "homepage_url": "https://github.com/shopass/sandeal-extension",
+  "homepage_url": "https://shopass.cyberskill.world",
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
@@ -12,7 +12,9 @@
   "host_permissions": [
     "https://shopee.vn/*",
     "https://*.tiktok.com/*",
-    "https://www.lazada.vn/*"
+    "https://www.lazada.vn/*",
+    "https://api.shopass.cyberskill.world/*",
+    "http://127.0.0.1:8080/*"
   ],
   "options_page": "ui/settings.html",
   "action": { "default_title": "Shopass" },

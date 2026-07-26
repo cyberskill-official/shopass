@@ -6,6 +6,12 @@ const isWatch = process.argv.includes('--watch');
 
 process.env.SOURCE_DATE_EPOCH = process.env.SOURCE_DATE_EPOCH || "0";
 
+const shopassEnv = process.env.SHOPASS_ENV || "production";
+if (!["development", "staging", "production"].includes(shopassEnv)) {
+  console.error(`Invalid SHOPASS_ENV=${shopassEnv} (use development|staging|production)`);
+  process.exit(1);
+}
+
 const entryPoints = [
   'src/background/service-worker.ts',
   'src/content/shopee/index.ts',
@@ -25,7 +31,10 @@ const ctx = await esbuild.context({
   absWorkingDir: process.cwd(),
   sourcemap: false,
   legalComments: 'none',
-  define: { "process.env.BUILD_TIME": '""' },
+  define: {
+    "process.env.BUILD_TIME": '""',
+    "process.env.SHOPASS_ENV": JSON.stringify(shopassEnv),
+  },
   metafile: false,
 });
 
@@ -47,5 +56,5 @@ if (isWatch) {
   await ctx.rebuild();
   await ctx.dispose();
   copyAssets();
-  console.log('Build complete.');
+  console.log(`Build complete (SHOPASS_ENV=${shopassEnv}).`);
 }

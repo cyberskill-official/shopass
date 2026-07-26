@@ -1,7 +1,8 @@
 import { authedFetch, refreshJwt, NoAuthError } from "./auth-bridge";
 import * as queue from "./queue";
+import { SYNC_URL } from "../shared/config";
 
-export const SYNC_URL = "https://api.sandeal.vn/v1/ext/sync";
+export { SYNC_URL };
 
 export const metrics = {
   sent: 0,

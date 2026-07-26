@@ -6,7 +6,9 @@
   "scripts": {
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "build": "node build.mjs"
+    "build": "SHOPASS_ENV=production node build.mjs",
+    "build:dev": "SHOPASS_ENV=development node build.mjs",
+    "build:staging": "SHOPASS_ENV=staging node build.mjs"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

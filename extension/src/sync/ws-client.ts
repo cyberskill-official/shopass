@@ -1,4 +1,6 @@
-export const WSS_URL = "wss://api.sandeal.vn/v1/ext/ws";
+import { WSS_URL } from "../shared/config";
+
+export { WSS_URL };
 
 let ws: WebSocket | null = null;
 
