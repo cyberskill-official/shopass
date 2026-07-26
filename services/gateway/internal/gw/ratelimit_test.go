@@ -90,6 +90,35 @@ func TestBucketKeyUsesCaddyInjectedRealIP(t *testing.T) {
 	require.Equal(t, 5, limit)
 }
 
+func TestBucketKey_RefreshLimit(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/v1/auth/refresh", nil)
+	req.RemoteAddr = "203.0.113.10:9999"
+	key, limit := bucketKeyAndLimit(req)
+	require.Equal(t, "rl:ip:203.0.113.10", key)
+	require.Equal(t, 10, limit)
+}
+
+func TestRateLimit_Refresh_PerIP_429(t *testing.T) {
+	auth := testUpstream(t, "auth")
+	deps := Deps{JWKS: &mockJWKS{}, Redis: &mockRedis{}, Upstreams: Upstreams{AuthHandler: auth}}
+	h := NewHandler(deps)
+
+	for i := 0; i < 10; i++ {
+		req := httptest.NewRequest("POST", "/v1/auth/refresh", nil)
+		req.RemoteAddr = "1.2.3.5:1234"
+		rr := httptest.NewRecorder()
+		h.ServeHTTP(rr, req)
+		require.Equal(t, 200, rr.Code, "request %d should pass", i)
+	}
+
+	req := httptest.NewRequest("POST", "/v1/auth/refresh", nil)
+	req.RemoteAddr = "1.2.3.5:1234"
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, 429, rr.Code)
+	require.Equal(t, "12", rr.Header().Get("Retry-After"))
+}
+
 func TestBucketKeyRejectsMalformedRealIP(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/v1/auth/login", nil)
 	req.RemoteAddr = "172.20.0.5:4321"

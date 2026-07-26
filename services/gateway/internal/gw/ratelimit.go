@@ -75,8 +75,11 @@ func rateLimit(rdb RedisClient) func(http.Handler) http.Handler {
 func bucketKeyAndLimit(r *http.Request) (string, int) {
 	limit := 100 // default
 
-	if r.URL.Path == "/v1/auth/login" {
-		limit = 5 // stricter for login
+	switch r.URL.Path {
+	case "/v1/auth/login":
+		limit = 5 // stricter for credential guessing
+	case "/v1/auth/refresh":
+		limit = 10 // session restore / refresh storms
 	}
 
 	if claims, ok := r.Context().Value(claimsKey{}).(*Claims); ok {

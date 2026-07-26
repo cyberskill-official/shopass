@@ -3,7 +3,7 @@ id: TASK-INFRA-006
 title: "Wire gateway into local compose; unpublish service ports; kill client X-User-Id trust"
 module: INFRA
 priority: MUST
-status: ready_to_review
+status: done
 class: improvement
 verify: T
 phase: harden
