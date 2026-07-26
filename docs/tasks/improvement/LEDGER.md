@@ -315,3 +315,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator "Go"; CI green on #79.
 - stephen_ask: -
 - notes: Next agent-doable: R48 Lighthouse/a11y, R20 k6, R32 PDPL.
+
+## [2026-07-26] R48 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: next.config compress + image formats/remotePatterns; dynamic recharts on landing + chart; ListSkeleton/RouteError on alerts/chart; marketing skip-link + single h1; jest-axe on landing + keyword fixture; LHCI soft workflow (continue-on-error) for `/`, keyword, `/bang-gia`.
+- stephen_ask: Spot-check product chart on mid-range Android/4G once; promote LHCI to hard gate after two green weeks.
+- notes: Soft gate only — budgets warn, job does not block merge yet.
