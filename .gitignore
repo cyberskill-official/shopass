@@ -40,3 +40,6 @@ coverage/
 .codex/skills/ship-tasks
 .opencode/skill/ship-tasks
 # <<< cyberos <<<
+
+apps/mobile/node_modules/
+apps/mobile/dist/
