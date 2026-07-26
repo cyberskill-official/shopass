@@ -43,16 +43,28 @@ func (d *Dispatcher) RunOnce(ctx context.Context) error {
 			Body  string `json:"body"`
 		}
 		_ = json.Unmarshal(job.Payload, &p)
-		res, err := d.provider.Send(ctx, Message{To: job.Address, Subject: p.Title, Body: p.Body})
-		if err != nil || res == ResultRetry {
+		out, err := d.provider.Send(ctx, EmailMessage{
+			To:       job.Address,
+			Subject:  p.Title,
+			HTMLBody: p.Body,
+			TextBody: p.Body,
+		})
+		if err != nil || out.Result == ResultRetry {
+			_ = BackoffDelay(1, out.RetryAfter)
 			continue
 		}
-		if res == ResultPermanent {
+		if out.Result == ResultPermanent {
 			_ = d.repo.InvalidateEmail(ctx, job.UserID)
 			_ = d.repo.MarkFailed(ctx, job.NotifID)
 			continue
 		}
-		_ = d.repo.MarkSent(ctx, job.NotifID)
+		if out.Result == ResultFailed {
+			_ = d.repo.MarkFailed(ctx, job.NotifID)
+			continue
+		}
+		if out.Result == ResultSent {
+			_ = d.repo.MarkSent(ctx, job.NotifID)
+		}
 	}
 	return nil
 }

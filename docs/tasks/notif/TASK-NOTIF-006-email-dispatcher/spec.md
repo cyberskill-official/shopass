@@ -3,7 +3,7 @@ id: TASK-NOTIF-006
 title: "Email dispatcher - interface EmailProvider pluggable (SES mặc định / SendGrid / Postmark), gửi qua SES API, xử lý bounce/complaint qua SNS đánh dấu verified=false, backoff cho 4xx/5xx tạm thời, cập nhật notification.status sent|failed; kênh rẻ thứ nhì dưới push trên sms"
 module: NOTIF
 priority: MUST
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P2
 milestone: P2 - slice 2
@@ -528,4 +528,4 @@ UPDATE user_channel_token SET verified=false, updated_at=now()
 
 ---
 
-*Hết TASK-NOTIF-006. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-NOTIF-006. Status: ready_to_review (MVP ready for human review).*

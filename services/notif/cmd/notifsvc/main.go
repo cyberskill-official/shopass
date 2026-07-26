@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"shopass/services/notif/internal/email"
 	"shopass/services/notif/internal/fcm"
 	"shopass/services/notif/internal/notif"
 	"shopass/services/notif/internal/server"
@@ -59,6 +60,7 @@ func main() {
 	}
 
 	go startFCMLoop(ctx, log, repo)
+	go startEmailLoop(ctx, log, repo)
 
 	go func() {
 		log.Info("notifsvc started", "port", port)
@@ -103,6 +105,25 @@ func startFCMLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
 		case <-ticker.C:
 			if err := dispatcher.RunOnce(ctx); err != nil {
 				log.Error("fcm dispatch", "err", err)
+			}
+		}
+	}
+}
+
+func startEmailLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
+	provider := email.NewLogProvider(log, "noop")
+	dispatcher := email.NewDispatcher(provider, email.RepoAdapter{Repo: repo}, 50)
+	log.Info("email dispatcher started", "provider", "noop")
+
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := dispatcher.RunOnce(ctx); err != nil {
+				log.Error("email dispatch", "err", err)
 			}
 		}
 	}
