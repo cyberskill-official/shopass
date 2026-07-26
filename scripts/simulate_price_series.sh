@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Local/staging helper: post a dropping price series into pricesvc ingest
-# (no HTTPS_PROXY / live Shopee). Requires compose stack with pricesvc on :8081.
+# (no HTTPS_PROXY / live Shopee). Requires compose stack with pricesvc up.
+# pricesvc is not published on the host (TASK-INFRA-006); ingest goes over
+# the compose network via a one-shot curl container.
 #
 # Usage (from repo root, after make up):
 #   ./scripts/simulate_price_series.sh
@@ -16,11 +18,15 @@ if [ -f deploy/.env ]; then
 fi
 
 PRODUCT_ID="${PRODUCT_ID:-100}"
-PRICE_URL="${PRICE_URL:-http://127.0.0.1:8081}"
 LIST_PRICE="${LIST_PRICE:-250000}"
 
 if [ ! -f deploy/.env ]; then
   echo "REFUSING: deploy/.env missing (cp deploy/.env.example deploy/.env)" >&2
+  exit 1
+fi
+
+if ! "${COMPOSE[@]}" ps --status running pricesvc 2>/dev/null | grep -q pricesvc; then
+  echo "REFUSING: compose service 'pricesvc' is not running (make up first)" >&2
   exit 1
 fi
 
@@ -43,21 +49,18 @@ if [ -z "$TOKEN" ]; then
   exit 1
 fi
 
-code="$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 "$PRICE_URL/" || true)"
-if [ -z "$code" ] || [ "$code" = "000" ]; then
-  echo "REFUSING: pricesvc not reachable at $PRICE_URL (make up first)" >&2
-  exit 1
-fi
-
 echo "== ensure tracked_product($PRODUCT_ID) =="
 "${COMPOSE[@]}" exec -T db psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-shopass}" -v ON_ERROR_STOP=1 -c \
   "INSERT INTO tracked_product(id, platform_id, platform_item_id, first_seen)
    VALUES ($PRODUCT_ID, 1, 'sim-555:777', now() - INTERVAL '100 days')
    ON CONFLICT (id) DO NOTHING;"
 
+# Compose project name: from top-level `name: shopass` in docker-compose.yml.
+COMPOSE_NET="${COMPOSE_NET:-shopass_default}"
+
 post_snap() {
   local ts="$1" price="$2"
-  local body resp http
+  local body http body_out
   body="$(python3 -c "import json; print(json.dumps({
     'product_id': int('$PRODUCT_ID'),
     'ts': '$ts',
@@ -66,12 +69,14 @@ post_snap() {
     'stock': 10,
     'flash_sale': False,
   }))")"
-  resp="$(curl -sS -w '\nHTTP:%{http_code}' -X POST "$PRICE_URL/v1/price/snapshots" \
+  out="$(docker run --rm --network "$COMPOSE_NET" curlimages/curl:8.7.1 \
+    -sS -w '\nHTTP:%{http_code}' \
+    -X POST "http://pricesvc:8081/v1/price/snapshots" \
     -H "Content-Type: application/json" \
-    -H "X-Service-Token: $TOKEN" \
+    -H "X-Service-Token: ${TOKEN}" \
     -d "$body")"
-  http="${resp##*$'\n'HTTP:}"
-  body_out="${resp%$'\n'HTTP:*}"
+  http="${out##*$'\n'HTTP:}"
+  body_out="${out%$'\n'HTTP:*}"
   echo "  ts=$ts price=$price -> HTTP $http $body_out"
   case "$http" in
     200|201) ;;
@@ -79,8 +84,7 @@ post_snap() {
   esac
 }
 
-echo "== ingest dropping series for product $PRODUCT_ID =="
-# Distinct ts + changing price so delta-only ingest writes each point.
+echo "== ingest dropping series for product $PRODUCT_ID (via compose network) =="
 post_snap "2026-07-01T00:00:00Z" 199000
 post_snap "2026-07-02T00:00:00Z" 179000
 post_snap "2026-07-03T00:00:00Z" 149000

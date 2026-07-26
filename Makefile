@@ -16,7 +16,7 @@ env: ## Create deploy/.env from the example (edit secrets before deploying)
 	@echo 'deploy/.env ready - edit POSTGRES_PASSWORD before any non-local deploy'
 
 # ---------- stack lifecycle ----------
-up: ## Build + start the core stack (db, migrate, pricesvc, dealsvc, notifsvc, web)
+up: ## Build + start the core stack (db, redis, gateway, services, web)
 	$(COMPOSE) up -d --build
 
 down: ## Stop the stack (keeps the data volume)

@@ -48,6 +48,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | **TASK-INFRA-003** | Secrets management - Vault / AWS Secrets Manager, no-cleartext, rotation | MUST | done | - | 5h |
 | **TASK-INFRA-004** | Observability spine - Prometheus + Grafana + OTel tracing + structured logs | MUST | done | TASK-INFRA-001 | 8h |
 | **TASK-INFRA-005** | Per-country region config - gating hook (VN/ID/TH/PH/MY/SG/TW) + feature flags | MUST | done | TASK-INFRA-002 | 6h |
+| **TASK-INFRA-006** | Wire gateway into local compose; unpublish service ports; kill client X-User-Id trust (improvement) | MUST | ready_to_review | TASK-INFRA-001, TASK-AUTH-002 | 6h |
 
 ---
 

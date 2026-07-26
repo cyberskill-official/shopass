@@ -8,7 +8,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
-| R1 | Wire gateway into compose, kill X-User-Id trust | A | M | - | - | todo |
+| R1 | Wire gateway into compose, kill X-User-Id trust | A | M | - | - | ready_to_review (TASK-INFRA-006) |
 | R2 | Purge node_modules from git | A | S | - | - | todo |
 | R3 | Add LICENSE (proprietary core + OSS extension) | A | S | - | decision | todo |
 | R4 | Real root metadata, kill "Create Next App" | A | S | - | - | todo |
