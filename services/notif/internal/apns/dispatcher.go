@@ -20,12 +20,12 @@ type NotifRepo interface {
 }
 
 type Dispatcher struct {
-	client    *Client
+	client    Sender
 	repo      NotifRepo
 	batchSize int
 }
 
-func NewDispatcher(client *Client, repo NotifRepo, batchSize int) *Dispatcher {
+func NewDispatcher(client Sender, repo NotifRepo, batchSize int) *Dispatcher {
 	if batchSize <= 0 {
 		batchSize = 50
 	}
@@ -38,9 +38,10 @@ func (d *Dispatcher) RunOnce(ctx context.Context) error {
 		return err
 	}
 	for _, job := range jobs {
-		payload := job.Payload
-		if len(payload) == 0 {
-			payload = []byte(`{"aps":{"alert":"Shopass"}}`)
+		payload, err := EnsurePayload(job.Payload)
+		if err != nil {
+			_ = d.repo.MarkFailed(ctx, job.NotifID)
+			continue
 		}
 		res, err := d.client.Send(ctx, job.Token, payload)
 		if err != nil {
@@ -55,7 +56,7 @@ func (d *Dispatcher) RunOnce(ctx context.Context) error {
 		case ResultFailed:
 			_ = d.repo.MarkFailed(ctx, job.NotifID)
 		case ResultRetry:
-			// leave queued
+			// leave queued for retry
 		}
 	}
 	return nil

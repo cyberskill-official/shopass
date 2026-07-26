@@ -11,6 +11,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"shopass/services/notif/internal/apns"
 	"shopass/services/notif/internal/email"
 	"shopass/services/notif/internal/fcm"
 	"shopass/services/notif/internal/notif"
@@ -61,6 +62,7 @@ func main() {
 
 	go startFCMLoop(ctx, log, repo)
 	go startEmailLoop(ctx, log, repo)
+	go startAPNsLoop(ctx, log, repo)
 
 	go func() {
 		log.Info("notifsvc started", "port", port)
@@ -124,6 +126,40 @@ func startEmailLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
 		case <-ticker.C:
 			if err := dispatcher.RunOnce(ctx); err != nil {
 				log.Error("email dispatch", "err", err)
+			}
+		}
+	}
+}
+
+func startAPNsLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
+	var sender apns.Sender
+	mode := "noop"
+	if os.Getenv("APNS_KEY_P8") != "" && os.Getenv("APNS_KEY_ID") != "" && os.Getenv("APNS_TEAM_ID") != "" {
+		oauth, err := apns.NewP8TokenSourceFromEnv()
+		if err != nil {
+			log.Warn("apns p8 init failed; falling back to noop", "err", err)
+			sender = apns.NewNoopClient(log)
+		} else {
+			host := env("APNS_HOST", "api.sandbox.push.apple.com")
+			topic := env("APNS_TOPIC", "world.cyberskill.shopass")
+			sender = apns.NewClient(host, topic, oauth, &http.Client{Timeout: 15 * time.Second})
+			mode = "live"
+		}
+	} else {
+		sender = apns.NewNoopClient(log)
+	}
+	dispatcher := apns.NewDispatcher(sender, apns.RepoAdapter{Repo: repo}, 50)
+	log.Info("apns dispatcher started", "mode", mode)
+
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := dispatcher.RunOnce(ctx); err != nil {
+				log.Error("apns dispatch", "err", err)
 			}
 		}
 	}

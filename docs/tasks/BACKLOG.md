@@ -220,7 +220,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | ready_to_implement | TASK-NOTIF-003 | 5h |
+| **TASK-NOTIF-005** | APNs iOS dispatcher (xử lý 410, retry backoff 500/503) | MUST | ready_to_review | TASK-NOTIF-003 | 5h |
 | **TASK-NOTIF-006** | Email dispatcher (SES / SendGrid / Postmark) | MUST | ready_to_review | TASK-NOTIF-003 | 4h |
 | **TASK-NOTIF-007** | SMS dispatcher VN (SpeedSMS/eSMS/VietGuys + Twilio fallback, brandname, chỉ high-value) | SHOULD | ready_to_implement | TASK-NOTIF-003 | 6h |
 
