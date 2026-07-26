@@ -232,8 +232,11 @@ services:
       # Must be byte-for-byte identical to pricesvc's token above. Do not
       # expose it at Caddy or send it from a browser.
       PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:?PRICE_INTERNAL_SERVICE_TOKEN must be injected for the private price API}
+      BILL_INTERNAL_URL: ${BILL_INTERNAL_URL:-http://billsvc:8086}
+      BILL_INTERNAL_SERVICE_TOKEN: ${BILL_INTERNAL_SERVICE_TOKEN:?BILL_INTERNAL_SERVICE_TOKEN must be injected for private gating}
     depends_on:
       migrate: { condition: service_completed_successfully }
+      billsvc: { condition: service_started }
     networks: [private]
 
   billsvc:
@@ -245,6 +248,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
       BILL_ADDR: ":8086"
+      BILL_INTERNAL_SERVICE_TOKEN: ${BILL_INTERNAL_SERVICE_TOKEN:?BILL_INTERNAL_SERVICE_TOKEN must be injected for private gating}
       MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
       MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
       ZALOPAY_APP_ID: ${ZALOPAY_APP_ID:-}

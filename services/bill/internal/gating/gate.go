@@ -28,6 +28,12 @@ func NewGate(repo Repo, subs SubscriptionService, plans PlanCatalog) *Gate {
 }
 
 func (g *Gate) Allow(ctx context.Context, userID int64, featureKey string) (bool, error) {
+	return g.AllowWithUsage(ctx, userID, featureKey, nil)
+}
+
+// AllowWithUsage is like Allow but uses caller-supplied usage when non-nil
+// (track owns wishlist_item counts; bill owns limits).
+func (g *Gate) AllowWithUsage(ctx context.Context, userID int64, featureKey string, usage *int64) (bool, error) {
 	tier := "free"
 	if sub, ok, err := g.subs.GetActive(ctx, userID); err == nil && ok {
 		tier = g.plans.TierOf(sub.PlanID)
@@ -43,9 +49,14 @@ func (g *Gate) Allow(ctx context.Context, userID int64, featureKey string) (bool
 	case limit < 0:
 		return true, nil // unlimited
 	default:
-		used, err := g.repo.CountUsage(ctx, userID, featureKey)
-		if err != nil {
-			return false, nil
+		var used int64
+		if usage != nil {
+			used = *usage
+		} else {
+			used, err = g.repo.CountUsage(ctx, userID, featureKey)
+			if err != nil {
+				return false, nil
+			}
 		}
 		if used < limit {
 			return true, nil

@@ -121,9 +121,12 @@ services:
       TRACK_ADDR: ":8083"
       PRICE_INTERNAL_URL: http://pricesvc:8081
       PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
+      BILL_INTERNAL_URL: http://billsvc:8086
+      BILL_INTERNAL_SERVICE_TOKEN: ${BILL_INTERNAL_SERVICE_TOKEN:-dev-only-bill-token}
     ports: ["127.0.0.1:${TRACK_PORT:-8083}:8083"]
     depends_on:
       migrate: { condition: service_completed_successfully }
+      billsvc: { condition: service_started }
 
   billsvc:
     build:
@@ -133,6 +136,7 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
       BILL_ADDR: ":8086"
+      BILL_INTERNAL_SERVICE_TOKEN: ${BILL_INTERNAL_SERVICE_TOKEN:-dev-only-bill-token}
       MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
       MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
       ZALOPAY_APP_ID: ${ZALOPAY_APP_ID:-}

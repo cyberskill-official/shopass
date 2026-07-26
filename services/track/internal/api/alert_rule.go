@@ -10,10 +10,16 @@ import (
 
 type AlertRuleHandler struct {
 	repo track.AlertRuleRepo
+	gate FeatureGate
 }
 
 func NewAlertRuleHandler(repo track.AlertRuleRepo) *AlertRuleHandler {
 	return &AlertRuleHandler{repo: repo}
+}
+
+func (h *AlertRuleHandler) WithGate(gate FeatureGate) *AlertRuleHandler {
+	h.gate = gate
+	return h
 }
 
 func (h *AlertRuleHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -46,6 +52,24 @@ func (h *AlertRuleHandler) HandleCreateRule(w http.ResponseWriter, req *http.Req
 	if err := track.ValidateRule(body.RuleType, body.Threshold, body.Channel); err != nil {
 		writeErr(w, http.StatusBadRequest, err.Error())
 		return
+	}
+	if body.RuleType == "bottom_predicted" && h.gate != nil {
+		allowed, _, err := h.gate.Check(req.Context(), userID, "bottom_predict", nil)
+		if err != nil {
+			writeErr(w, http.StatusServiceUnavailable, "gating unavailable")
+			return
+		}
+		if !allowed {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusPaymentRequired)
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"error":          "premium_required",
+				"feature_key":    "bottom_predict",
+				"suggested_tier": "premium_basic",
+				"upgrade_path":   "/billing",
+			})
+			return
+		}
 	}
 	rule, err := h.repo.CreateRule(req.Context(), userID, body.ProductID,
 		body.RuleType, body.Threshold, body.Channel)
