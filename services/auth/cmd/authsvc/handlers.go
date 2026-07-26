@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"shopass/obs"
 	"shopass/services/auth/internal/auth"
 )
 
@@ -19,6 +20,7 @@ type handlers struct {
 
 func (h *handlers) routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /healthz", h.health)
+	mux.Handle("GET /metrics", obs.MetricsHandler())
 	mux.HandleFunc("GET /.well-known/jwks.json", h.jwks)
 	mux.HandleFunc("POST /v1/auth/register", h.registerUser)
 	mux.HandleFunc("POST /v1/auth/login", h.login)

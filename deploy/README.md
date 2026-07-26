@@ -210,6 +210,35 @@ See [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md) for why application readiness
 checks are not yet declared in Compose and the exact source work needed before
 adding them.
 
+## Observability (R13 Prometheus + R14 Loki)
+
+Local/staging overlay (does not change the default compose profile):
+
+```bash
+docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.observability.yml \
+  --env-file deploy/.env --profile observability up -d
+```
+
+Loopback UI: Grafana `http://127.0.0.1:3001` (admin/admin from `.env.example`),
+Prometheus `:9090`, Alertmanager `:9093`, Loki `:3100`, Pushgateway `:9091`,
+gateway metrics `:9094`.
+
+- Alert rules: `deploy/prometheus/rules/shopass.yml` (see `obs/README.md` SLO table).
+- Logs: Promtail → Loki; Grafana dashboard **Shopass — errors across services**.
+- Loki retention: 14 days (`deploy/loki/loki.yml`).
+- Telegram delivery needs host Alertmanager credentials (Stephen ask; noop by default).
+
+## Job scheduling (R17)
+
+Host systemd timers under `deploy/systemd/` run `scrapesvc` (every 5m) and
+`mlforecast` (01:30 Asia/Ho_Chi_Minh). After each successful run,
+`deploy/scripts/job-heartbeat.sh` pushes `shopass_job_last_success_unixtime` to
+Pushgateway so Prometheus can alert on missing runs. Install notes:
+[`systemd/README.md`](systemd/README.md).
+
+Demo seed IDs (never production): `app_user` 999, `tracked_product` 100 — see
+Makefile `seed`/`smoke` guards (`APP_ENV=dev` or `ALLOW_SEED=1`).
+
 ## Release blockers still outside this deployment change
 
 1. Run gateway/auth proxy integration and adversarial JWT tests against the

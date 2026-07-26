@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the SănDeal ML forecast batch once
+Description=Run the Shopass ML forecast batch once
 Wants=network-online.target
 After=network-online.target docker.service
 Requires=docker.service
@@ -14,3 +14,5 @@ Nice=10
 IOSchedulingClass=best-effort
 # Forecast runs before dealsvc's in-process 02:00 Asia/Ho_Chi_Minh scorer.
 ExecStart=/usr/bin/flock -n /run/lock/shopass-forecast.lock /usr/bin/docker compose --env-file /etc/shopass/runtime.env -f /srv/shopass/deploy/docker-compose.production.yml run --rm --no-deps mlforecast
+# R17 heartbeat → Pushgateway (observability profile).
+ExecStartPost=/srv/shopass/deploy/scripts/job-heartbeat.sh forecast

@@ -130,3 +130,40 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: SHIP-GUIDE → Go 1.25.12; `toolchain go1.25.12` in every go.mod; CI setup-go 1.25.12; Dockerfile.go golang:1.25.12; govulncheck step (all modules incl. b2b/trust) before Go tests; local govulncheck clean on 1.25.12.
 - stephen_ask: HITL accept → done (skim triage).
 - notes: Version decision = keep 1.25 line, pin patch 1.25.12 (stdlib CVEs fixed through 1.25.12). Dep bumps for reachable findings: go-jose/v4 → v4.1.4 (secrets); golang.org/x/text → v0.39.0 (scrape/deal/bill).
+
+## [2026-07-26] R10 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #61 merged)
+- evidence: Operator "Merge then continue remaining tasks in batches"; CI green on #61.
+- stephen_ask: -
+- notes: -
+
+## [2026-07-26] Wave-1 Stephen asks (needs_stephen)
+- agent/human: Auto
+- evidence: Marked R11 (DNS A/AAAA for shopass.cyberskill.world + api), R12 (object-storage bucket + keys), R15 (VPS SSH + GHCR), R23 (Zalo OA + SMTP), R40 (GA4 vs Plausible), R49 (Chrome/Cốc Cốc $5) as needs_stephen; R16 blocked on R15.
+- stephen_ask: Provide the above when ready; agent continues unblocked work.
+- notes: -
+
+## [2026-07-26] R13 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `deploy/docker-compose.observability.yml` (prometheus, blackbox, pushgateway, alertmanager, grafana); rules in `deploy/prometheus/rules/shopass.yml`; gateway metrics host :9094; authsvc `/metrics`; `obs/README.md` SLO table.
+- stephen_ask: HITL accept; Telegram bot token/chat for live alert delivery (optional overlay).
+- notes: Forced Telegram fire needs credentials — noop webhook until then.
+
+## [2026-07-26] R14 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Loki + Promtail in observability profile; 14d retention; Grafana dashboard `errors-across-services.json`; datasources provisioned.
+- stephen_ask: HITL accept; smoke search a known log line in Grafana Explore.
+- notes: -
+
+## [2026-07-26] R17 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Existing systemd timers polished (Shopass naming); `job-heartbeat.sh` + ExecStartPost; stale-job alerts in R13 rules; docs in deploy/systemd/README + deploy/README.
+- stephen_ask: HITL accept; 3-day prod run still requires host install (R15/VPS).
+- notes: Overlap safety via flock + pg queue lease (pre-existing).
+
+## [2026-07-26] R34 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/chinh-sach-bao-mat` + `/dieu-khoan` (VN primary + EN summary); draft-pending-counsel banner; footer links; sitemap entries + test.
+- stephen_ask: Stephen reads drafts as signatory; counsel optional via R37.
+- notes: legal-review: draft-pending-counsel.

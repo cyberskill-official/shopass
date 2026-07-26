@@ -42,6 +42,10 @@ func main() {
 
 	productRepo := price.NewRepo(pool)
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	})
 	api.NewHandler(productRepo).RegisterRoutes(mux)                                     // GET price-history
 	api.NewIngestHandler(price.NewSnapshotRepo(pool), serviceToken).RegisterRoutes(mux) // POST snapshots
 	api.NewProductUpsertHandler(productRepo, serviceToken).RegisterRoutes(mux)

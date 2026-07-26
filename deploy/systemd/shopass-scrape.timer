@@ -1,5 +1,5 @@
 [Unit]
-Description=Schedule the SănDeal scrape queue every five minutes
+Description=Schedule the Shopass scrape queue every five minutes
 
 [Timer]
 OnCalendar=*:0/5

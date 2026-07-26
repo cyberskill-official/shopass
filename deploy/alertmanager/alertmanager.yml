@@ -1,0 +1,36 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: [alertname, severity]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: telegram
+      continue: true
+    - matchers:
+        - severity="warning"
+      receiver: telegram
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: http://127.0.0.1:9/devnull
+        send_resolved: false
+
+  # Optional: set ALERTMANAGER_TELEGRAM_BOT_TOKEN + ALERTMANAGER_TELEGRAM_CHAT_ID
+  # via deploy/.env when using the telegram receiver override file, or edit this
+  # file on the host. Without creds, critical/warning still group into this noop.
+  - name: telegram
+    webhook_configs:
+      - url: http://127.0.0.1:9/devnull
+        send_resolved: true
+
+inhibit_rules:
+  - source_matchers: [severity="critical"]
+    target_matchers: [severity="warning"]
+    equal: [alertname]

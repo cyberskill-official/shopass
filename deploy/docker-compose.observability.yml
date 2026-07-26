@@ -1,0 +1,92 @@
+# Observability overlay (R13 + R14).
+# Usage (from repo root):
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.observability.yml \
+#     --env-file deploy/.env --profile observability up -d
+#
+# Loopback-only UI: Grafana :3001, Prometheus :9090, Alertmanager :9093.
+# Telegram delivery needs host-side Alertmanager credentials (see deploy/README.md).
+
+services:
+  gateway:
+    ports:
+      # Avoid clashing with Prometheus host :9090.
+      - "127.0.0.1:${GATEWAY_METRICS_PORT:-9094}:9090"
+
+  prometheus:
+    profiles: ["observability"]
+    image: prom/prometheus:v3.5.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheusdata:/prometheus
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]
+    depends_on:
+      - gateway
+      - alertmanager
+      - blackbox
+      - pushgateway
+
+  blackbox:
+    profiles: ["observability"]
+    image: prom/blackbox-exporter:v0.27.0
+    volumes:
+      - ./prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+
+  pushgateway:
+    profiles: ["observability"]
+    image: prom/pushgateway:v1.11.1
+    ports: ["127.0.0.1:${PUSHGATEWAY_PORT:-9091}:9091"]
+
+  alertmanager:
+    profiles: ["observability"]
+    image: prom/alertmanager:v0.28.1
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports: ["127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"]
+
+  loki:
+    profiles: ["observability"]
+    image: grafana/loki:3.5.3
+    command: ["-config.file=/etc/loki/loki.yml"]
+    volumes:
+      - ./loki/loki.yml:/etc/loki/loki.yml:ro
+      - lokidata:/loki
+    ports: ["127.0.0.1:${LOKI_PORT:-3100}:3100"]
+
+  promtail:
+    profiles: ["observability"]
+    image: grafana/promtail:3.5.3
+    command: ["-config.file=/etc/promtail/promtail.yml"]
+    volumes:
+      - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+  grafana:
+    profiles: ["observability"]
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://127.0.0.1:3001}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafanadata:/var/lib/grafana
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3001}:3000"]
+    depends_on:
+      - prometheus
+      - loki
+
+volumes:
+  prometheusdata:
+  lokidata:
+  grafanadata:
