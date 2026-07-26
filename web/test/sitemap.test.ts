@@ -20,5 +20,7 @@ describe("Sitemap", () => {
     expect(urls).toContain(`${siteURL}/lich-sale`);
     expect(urls).toContain(`${siteURL}/so-sanh/shopass-vs-beecost`);
     expect(urls).toContain(`${siteURL}/thay-the-honey`);
+    expect(urls).toContain(`${siteURL}/blog`);
+    expect(urls).toContain(`${siteURL}/changelog`);
   });
 });

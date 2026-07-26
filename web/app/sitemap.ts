@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { postsByDateDesc } from "@/lib/content/posts";
 import { KEYWORD_PAGES } from "@/lib/seo/keywords";
 import { siteURL } from "@/lib/site-url";
 

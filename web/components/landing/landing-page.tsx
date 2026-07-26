@@ -181,6 +181,14 @@ export function LandingPage() {
             <Link href="/thay-the-honey" className="hover:text-sky-800 hover:underline">
               Thay Honey
             </Link>
+            {" · "}
+            <Link href="/blog" className="hover:text-sky-800 hover:underline">
+              Blog
+            </Link>
+            {" · "}
+            <Link href="/changelog" className="hover:text-sky-800 hover:underline">
+              Changelog
+            </Link>
           </p>
         </div>
       </footer>
