@@ -12,7 +12,7 @@ import (
 type SendResult int
 
 const (
-	ResultSent      SendResult = iota
+	ResultSent SendResult = iota
 	ResultRetry
 	ResultTokenDead
 	ResultFailed
@@ -28,10 +28,10 @@ type TokenSource interface {
 }
 
 type Client struct {
-	host   string // api.push.apple.com or api.sandbox.push.apple.com
-	topic  string
-	oauth  TokenSource
-	http   HTTPDoer
+	host  string // api.push.apple.com or api.sandbox.push.apple.com
+	topic string
+	oauth TokenSource
+	http  HTTPDoer
 }
 
 func NewClient(host, topic string, oauth TokenSource, httpClient HTTPDoer) *Client {

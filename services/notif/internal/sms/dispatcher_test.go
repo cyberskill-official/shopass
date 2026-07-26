@@ -22,8 +22,14 @@ func (m *mockRepo) ClaimSMSBatch(ctx context.Context, n int) ([]Job, error) {
 	m.jobs = m.jobs[n:]
 	return out, nil
 }
-func (m *mockRepo) MarkSent(ctx context.Context, id int64) error  { m.sent = append(m.sent, id); return nil }
-func (m *mockRepo) MarkFailed(ctx context.Context, id int64) error { m.fail = append(m.fail, id); return nil }
+func (m *mockRepo) MarkSent(ctx context.Context, id int64) error {
+	m.sent = append(m.sent, id)
+	return nil
+}
+func (m *mockRepo) MarkFailed(ctx context.Context, id int64) error {
+	m.fail = append(m.fail, id)
+	return nil
+}
 
 func TestGuard_RejectsLowValue(t *testing.T) {
 	require.Error(t, Guard(Message{Body: "hi"}))

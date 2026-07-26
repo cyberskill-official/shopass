@@ -3,11 +3,11 @@ package sms
 import "context"
 
 type Message struct {
-	To      string
-	Body    string
-	Brand   string
+	To        string
+	Body      string
+	Brand     string
 	HighValue bool
-	OTP     bool
+	OTP       bool
 }
 
 type SendResult int
