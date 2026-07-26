@@ -3,8 +3,8 @@ package report
 import "sync"
 
 type Metrics struct {
-	mu           sync.Mutex
-	ServedByTier map[string]int64
+	mu             sync.Mutex
+	ServedByTier   map[string]int64
 	DeniedByReason map[string]int64
 }
 
