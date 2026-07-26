@@ -38,13 +38,13 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R19 | Data retention + chunk policy decision | B | S | - | decision | todo |
 | R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | todo |
 | R25 | Pluggable CAPTCHA path (manual queue first) | C | M | R24 | budget (optional solver) | todo |
-| R26 | ML model versioning + evaluation gate | C | M | - | - | ready_to_review |
+| R26 | ML model versioning + evaluation gate | C | M | - | - | done (PR #65) |
 | R27 | Cold-start backfill + honest history-depth UI | C | M | R24 | - | todo |
 | R30 | Google OAuth live end-to-end test | C | S | R11 | creds (Google client) | todo |
 | R31 | DNR rules integration tests | C | S | - | - | done (PR #63) |
 | R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | done (PR #63) |
 | R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | todo |
-| R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | ready_to_review |
+| R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | done (PR #65) |
 | R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | todo |
 | R41 | Programmatic SEO: public price-history pages (pilot) | E | L | R24 | - | todo |
 | R43 | Lead-magnet tools (fake-sale checker first) | E | M | R38 | - | todo |
