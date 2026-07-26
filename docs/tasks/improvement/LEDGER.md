@@ -282,3 +282,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/blog` + 2 seed posts (sale-ảo 10s, chào Shopass); `/changelog` v0.3.0; `/rss.xml` RSS 2.0; sitemap + footer links; file-based content (no MDX dep).
 - stephen_ask: HITL approve post voice (sets content bar).
 - notes: -
+
+## [2026-07-26] R47 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #75 merged)
+- evidence: Operator continue-the-rest; CI green on #75.
+- stephen_ask: -
+- notes: Agent-unblocked Wave-2/3 growth batch paused. Remaining need Stephen (R11/R12/R15/R19/R23/R24/R36/R40/R49) or heavy Wave-3 (R32/R42/R48/R20).
