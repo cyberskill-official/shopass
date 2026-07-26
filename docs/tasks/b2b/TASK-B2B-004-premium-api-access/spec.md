@@ -3,7 +3,7 @@ id: TASK-B2B-004
 title: "Premium API access cho dev/doanh nghiệp - API key có tier (free/pro/enterprise), rate-limit per-key qua gateway, phục vụ market_trend_daily đã ẩn danh, KHÔNG mở raw hay user-level qua API"
 module: B2B
 priority: COULD
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 2
@@ -349,4 +349,4 @@ Retry-After: 23
 
 ---
 
-*Hết TASK-B2B-004. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-B2B-004. Status: ready_to_review (awaiting HITL) (mục tiêu audit 10/10).*

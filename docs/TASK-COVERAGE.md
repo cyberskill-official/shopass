@@ -24,12 +24,12 @@ Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declar
 | COMPLY | 8 | 100% | real | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, per-country gating, and SEA regime adapters (VN/ID/TH) present. |
 | NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike, email/APNs/SMS noop dispatchers present. |
 | TRUST | 6 | 100% | real | open-source, data-minimization, security-audit, anti-fraud, payout delay/guard, and device fingerprint (hash-only + device edges) present. |
-| B2B | 4 | partial | in progress | TASK-B2B-001/002 present (trend + gated reports); seller analytics + premium API pending. |
+| B2B | 4 | 100% files | ready_to_review | Trend pipeline, gated reports, seller position, premium API key+rate-limit present; HITL pending. |
 | MOBILE | 3 | partial | scaffold | TypeScript client scaffold present (auth/push/track/deeplink); not yet full RN app. |
 
 ## Remaining product gaps (P3)
 
-TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003 (B2B-001/002 at `ready_to_review`).
+TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003 (all TASK-B2B-* at `ready_to_review`).
 
 All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are built. TASK-AFFIL-005 cashback layering is HITL-accepted done (PR #102). TRUST/NOTIF/COMPLY P3 slices were HITL-accepted (PRs #93–#100).
 

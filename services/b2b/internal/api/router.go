@@ -3,7 +3,7 @@ package api
 import "net/http"
 
 // RegisterRoutes mounts B2B HTTP surfaces.
-func RegisterRoutes(mux *http.ServeMux, reportH *ReportHandler, sellerH *SellerHandler) {
+func RegisterRoutes(mux *http.ServeMux, reportH *ReportHandler, sellerH *SellerHandler, publicH *PublicTrendHandler) {
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 	})
@@ -12,5 +12,8 @@ func RegisterRoutes(mux *http.ServeMux, reportH *ReportHandler, sellerH *SellerH
 	}
 	if sellerH != nil {
 		sellerH.Register(mux)
+	}
+	if publicH != nil {
+		publicH.Register(mux)
 	}
 }
