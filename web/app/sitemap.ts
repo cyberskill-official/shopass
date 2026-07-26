@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteURL}/chinh-sach-bao-mat`, lastModified: new Date() },
     { url: `${siteURL}/dieu-khoan`, lastModified: new Date() },
     { url: `${siteURL}/minh-bach`, lastModified: new Date() },
+    { url: `${siteURL}/bang-gia`, lastModified: new Date() },
   ];
   return [...keywords, ...legal];
 }

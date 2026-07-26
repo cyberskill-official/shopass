@@ -109,3 +109,13 @@ func TestJWT_BillingIPN_Public(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	require.Equal(t, "bill", rr.Header().Get("X-Upstream"))
 }
+
+func TestJWT_Waitlist_Public(t *testing.T) {
+	deps := testDeps(t)
+	h := NewHandler(deps)
+	req := httptest.NewRequest(http.MethodPost, "/v1/leads/waitlist", strings.NewReader(`{"email":"a@b.co"}`))
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "bill", rr.Header().Get("X-Upstream"))
+}

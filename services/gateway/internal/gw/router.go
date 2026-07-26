@@ -87,6 +87,8 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			deal.ServeHTTP(w, r)
 		case path == "/v1/billing/checkout", strings.HasPrefix(path, "/v1/billing/ipn/"):
 			bill.ServeHTTP(w, r)
+		case path == "/v1/leads/waitlist":
+			bill.ServeHTTP(w, r)
 		default:
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 		}

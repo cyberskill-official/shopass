@@ -72,6 +72,10 @@ func isPublic(r *http.Request) bool {
 	if r.Method == http.MethodPost && strings.HasPrefix(r.URL.Path, "/v1/billing/ipn/") {
 		return true
 	}
+	// Premium waitlist capture (R39) — public, rate-limited with other POSTs.
+	if r.Method == http.MethodPost && r.URL.Path == "/v1/leads/waitlist" {
+		return true
+	}
 	if !strings.HasPrefix(r.URL.Path, "/v1/auth/") {
 		return false
 	}

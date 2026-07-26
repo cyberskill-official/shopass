@@ -218,3 +218,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator standing continue-in-batches; CI green on #65.
 - stephen_ask: -
 - notes: Next unblocked Wave-2: R39 (pricing, depends R38), R45/R43 (depend R38). R27 blocked on R24.
+
+## [2026-07-26] R39 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/bang-gia` Free/Premium/Plus/Pro + FAQ; waitlist modal → `POST /api/waitlist` → gateway `POST /v1/leads/waitlist` → bill `marketing_lead` (migration 0006); public JWT path; analytics stubs `pricing-view`/`tier-click`/`waitlist-submit`; `NEXT_PUBLIC_CHECKOUT_LIVE` flip for R28; landing nav/footer + sitemap.
+- stephen_ask: HITL confirm tier prices (29k/49k/79k) still match intent before indexing.
+- notes: -

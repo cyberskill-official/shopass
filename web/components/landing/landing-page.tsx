@@ -26,6 +26,9 @@ export function LandingPage() {
             <Link href="/login" className="hidden text-sm font-bold text-slate-600 hover:text-sky-800 sm:block">
               Đăng nhập
             </Link>
+            <Link href="/bang-gia" className="hidden text-sm font-bold text-slate-600 hover:text-sky-800 sm:block">
+              Bảng giá
+            </Link>
             <SignupCta className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">
               Bắt đầu miễn phí
             </SignupCta>
@@ -154,6 +157,10 @@ export function LandingPage() {
             {" · "}
             <Link href="/minh-bach" className="hover:text-sky-800 hover:underline">
               Minh bạch
+            </Link>
+            {" · "}
+            <Link href="/bang-gia" className="hover:text-sky-800 hover:underline">
+              Bảng giá
             </Link>
           </p>
         </div>
