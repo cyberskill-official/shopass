@@ -86,3 +86,34 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: AUTH-ORIGIN-CSRF.md; refresh rate-limit tests; CI green on #58.
 - stephen_ask: -
 - notes: Wave 1 A-blockers R1–R6 closed except R3 (needs Stephen license decision).
+
+## [2026-07-26] operator decisions (R3/R8 brand+domain)
+- agent/human: Stephen / Auto
+- branch/commit: hardening/wave1-r3-r7-r8-r9
+- evidence: Decisions — (1) proprietary core + MIT extension (agent judgment confirmed); (2) domain shopass.cyberskill.world, Chrome Web Store intent now; (3) proceed A+B (R7/R9 + R3/R8); (4) brand Shopass.
+- stephen_ask: -
+- notes: Legal entity CyberSkill Software Solutions Consultancy and Development JSC.
+
+## [2026-07-26] R3 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Root `LICENSE` proprietary; `extension/LICENSE` MIT; `NOTICE.md` split + dependency summary instructions.
+- stephen_ask: HITL accept → done.
+- notes: -
+
+## [2026-07-26] R7 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `SessionGuard` already bootstraps refresh (single-flight via tryRefreshOnce); added `web/test/session-guard.test.tsx`.
+- stephen_ask: HITL accept → done.
+- notes: Reconcile + test coverage.
+
+## [2026-07-26] R8 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `extension/src/shared/config.ts`; build.mjs `SHOPASS_ENV`; npm scripts build/build:dev/build:staging; sender/ws/settings use config; manifest host_permissions + homepage shopass.cyberskill.world; no sandeal.vn in sync URLs.
+- stephen_ask: HITL accept → done; DNS for shopass.cyberskill.world / api. still operator infra.
+- notes: Chrome store intent recorded; listing copy still references github.com/shopass/sandeal-extension (follow-up).
+
+## [2026-07-26] R9 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Makefile seed/smoke refuse without APP_ENV=dev|development or ALLOW_SEED=1; deploy/README documents demo IDs 999/100.
+- stephen_ask: HITL accept → done.
+- notes: -

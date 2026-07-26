@@ -1,4 +1,5 @@
 import { getConsent, setConsent } from "../consent/consent-store";
+import { DSAR_URL } from "../shared/config";
 import type { ConsentPurpose } from "../shared/types";
 
 const TOGGLES: { id: string; purpose: ConsentPurpose }[] = [
@@ -36,8 +37,7 @@ for (const t of TOGGLES) {
 // DSAR link (TASK-COMPLY-003)
 document.getElementById("link-dsar")?.addEventListener("click", (e) => {
   e.preventDefault();
-  // Opens DSAR request page (URL configured when backend is deployed)
-  chrome.tabs.create({ url: "https://sandeal.vn/dsar" });
+  chrome.tabs.create({ url: DSAR_URL });
 });
 
 load();

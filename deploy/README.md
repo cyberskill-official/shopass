@@ -165,6 +165,9 @@ that Caddy did not bypass the gateway. Repeat it with a token from the login
 flow before treating the protected route as accepted.
 
 Do not seed demo data or run `make smoke` against a production database.
+`make seed` / `make smoke` refuse unless `APP_ENV=dev` (or `development`) or
+`ALLOW_SEED=1` is set. Demo row IDs: `app_user.id = 999`,
+`tracked_product.id = 100` (plus matching `alert_rule` / `price_forecast`).
 
 ## 4. Scheduled work
 

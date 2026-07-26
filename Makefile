@@ -41,7 +41,21 @@ clean: ## Stop the stack and DELETE the data volume (destroys all data)
 	$(COMPOSE) down -v
 
 # ---------- demo / loop jobs ----------
-seed: ## Seed a demo product (100) + user + alert rule + a mature forecast
+# Demo seed IDs (never use on production DB): app_user=999, tracked_product=100.
+# Refuse unless APP_ENV=dev|development or ALLOW_SEED=1 (R9).
+define assert_seed_allowed
+	@ok=0; \
+	case "$(APP_ENV)" in dev|development) ok=1 ;; esac; \
+	if [ "$(ALLOW_SEED)" = "1" ]; then ok=1; fi; \
+	if [ "$$ok" != "1" ]; then \
+	  echo 'REFUSING: make seed/smoke requires APP_ENV=dev (or development) or ALLOW_SEED=1' >&2; \
+	  echo 'Demo rows: app_user id=999, tracked_product id=100 — never against production.' >&2; \
+	  exit 1; \
+	fi
+endef
+
+seed: ## Seed demo product 100 + user 999 (requires APP_ENV=dev or ALLOW_SEED=1)
+	$(assert_seed_allowed)
 	$(DBEXEC) -c "INSERT INTO app_user(id) VALUES (999) ON CONFLICT DO NOTHING; \
 	  INSERT INTO tracked_product(id, platform_id, platform_item_id, first_seen) VALUES (100,1,'555:777', now() - INTERVAL '100 days') ON CONFLICT DO NOTHING; \
 	  INSERT INTO alert_rule(user_id,product_id,rule_type,active) VALUES (999,100,'bottom_predicted',true) ON CONFLICT DO NOTHING; \
@@ -57,6 +71,7 @@ deal-once: ## Run the deal nightly bottom-price score once
 	$(COMPOSE) run --rm -e RUN_ONCE=1 dealsvc
 
 smoke: ## Demo the loop via containers: seed -> scrape -> deal -> show rows
+	$(assert_seed_allowed)
 	$(MAKE) seed
 	SCRAPE_SEED=$(or $(SCRAPE_SEED),100:555:777) $(COMPOSE) run --rm scrapesvc
 	$(COMPOSE) run --rm -e RUN_ONCE=1 dealsvc
