@@ -32,13 +32,24 @@ func NewRepo(pool *pgxpool.Pool) *Repo {
 }
 
 func (r *Repo) InsertNotification(ctx context.Context, n Notification) (int64, error) {
+	status := n.Status
+	if status == "" {
+		status = "pending"
+	}
 	var id int64
 	err := r.pool.QueryRow(ctx, `
 		INSERT INTO notification (user_id, channel, template, payload, scheduled_at, status)
-		VALUES ($1, $2, $3, $4, $5, 'pending')
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id
-	`, n.UserID, n.Channel, n.Template, n.Payload, n.ScheduledAt).Scan(&id)
+	`, n.UserID, n.Channel, n.Template, n.Payload, n.ScheduledAt, status).Scan(&id)
 	return id, err
+}
+
+// MarkQueued transitions pending → queued so the FCM dispatcher can claim the row.
+func (r *Repo) MarkQueued(ctx context.Context, id int64) error {
+	_, err := r.pool.Exec(ctx,
+		`UPDATE notification SET status='queued' WHERE id=$1 AND status='pending'`, id)
+	return err
 }
 
 func (r *Repo) GetUserChannels(ctx context.Context, userID int64) (UserChannels, error) {
@@ -86,6 +97,7 @@ func (r *Repo) ClaimPushBatch(ctx context.Context, n int) ([]PushJob, error) {
 		FROM notification n
 		JOIN user_channel_token t
 		  ON t.user_id = n.user_id AND t.channel = 'push' AND t.verified = true
+		 AND t.platform IN ('android', 'web')
 		WHERE n.channel = 'push' AND n.status = 'queued'
 		ORDER BY n.scheduled_at NULLS FIRST, n.id
 		FOR UPDATE OF n SKIP LOCKED

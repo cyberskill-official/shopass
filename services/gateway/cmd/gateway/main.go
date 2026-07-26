@@ -75,6 +75,7 @@ func main() {
 			Track: env("TRACK_UPSTREAM_URL", "http://tracksvc:8083"),
 			Price: env("PRICE_UPSTREAM_URL", "http://pricesvc:8081"),
 			Deal:  env("DEAL_UPSTREAM_URL", "http://dealsvc:8082"),
+			Notif: env("NOTIF_UPSTREAM_URL", "http://notifsvc:8082"),
 			BFF:   env("BFF_UPSTREAM_URL", "http://bff:8085"),
 		},
 	}

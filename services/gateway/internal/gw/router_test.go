@@ -25,6 +25,7 @@ func testDeps(t *testing.T) Deps {
 	track := testUpstream(t, "track")
 	price := testUpstream(t, "price")
 	deal := testUpstream(t, "deal")
+	notif := testUpstream(t, "notif")
 	bff := testUpstream(t, "bff")
 	return Deps{
 		JWKS: &mockJWKS{},
@@ -33,6 +34,7 @@ func testDeps(t *testing.T) Deps {
 			TrackHandler: track,
 			PriceHandler: price,
 			DealHandler:  deal,
+			NotifHandler: notif,
 			BFFHandler:   bff,
 		},
 	}
@@ -83,6 +85,10 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		{http.MethodGet, "/v1/track", true, "track"},
 		{http.MethodGet, "/v1/tracked-products", true, "track"},
 		{http.MethodPost, "/v1/products/1/browser-snapshot", true, "track"},
+		{http.MethodGet, "/v1/alerts", true, "track"},
+		{http.MethodPost, "/v1/alerts", true, "track"},
+		{http.MethodPatch, "/v1/alerts/3", true, "track"},
+		{http.MethodPost, "/v1/devices", true, "notif"},
 		{http.MethodGet, "/v1/products/1/chart", true, "deal"},
 		{http.MethodPost, "/graphql", true, "bff"},
 	}
@@ -138,7 +144,7 @@ func TestGatewayRejectsUnscopedPriceReadRoutes(t *testing.T) {
 
 func TestGatewayRejectsUnavailableBetaRoutes(t *testing.T) {
 	h := NewHandler(testDeps(t))
-	for _, path := range []string{"/v1/wishlists", "/v1/alerts"} {
+	for _, path := range []string{"/v1/wishlists", "/v1/compare"} {
 		t.Run(path, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, path, nil)
 			req.Header.Set("Authorization", "Bearer valid-1")
@@ -147,4 +153,17 @@ func TestGatewayRejectsUnavailableBetaRoutes(t *testing.T) {
 			require.Equal(t, http.StatusNotFound, rr.Code)
 		})
 	}
+}
+
+func TestGatewayAlertsRejectSpoofedUserHeader(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	req := httptest.NewRequest(http.MethodGet, "/v1/alerts", nil)
+	req.Header.Set("Authorization", "Bearer valid-90112")
+	req.Header.Set("X-User-Id", "999999")
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusOK, rr.Code)
+	require.Equal(t, "track", rr.Header().Get("X-Upstream"))
+	// jwtVerify overwrites client-supplied identity with the token subject.
+	require.Equal(t, "90112", rr.Header().Get("X-User-Id-Echo"))
 }

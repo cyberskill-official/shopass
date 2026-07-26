@@ -104,6 +104,9 @@ services:
       args: { SERVICE: services/notif, CMD: ./cmd/notifsvc }
     environment:
       PORT: "8082"
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+      FCM_SERVICE_ACCOUNT_JSON: ${FCM_SERVICE_ACCOUNT_JSON:-}
     depends_on:
       migrate: { condition: service_completed_successfully }
     networks: [private]
@@ -202,6 +205,7 @@ services:
       TRACK_UPSTREAM_URL: http://tracksvc:8083
       PRICE_UPSTREAM_URL: http://pricesvc:8081
       DEAL_UPSTREAM_URL: http://dealsvc:8082
+      NOTIF_UPSTREAM_URL: http://notifsvc:8082
       BFF_UPSTREAM_URL: http://bff:8085
     depends_on:
       redis: { condition: service_healthy }
@@ -209,6 +213,7 @@ services:
       tracksvc: { condition: service_started }
       pricesvc: { condition: service_started }
       dealsvc: { condition: service_started }
+      notifsvc: { condition: service_started }
       bff: { condition: service_started }
     networks: [private]
 

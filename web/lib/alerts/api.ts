@@ -71,3 +71,16 @@ export async function getAlertHistory(id: number): Promise<AlertHistoryEntry[]> 
   if (!res.ok) throw new Error("Không thể tải lịch sử cảnh báo");
   return (await res.json()) as AlertHistoryEntry[];
 }
+
+/** Register an FCM web/Android token with notifsvc (via gateway /v1/devices). */
+export async function registerDeviceToken(
+  fcmToken: string,
+  platform: "web" | "android" | "ios" = "web",
+): Promise<void> {
+  const res = await apiFetch("/v1/devices", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fcm_token: fcmToken, platform }),
+  });
+  if (!res.ok) throw new Error("Không thể đăng ký thiết bị nhận thông báo");
+}
