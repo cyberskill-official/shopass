@@ -12,11 +12,11 @@ import (
 )
 
 type PublicTrendHandler struct {
-	Auth    *apikey.Auth
-	Limit   *apikey.RateLimiter
-	Usage   apikey.UsageStore
-	Trend   reportTrend
-	Now     func() time.Time
+	Auth  *apikey.Auth
+	Limit *apikey.RateLimiter
+	Usage apikey.UsageStore
+	Trend reportTrend
+	Now   func() time.Time
 }
 
 func (h *PublicTrendHandler) Register(mux *http.ServeMux) {

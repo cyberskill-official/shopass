@@ -67,11 +67,11 @@ func Format(prefix, secret string) string {
 
 // Auth authenticates X-API-Key with optional short-lived prefix cache (<=60s).
 type Auth struct {
-	Store      KeyStore
-	CacheTTL   time.Duration
-	mu         sync.Mutex
-	cache      map[string]cacheEntry
-	now        func() time.Time
+	Store    KeyStore
+	CacheTTL time.Duration
+	mu       sync.Mutex
+	cache    map[string]cacheEntry
+	now      func() time.Time
 }
 
 type cacheEntry struct {
@@ -151,7 +151,7 @@ func (a *Auth) AdvanceCache(d time.Duration) {
 
 // MemoryKeyStore for tests / noop.
 type MemoryKeyStore struct {
-	mu   sync.Mutex
+	mu       sync.Mutex
 	byPrefix map[string]*APIKey
 }
 
