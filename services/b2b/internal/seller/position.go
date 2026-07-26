@@ -3,8 +3,8 @@ package seller
 import "errors"
 
 var (
-	ErrNotOwner             = errors.New("seller: not verified owner")
-	ErrInsufficientMarket   = errors.New("seller: insufficient_market_data")
+	ErrNotOwner           = errors.New("seller: not verified owner")
+	ErrInsufficientMarket = errors.New("seller: insufficient_market_data")
 )
 
 type MarketBand struct {
