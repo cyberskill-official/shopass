@@ -79,3 +79,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Added `docs/conventions/AUTH-ORIGIN-CSRF.md` (origin-check strategy); gateway `/v1/auth/refresh` limit=10 + tests; login remains 5/min. Pre-existing: web origin checks on login/register/refresh/logout; SameSite=Strict cookies.
 - stephen_ask: HITL review accept → done.
 - notes: -
+
+## [2026-07-26] R6 - review_pass + done
+- agent/human: operator (continue after approve/merge) / Auto
+- branch/commit: main (PR #58)
+- evidence: AUTH-ORIGIN-CSRF.md; refresh rate-limit tests; CI green on #58.
+- stephen_ask: -
+- notes: Wave 1 A-blockers R1–R6 closed except R3 (needs Stephen license decision).
