@@ -21,4 +21,12 @@ describe("fingerprint hash", () => {
     expect(h.includes("Mozilla")).toBe(false);
     expect(h.includes("Asia")).toBe(false);
   });
+
+  it("server payload is device_hash only (no raw signals)", async () => {
+    const h = await hashDeviceSignals(["en-US", "1440x900", "Asia/Ho_Chi_Minh"]);
+    const payload = { device_hash: h };
+    expect(Object.keys(payload)).toEqual(["device_hash"]);
+    const flat = JSON.stringify(payload).toLowerCase();
+    expect(flat).not.toMatch(/mozilla|font|canvas|webgl|user-agent/);
+  });
 });
