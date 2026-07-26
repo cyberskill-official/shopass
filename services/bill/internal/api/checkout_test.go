@@ -78,6 +78,7 @@ func setupCheckout(t *testing.T) (*Handler, *mockGateway, *mockPaymentRepo) {
 
 func doPOST(t *testing.T, h *Handler, path, body string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(http.MethodPost, path, bytes.NewBufferString(body))
+	req.Header.Set("X-User-Id", "42")
 	rec := httptest.NewRecorder()
 	h.HandleCheckout(rec, req)
 	return rec
@@ -99,6 +100,19 @@ func TestCheckout_HappyPath(t *testing.T) {
 	decode(t, rec, &res)
 	if res.Amount != 29000 {
 		t.Fatalf("expected 29000, got %d", res.Amount)
+	}
+	if res.OrderRef != "order_42_premium_basic" {
+		t.Fatalf("expected order ref for user 42, got %q", res.OrderRef)
+	}
+}
+
+func TestCheckout_UnauthorizedWithoutUser(t *testing.T) {
+	h, _, _ := setupCheckout(t)
+	req := httptest.NewRequest(http.MethodPost, "/v1/billing/checkout", bytes.NewBufferString(`{"plan_tier":"premium_basic","gateway":"vietqr"}`))
+	rec := httptest.NewRecorder()
+	h.HandleCheckout(rec, req)
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", rec.Code)
 	}
 }
 

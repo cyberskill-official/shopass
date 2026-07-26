@@ -68,6 +68,10 @@ func isPublic(r *http.Request) bool {
 	if r.URL.Path == "/healthz" || r.URL.Path == "/v1/health" {
 		return true
 	}
+	// Payment gateway callbacks are signature-verified by billsvc, not JWT.
+	if r.Method == http.MethodPost && strings.HasPrefix(r.URL.Path, "/v1/billing/ipn/") {
+		return true
+	}
 	if !strings.HasPrefix(r.URL.Path, "/v1/auth/") {
 		return false
 	}

@@ -26,6 +26,7 @@ func testDeps(t *testing.T) Deps {
 	price := testUpstream(t, "price")
 	deal := testUpstream(t, "deal")
 	notif := testUpstream(t, "notif")
+	bill := testUpstream(t, "bill")
 	bff := testUpstream(t, "bff")
 	return Deps{
 		JWKS: &mockJWKS{},
@@ -35,6 +36,7 @@ func testDeps(t *testing.T) Deps {
 			PriceHandler: price,
 			DealHandler:  deal,
 			NotifHandler: notif,
+			BillHandler:  bill,
 			BFFHandler:   bff,
 		},
 	}
@@ -90,6 +92,7 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		{http.MethodPatch, "/v1/alerts/3", true, "track"},
 		{http.MethodPost, "/v1/devices", true, "notif"},
 		{http.MethodGet, "/v1/products/1/chart", true, "deal"},
+		{http.MethodPost, "/v1/billing/checkout", true, "bill"},
 		{http.MethodPost, "/graphql", true, "bff"},
 	}
 

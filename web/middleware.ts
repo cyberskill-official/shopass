@@ -11,7 +11,7 @@ function readRefreshCookie(request: NextRequest): string | undefined {
 }
 
 export function middleware(request: NextRequest) {
-  const protectedPrefixes = ["/dashboard", "/wishlist", "/alerts", "/products", "/capture", "/capture-guide"];
+  const protectedPrefixes = ["/dashboard", "/wishlist", "/alerts", "/billing", "/products", "/capture", "/capture-guide"];
   if (protectedPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix))) {
     const refreshToken = readRefreshCookie(request);
 

@@ -33,6 +33,12 @@ type SubscriptionActivator interface {
 	ActivateSubscription(ctx context.Context, subID int64, duration time.Duration) error
 }
 
+// subscriptionEnsurer is optional; concrete bill.Repo implements it so IPN can
+// create a subscription when payment.subscription_id is still null.
+type subscriptionEnsurer interface {
+	EnsurePaidSubscription(ctx context.Context, paymentID, userID int64, planTier string, duration time.Duration) (int64, error)
+}
+
 type ipnMetrics interface {
 	IPN(gateway string, result string)
 }
@@ -125,10 +131,18 @@ func (h *IPNHandler) HandleIPN(w http.ResponseWriter, req *http.Request) {
 	switch ipn.Status {
 	case "paid":
 		h.payments.MarkPaid(req.Context(), p.ID, ipn.TransactionID)
-		if p.SubscriptionID != nil && h.subs != nil {
-			// Activate Subscription (TASK-BILL-001) for 1 month
-			if err := h.subs.ActivateSubscription(req.Context(), *p.SubscriptionID, 30*24*time.Hour); err != nil {
-				log.Printf("ERROR: failed to activate subscription id=%d: %v", *p.SubscriptionID, err)
+		if h.subs != nil {
+			if p.SubscriptionID != nil {
+				if err := h.subs.ActivateSubscription(req.Context(), *p.SubscriptionID, 30*24*time.Hour); err != nil {
+					log.Printf("ERROR: failed to activate subscription id=%d: %v", *p.SubscriptionID, err)
+				}
+			} else if ensurer, ok := h.subs.(subscriptionEnsurer); ok {
+				userID, tier, err := pay.ParseOrderRef(ipn.OrderRef)
+				if err != nil {
+					log.Printf("ERROR: parse order_ref=%s: %v", ipn.OrderRef, err)
+				} else if _, err := ensurer.EnsurePaidSubscription(req.Context(), p.ID, userID, tier, 30*24*time.Hour); err != nil {
+					log.Printf("ERROR: ensure subscription order_ref=%s: %v", ipn.OrderRef, err)
+				}
 			}
 		}
 		h.metrics.IPN(gateway, "paid")
