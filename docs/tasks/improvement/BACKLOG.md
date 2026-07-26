@@ -56,7 +56,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
-| R20 | k6 load test gate vs NFR p95 targets | B | M | R13 | - | todo |
+| R20 | k6 load test gate vs NFR p95 targets | B | M | R13 | - | ready_to_review |
 | R21 | Dependency, image scanning, SBOM | B | S | R15 | - | todo |
 | R22 | Nightly end-to-end smoke in CI | B | M | R15 | - | todo |
 | R28 | Payments sandbox: MoMo/ZaloPay/VNPay real flows | C | L | R11 | account (merchant), creds | todo |
