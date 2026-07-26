@@ -328,3 +328,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator "Go do all remainings"; CI green on #81 (incl. soft Lighthouse).
 - stephen_ask: -
 - notes: Next agent-doable: R20 k6, R32 PDPL.
+
+## [2026-07-26] R20 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `loadtests/k6/nfr-infra-001.js` mixed 50 RPS chart+tracked-products; thresholds p95&lt;500/300; weekly workflow Mon 01:00 UTC (skips if secrets missing); baseline log `docs/non-functional-requirements/infra/NFR-INFRA-001-k6-baseline.md`. Compare/wishlist omitted (gateway 404 beta).
+- stephen_ask: Add `K6_ACCESS_TOKEN(S)` + `K6_PRODUCT_ID` secrets; prefer token pool vs rate-limit raise for 50 RPS.
+- notes: First green weekly row pending secrets + live API (R11).

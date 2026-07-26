@@ -1,0 +1,57 @@
+# R20 — weekly NFR-INFRA-001 load gate (k6).
+name: k6 NFR-INFRA-001
+
+on:
+  schedule:
+    - cron: "0 1 * * 1" # Mon 01:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  load:
+    name: Mixed chart + cache (50 RPS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Require secrets
+        id: secrets
+        env:
+          K6_ACCESS_TOKEN: ${{ secrets.K6_ACCESS_TOKEN }}
+          K6_ACCESS_TOKENS: ${{ secrets.K6_ACCESS_TOKENS }}
+        run: |
+          if [ -z "$K6_ACCESS_TOKEN" ] && [ -z "$K6_ACCESS_TOKENS" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "K6_ACCESS_TOKEN(S) not configured — skipping load gate (configure staging secrets)."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run k6
+        if: steps.secrets.outputs.skip != 'true'
+        env:
+          K6_BASE_URL: ${{ secrets.K6_BASE_URL }}
+          K6_ACCESS_TOKEN: ${{ secrets.K6_ACCESS_TOKEN }}
+          K6_ACCESS_TOKENS: ${{ secrets.K6_ACCESS_TOKENS }}
+          K6_PRODUCT_ID: ${{ secrets.K6_PRODUCT_ID }}
+        run: |
+          set -euo pipefail
+          BASE_URL="${K6_BASE_URL:-https://api.shopass.cyberskill.world}"
+          PRODUCT_ID="${K6_PRODUCT_ID:-1}"
+          docker run --rm \
+            -v "$PWD:/work" -w /work \
+            -e "K6_BASE_URL=$BASE_URL" \
+            -e "K6_ACCESS_TOKEN=${K6_ACCESS_TOKEN:-}" \
+            -e "K6_ACCESS_TOKENS=${K6_ACCESS_TOKENS:-}" \
+            -e "K6_PRODUCT_ID=$PRODUCT_ID" \
+            grafana/k6:0.54.0 run loadtests/k6/nfr-infra-001.js
+
+      - name: Upload summary
+        if: steps.secrets.outputs.skip != 'true' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: k6-nfr-infra-001-summary
+          path: loadtests/k6/summary.json
+          if-no-files-found: ignore
