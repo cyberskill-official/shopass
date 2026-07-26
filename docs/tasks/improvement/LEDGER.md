@@ -237,3 +237,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/kiem-tra-sale-ao` + public `POST /v1/tools/fake-sale-check` (deal, no JWT); tracked → verdict/median/chart snippet; untracked → lead via waitlist `source=tool`; `/lich-sale` countdown + reminder subscribe `source=sale-calendar`; analytics `tool-submit`/`verdict-shown`/`lead-captured`.
 - stephen_ask: HITL paste 5 real product URLs; check verdict credibility + VN wording.
 - notes: Untracked enqueue deferred (R27/R24); lead capture only for now.
+
+## [2026-07-26] R43 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #69 merged)
+- evidence: Operator standing continue-in-batches; CI green on #69.
+- stephen_ask: -
+- notes: Next unblocked Wave-2: R45 (onboarding). Still needs_stephen: R11/R12/R15/R19/R23/R24/R36/R40/R49.
