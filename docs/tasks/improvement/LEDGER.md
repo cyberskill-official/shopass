@@ -167,3 +167,28 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `/chinh-sach-bao-mat` + `/dieu-khoan` (VN primary + EN summary); draft-pending-counsel banner; footer links; sitemap entries + test.
 - stephen_ask: Stephen reads drafts as signatory; counsel optional via R37.
 - notes: legal-review: draft-pending-counsel.
+
+## [2026-07-26] R13/R14/R17/R34 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: main (PR #62 merged)
+- evidence: Operator "Merge then continue remaining tasks in batches"; CI green on #62.
+- stephen_ask: Telegram Alertmanager creds still optional.
+- notes: -
+
+## [2026-07-26] R18 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: Decision (b) experimental BFF; compose profile `bff`; removed from gateway depends_on; `docs/architecture/web-data-path.md`; TASK-COVERAGE note.
+- stephen_ask: HITL accept decision (b).
+- notes: Default services list no longer includes bff.
+
+## [2026-07-26] R31 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `extension/src/shared/allowlist.ts`; non-empty DNR allow rules; manifest DNR resource; `allowlist.test.ts` fails on host_permissions drift; build copies rules.json.
+- stephen_ask: HITL read allowlist (api.shopass.cyberskill.world + 127.0.0.1:8080).
+- notes: Hard exfil boundary remains host_permissions; DNR is allow-documented (no marketplace block).
+
+## [2026-07-26] R35 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/minh-bach` transparency page; links DISCLOSURE, allowlist, legal pages, repo; footer + sitemap.
+- stephen_ask: HITL skeptical read.
+- notes: R36 public mirror still placeholder.

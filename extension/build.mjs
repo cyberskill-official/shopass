@@ -42,10 +42,12 @@ function copyAssets() {
   // Ensure directories exist
   fs.mkdirSync('dist/ui', { recursive: true });
 
-  // Copy files (DNR rules omitted from dist while manifest has no DNR resource)
+  // Copy static assets including audited DNR allowlist rules (R31).
   fs.copyFileSync('manifest.json', 'dist/manifest.json');
   fs.copyFileSync('src/ui/settings.html', 'dist/ui/settings.html');
   fs.copyFileSync('src/ui/onboarding.html', 'dist/ui/onboarding.html');
+  fs.mkdirSync('dist/dnr', { recursive: true });
+  fs.copyFileSync('src/dnr/rules.json', 'dist/dnr/rules.json');
   console.log('Static assets copied to dist.');
 }
 

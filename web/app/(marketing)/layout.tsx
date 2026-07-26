@@ -24,6 +24,9 @@ export default function MarketingLayout({
           <Link href="/dieu-khoan" className="hover:underline">
             Điều khoản
           </Link>
+          <Link href="/minh-bach" className="hover:underline">
+            Minh bạch
+          </Link>
           <a href="mailto:info@cyberskill.world" className="hover:underline">
             DSAR
           </a>
