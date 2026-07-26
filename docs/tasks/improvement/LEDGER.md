@@ -276,3 +276,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator continue-the-rest; CI green on #73.
 - stephen_ask: -
 - notes: Next Wave-3 unblocked: R47 blog/changelog/RSS.
+
+## [2026-07-26] R47 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/blog` + 2 seed posts (sale-ảo 10s, chào Shopass); `/changelog` v0.3.0; `/rss.xml` RSS 2.0; sitemap + footer links; file-based content (no MDX dep).
+- stephen_ask: HITL approve post voice (sets content bar).
+- notes: -
