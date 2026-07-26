@@ -268,7 +268,7 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
 | **TASK-TRUST-004** | Anti-fraud engine (referral abuse, fake-account farming, velocity, relationship graph) | MUST | ready_to_review | TASK-BILL-004, TASK-AFFIL-001 | 10h |
-| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | ready_to_implement | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
+| **TASK-TRUST-005** | Phát hiện gaming affiliate attribution + delay payout | MUST | ready_to_review | TASK-AFFIL-001, TASK-AFFIL-003, TASK-BILL-002, TASK-TRUST-004 | 6h |
 | **TASK-TRUST-006** | Device-fingerprint + phát hiện multi-account | SHOULD | ready_to_implement | TASK-TRUST-004 | 6h |
 
 ---

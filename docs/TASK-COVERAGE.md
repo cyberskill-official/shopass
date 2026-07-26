@@ -4,7 +4,7 @@ Date: 2026-07-03 (status alignment 2026-07-25). This maps the 91 tasks to what a
 
 **Source of truth for implementation presence.** Task frontmatter `status: done` must not contradict this file. As of 2026-07-25 the 15 tasks listed under "no code" were reset to `ready_to_implement` (and BACKLOG.md matched). Spec `audit.md` scores of `10/10` mean the *spec* passed task-audit before build — they are not evidence that code shipped. CyberOS HITL still requires a human to set `done`; agents must not invent completion.
 
-Headline: 78 of 91 tasks have code on disk; 13 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
+Headline: 79 of 91 tasks have code on disk; 12 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
 
 ## Per-module status
 
@@ -23,15 +23,15 @@ Headline: 78 of 91 tasks have code on disk; 13 have none. About 77% of the decla
 | PRICE | 5 | 100% | real | tracked_product, snapshot hypertable, history, and cross-platform compare (TASK-PRICE-004: GET /v1/compare, latest-per-product, server-side cheapest flag). |
 | COMPLY | 8 | 75% | partial | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, and TASK-COMPLY-006 per-country gating present; TASK-COMPLY-007 (SEA adapters) missing. |
 | NOTIF | 7 | 47% | partial | schema, FCM, fan-out, midnight-spike, and email MVP noop dispatcher present; TASK-NOTIF-005/007 (APNs, SMS) missing. |
-| TRUST | 6 | 58% | partial | open-source, data-minimization, security-audit, and TASK-TRUST-004 anti-fraud PG + referral Assess present; TASK-TRUST-005/006 (attribution-gaming, device fingerprint) missing. |
+| TRUST | 6 | 75% | partial | open-source, data-minimization, security-audit, TRUST-004 anti-fraud, and TRUST-005 payout delay/guard present; TASK-TRUST-006 (device fingerprint) missing. |
 | B2B | 4 | 0% | missing | entire module absent (P3). |
 | MOBILE | 3 | 0% | missing | entire module absent (P3). |
 
-## The 13 tasks with no code
+## The 12 tasks with no code
 
-TASK-AFFIL-005, TASK-NOTIF-005, TASK-NOTIF-007, TASK-COMPLY-007, TASK-TRUST-005, TASK-TRUST-006, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
+TASK-AFFIL-005, TASK-NOTIF-005, TASK-NOTIF-007, TASK-COMPLY-007, TASK-TRUST-006, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
 
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 13 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback, anti-fraud, SEA compliance, and the extra push channels - consistent with an MVP-first build.
+All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 12 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback, anti-fraud, SEA compliance, and the extra push channels - consistent with an MVP-first build.
 
 ## The stubs that block a working MVP
 

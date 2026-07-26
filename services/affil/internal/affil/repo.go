@@ -3,6 +3,7 @@ package affil
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -65,6 +66,28 @@ func (r *Repo) ConfirmConversion(ctx context.Context, id int64) error {
 		 SET status='confirmed', confirmed_at=now()
 		 WHERE id=$1 AND status='pending'`, id)
 	return err
+}
+
+// HoldSeed is the payload TRUST-005 needs when a conversion is confirmed.
+type HoldSeed struct {
+	ConversionID  int64
+	BeneficiaryID int64
+	BuyerID       int64
+	Commission    int64
+	UserInitiated bool
+	ClickedAt     time.Time
+}
+
+// HoldSeedByID loads conversion + click fields for payout hold creation.
+func (r *Repo) HoldSeedByID(ctx context.Context, id int64) (HoldSeed, error) {
+	var s HoldSeed
+	err := r.pool.QueryRow(ctx, `
+		SELECT c.id, cl.user_id, cl.user_id, c.commission, true, cl.clicked_at
+		FROM affiliate_conversion c
+		JOIN affiliate_click cl ON cl.id = c.click_id
+		WHERE c.id = $1
+	`, id).Scan(&s.ConversionID, &s.BeneficiaryID, &s.BuyerID, &s.Commission, &s.UserInitiated, &s.ClickedAt)
+	return s, err
 }
 
 func (r *Repo) RejectConversion(ctx context.Context, id int64, reason string) error {
