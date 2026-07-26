@@ -210,6 +210,12 @@ See [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md) for why application readiness
 checks are not yet declared in Compose and the exact source work needed before
 adding them.
 
+## Web data path (R18)
+
+Default: browser → Next.js → gateway `/v1/*` REST (see
+`docs/architecture/web-data-path.md`). The GraphQL BFF is **experimental** —
+`docker compose … --profile bff up -d` plus `BFF_UPSTREAM_URL=http://bff:8085`.
+
 ## Observability (R13 Prometheus + R14 Loki)
 
 Local/staging overlay (does not change the default compose profile):

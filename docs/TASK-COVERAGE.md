@@ -100,7 +100,7 @@ The full auth module - the new social-login code plus every pre-existing suite -
 
 ## Progress (2026-07-03, runnable servers + compose wiring)
 
-To make the BFF and auth deployable, three services that previously had no runnable HTTP server were given one, and all three plus the BFF are now wired into `docker-compose.yml`.
+To make the BFF and auth deployable, three services that previously had no runnable HTTP server were given one, and all three plus the BFF were wired into `docker-compose.yml`. **R18 (2026-07-26):** BFF is experimental (`--profile bff`); default web data path is REST via gateway — see `docs/architecture/web-data-path.md`.
 
 - `authsvc` (`services/auth/cmd/authsvc`): an HTTP server wiring the existing register/login/refresh plus the new social-login start/callback and a JWKS endpoint. It generates an RS256 signing key at boot and enables social login only when `GOOGLE_CLIENT_ID` is set (the secret comes from the environment, not a literal). It also gained an `HTTPKeySet` that fetches and caches a provider JWKS (unit-tested with a fake fetch). The whole auth module stays green.
 - `dealsvc` now serves its existing chart handler (TASK-DEAL-003) over HTTP alongside the nightly cron, backed by a new real chart repository (daily series from `price_daily`, maturity from `first_seen`, fake-sale verdict from the series). Deal's full suite stays green with the composed test database.
