@@ -27,6 +27,10 @@ describe("Dashboard tracking flow", () => {
 
     expect(await screen.findByText(/Chưa có sản phẩm nào được theo dõi/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Liên kết sản phẩm Shopee Việt Nam/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /bắt đầu: link → biểu đồ → cảnh báo/i })).toHaveAttribute(
+      "href",
+      "/onboarding",
+    );
     expect(screen.queryByText(/Tai nghe Bluetooth SănDeal/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Push & email/i)).not.toBeInTheDocument();
   });

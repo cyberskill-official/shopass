@@ -8,6 +8,7 @@ import { PriceChart } from "@/components/price-chart/price-chart";
 import { VerdictBadge } from "@/components/price-chart/verdict-badge";
 import { MaturityNotice } from "@/components/price-chart/maturity-notice";
 import { RangeSelector } from "@/components/price-chart/range-selector";
+import { BottomAlertCta } from "@/components/onboarding/bottom-alert-cta";
 import type { ChartResponse, Range } from "@/lib/chart/types";
 
 export default function ProductChartPage() {
@@ -220,6 +221,12 @@ export default function ProductChartPage() {
         <div className="mt-8">
           {data && <MaturityNotice maturity={data.maturity} />}
         </div>
+
+        {productId > 0 && (
+          <div className="mt-6">
+            <BottomAlertCta productId={productId} />
+          </div>
+        )}
 
         <section className="mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50/60">
           <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">

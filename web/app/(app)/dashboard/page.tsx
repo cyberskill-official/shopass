@@ -185,8 +185,14 @@ export default function DashboardPage() {
             </div>
               <h3 className="mt-4 text-lg font-bold text-slate-900">Chưa có sản phẩm nào được theo dõi</h3>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
-              Dán liên kết Shopee vào biểu mẫu phía trên, rồi xác nhận giá đang hiển thị tại trang biểu đồ để bắt đầu lịch sử giá.
+              Dán liên kết Shopee vào biểu mẫu phía trên, hoặc dùng hướng dẫn nhanh để tới cảnh báo đầu tiên.
             </p>
+            <Link
+              href="/onboarding"
+              className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-700"
+            >
+              Bắt đầu: link → biểu đồ → cảnh báo
+            </Link>
           </div>
         ) : (
           <div className="mt-8 grid gap-4 lg:grid-cols-2">

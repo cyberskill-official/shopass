@@ -13,7 +13,7 @@ export function SignupCta({
 }) {
   return (
     <Link
-      href="/login?signup=1"
+      href="/login?signup=1&next=/onboarding"
       className={className}
       data-analytics="signup-click"
       onClick={() => trackEvent("signup-click", { surface: "landing" })}

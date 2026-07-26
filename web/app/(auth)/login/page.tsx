@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setAccessToken } from "@/lib/auth";
-import { safeNextPath } from "@/lib/safe-next";
+import { onboardingNextPath, safeNextPath } from "@/lib/safe-next";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,15 +12,24 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [nextPath, setNextPath] = useState("/dashboard");
+  const [nextPath, setNextPath] = useState(onboardingNextPath);
   const router = useRouter();
   const [isSignup, setIsSignup] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setIsSignup(params.get("signup") === "1");
-    setNextPath(safeNextPath(params.get("next"), window.location.origin));
+    const signup = params.get("signup") === "1";
+    setIsSignup(signup);
+    const explicit = params.get("next");
+    setNextPath(
+      safeNextPath(explicit ?? (signup ? onboardingNextPath : null), window.location.origin),
+    );
   }, []);
+
+  const finishWithToken = (accessToken: string) => {
+    setAccessToken(accessToken);
+    router.push(nextPath);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +38,38 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(isSignup ? "/api/auth/register" : "/api/auth/login", {
+      if (isSignup) {
+        const reg = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!reg.ok) {
+          const body = await reg.json().catch(() => null);
+          setError(body?.error || "Không thể tạo tài khoản");
+          return;
+        }
+        // Auto-login so R45 time-to-first-alert stays under ~2 minutes.
+        const login = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (!login.ok) {
+          setIsSignup(false);
+          setMessage("Tài khoản đã tạo. Đăng nhập để bắt đầu theo dõi giá.");
+          return;
+        }
+        const data = await login.json();
+        if (typeof data?.accessToken !== "string") {
+          setError("Phản hồi đăng nhập không hợp lệ");
+          return;
+        }
+        finishWithToken(data.accessToken);
+        return;
+      }
+
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -37,13 +77,7 @@ export default function LoginPage() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        setError(body?.error || (isSignup ? "Không thể tạo tài khoản" : "Email hoặc mật khẩu không đúng"));
-        return;
-      }
-
-      if (isSignup) {
-        setIsSignup(false);
-        setMessage("Tài khoản đã được tạo. Hãy đăng nhập để bắt đầu theo dõi giá.");
+        setError(body?.error || "Email hoặc mật khẩu không đúng");
         return;
       }
       const data = await res.json();
@@ -51,8 +85,7 @@ export default function LoginPage() {
         setError("Phản hồi đăng nhập không hợp lệ");
         return;
       }
-      setAccessToken(data.accessToken);
-      router.push(nextPath);
+      finishWithToken(data.accessToken);
     } catch {
       setError("Không thể kết nối tới dịch vụ đăng nhập");
     } finally {

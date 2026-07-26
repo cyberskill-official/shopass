@@ -34,7 +34,7 @@ describe("Middleware Guard", () => {
     expect(res?.status).not.toBe(307);
   });
 
-  it.each(["/wishlist", "/alerts", "/products/100/chart"])("protects %s", (path) => {
+  it.each(["/wishlist", "/alerts", "/onboarding", "/products/100/chart"])("protects %s", (path) => {
     const req = new NextRequest(`http://localhost${path}`);
     const res = middleware(req);
 

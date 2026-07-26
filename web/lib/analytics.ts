@@ -13,7 +13,9 @@ export type AnalyticsEvent =
   | "waitlist-submit"
   | "tool-submit"
   | "verdict-shown"
-  | "lead-captured";
+  | "lead-captured"
+  | "first-track"
+  | "first-alert";
 
 export type AnalyticsPayload = Record<string, string | number | boolean | undefined>;
 

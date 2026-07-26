@@ -244,3 +244,15 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator standing continue-in-batches; CI green on #69.
 - stephen_ask: -
 - notes: Next unblocked Wave-2: R45 (onboarding). Still needs_stephen: R11/R12/R15/R19/R23/R24/R36/R40/R49.
+
+## [2026-07-26] HITL confirm (R39 prices + R43 tools)
+- agent/human: Stephen
+- evidence: Operator "Confirm, continue the rest" — pricing tiers and tool direction accepted; continue unblocked Wave-2 (R45 next).
+- stephen_ask: -
+- notes: -
+
+## [2026-07-26] R45 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/onboarding` paste→chart→「Báo tôi khi chạm đáy」; `createAhaAlert` prefers `bottom_predicted`, Free 402→`real_sale`; signup auto-login + `next=/onboarding`; empty states (dashboard/wishlist/alerts) deep-link; chart `BottomAlertCta`; analytics `first-track`/`first-alert`.
+- stephen_ask: HITL run once on a fresh account; note hesitation points.
+- notes: -
