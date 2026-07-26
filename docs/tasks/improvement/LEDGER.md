@@ -263,3 +263,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Operator "Confirm, continue the rest"; CI green on #71.
 - stephen_ask: -
 - notes: Wave-2 agent-unblocked exhausted. Next: Wave-3 no-Stephen (R44 comparison, R47 blog, R42 keywords, R48 perf, R32 PDPL, R20 k6).
+
+## [2026-07-26] R44 - evidence (ready_to_review)
+- agent/human: Auto
+- evidence: `/so-sanh/shopass-vs-beecost` feature matrix (10 rows) + JSON-LD; `/thay-the-honey` trust story with Verge/Rakuten/Impact citations + link `/minh-bach`; alias redirect `sandeal-vs-beecost` → shopass; sitemap + landing footer.
+- stephen_ask: HITL verify every comparison row before indexing.
+- notes: Fact-check list = `SHOPASS_VS_BEECOST` in `web/lib/compare/beecost.ts` + Honey source URLs on page.

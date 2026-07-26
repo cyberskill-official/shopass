@@ -14,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteURL}/bang-gia`, lastModified: new Date() },
     { url: `${siteURL}/kiem-tra-sale-ao`, lastModified: new Date() },
     { url: `${siteURL}/lich-sale`, lastModified: new Date() },
+    { url: `${siteURL}/so-sanh/shopass-vs-beecost`, lastModified: new Date() },
+    { url: `${siteURL}/thay-the-honey`, lastModified: new Date() },
   ];
   return [...keywords, ...legal];
 }

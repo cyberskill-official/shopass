@@ -173,6 +173,14 @@ export function LandingPage() {
             <Link href="/lich-sale" className="hover:text-sky-800 hover:underline">
               Lịch sale
             </Link>
+            {" · "}
+            <Link href="/so-sanh/shopass-vs-beecost" className="hover:text-sky-800 hover:underline">
+              vs BeeCost
+            </Link>
+            {" · "}
+            <Link href="/thay-the-honey" className="hover:text-sky-800 hover:underline">
+              Thay Honey
+            </Link>
           </p>
         </div>
       </footer>

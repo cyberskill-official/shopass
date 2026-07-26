@@ -30,6 +30,16 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  async redirects() {
+    return [
+      // Spec R44 used the old product name in the slug; keep SEO alias.
+      {
+        source: "/so-sanh/sandeal-vs-beecost",
+        destination: "/so-sanh/shopass-vs-beecost",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
