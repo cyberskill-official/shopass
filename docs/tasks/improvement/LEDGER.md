@@ -37,3 +37,45 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Host ports only db/gateway/web; `curl -H 'X-User-Id: 1' http://127.0.0.1:8080/v1/alerts` → 401; tracksvc:8083 unreachable; `make simulate-prices` OK via compose network; `go test ./services/gateway/...` ok.
 - stephen_ask: HITL review accept for reviewing → ready_to_test (do not mark done yet).
 - notes: Status moved implementing → ready_to_review.
+
+## [2026-07-26] R1 - review_pass + done (TASK-INFRA-006)
+- agent/human: operator (“Approve, merge then continue”) / Auto
+- branch/commit: main @ fd708c6 (#57 squash); helpers #56 @ c2d2dcb
+- evidence: PRs merged; CI green on #57; forged X-User-Id 401 verified pre-merge.
+- stephen_ask: -
+- notes: HITL covered review + final accept. Task frontmatter → done.
+
+## [2026-07-26] R2 - review_pass + done (already satisfied)
+- agent/human: Auto
+- branch/commit: main @ fd708c6
+- evidence: `git ls-files | grep -c node_modules` → 0; root `.gitignore` has `node_modules/` and `**/.venv/`.
+- stephen_ask: -
+- notes: No purge commit needed; history may still contain old blobs (BFG optional before R36).
+
+## [2026-07-26] R4 - review_pass + done (already satisfied)
+- agent/human: Auto
+- branch/commit: main @ fd708c6
+- evidence: `web/app/layout.tsx` title/description Shopass (not Create Next App); `web/test/root-metadata.test.ts` asserts that.
+- stephen_ask: -
+- notes: Reconcile-only status update.
+
+## [2026-07-26] R5 - review_pass + done (already satisfied)
+- agent/human: Auto
+- branch/commit: main @ fd708c6
+- evidence: `web/middleware.ts` protects /dashboard,/wishlist,/alerts,/billing,/products,/capture*; `web/test/middleware-guard.test.ts`.
+- stephen_ask: -
+- notes: Reconcile-only status update.
+
+## [2026-07-26] R6 - started
+- agent/human: Auto
+- branch/commit: hardening/wave1-reconcile-and-r6
+- evidence: Origin checks + SameSite cookies + gateway login rate-limit already present; closing gaps (refresh limit + conventions doc).
+- stephen_ask: -
+- notes: -
+
+## [2026-07-26] R6 - evidence (ready_to_review)
+- agent/human: Auto
+- branch/commit: hardening/wave1-reconcile-and-r6
+- evidence: Added `docs/conventions/AUTH-ORIGIN-CSRF.md` (origin-check strategy); gateway `/v1/auth/refresh` limit=10 + tests; login remains 5/min. Pre-existing: web origin checks on login/register/refresh/logout; SameSite=Strict cookies.
+- stephen_ask: HITL review accept → done.
+- notes: -

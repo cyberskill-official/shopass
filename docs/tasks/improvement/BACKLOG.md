@@ -8,12 +8,12 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
-| R1 | Wire gateway into compose, kill X-User-Id trust | A | M | - | - | ready_to_review (TASK-INFRA-006) |
-| R2 | Purge node_modules from git | A | S | - | - | todo |
+| R1 | Wire gateway into compose, kill X-User-Id trust | A | M | - | - | done (TASK-INFRA-006) |
+| R2 | Purge node_modules from git | A | S | - | - | done (already untracked; node_modules/ in .gitignore) |
 | R3 | Add LICENSE (proprietary core + OSS extension) | A | S | - | decision | todo |
-| R4 | Real root metadata, kill "Create Next App" | A | S | - | - | todo |
-| R5 | Auth guard for the whole (app) route group | A | S | - | - | todo |
-| R6 | CSRF + origin checks + login rate limit | A | M | R1 | - | todo |
+| R4 | Real root metadata, kill "Create Next App" | A | S | - | - | done (web/app/layout.tsx + root-metadata.test.ts) |
+| R5 | Auth guard for the whole (app) route group | A | S | - | - | done (middleware + middleware-guard.test.ts) |
+| R6 | CSRF + origin checks + login rate limit | A | M | R1 | - | ready_to_review |
 | R7 | Session restore on page reload | A | S | - | - | todo |
 | R8 | Extension env-config endpoints + domain decision | A | S | - | decision | todo |
 | R9 | Guard demo seed against prod | A | S | - | - | todo |
