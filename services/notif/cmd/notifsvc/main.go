@@ -16,6 +16,7 @@ import (
 	"shopass/services/notif/internal/fcm"
 	"shopass/services/notif/internal/notif"
 	"shopass/services/notif/internal/server"
+	"shopass/services/notif/internal/sms"
 )
 
 func env(k, def string) string {
@@ -63,6 +64,7 @@ func main() {
 	go startFCMLoop(ctx, log, repo)
 	go startEmailLoop(ctx, log, repo)
 	go startAPNsLoop(ctx, log, repo)
+	go startSMSLoop(ctx, log, repo)
 
 	go func() {
 		log.Info("notifsvc started", "port", port)
@@ -160,6 +162,35 @@ func startAPNsLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
 		case <-ticker.C:
 			if err := dispatcher.RunOnce(ctx); err != nil {
 				log.Error("apns dispatch", "err", err)
+			}
+		}
+	}
+}
+
+func startSMSLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
+	var primary sms.Provider = sms.NewLogProvider(log, "noop")
+	mode := "noop"
+	if s := sms.NewSpeedSMSFromEnv(); s != nil {
+		primary = *s
+		mode = "speedsms"
+	}
+	var fallback sms.Provider
+	if t := sms.NewTwilioFromEnv(); t != nil {
+		fallback = *t
+	}
+	brand := env("SMS_BRANDNAME", "SHOPASS")
+	dispatcher := sms.NewDispatcher(primary, fallback, brand, sms.RepoAdapter{Repo: repo}, 20)
+	log.Info("sms dispatcher started", "mode", mode, "brand", brand, "twilio_fallback", fallback != nil)
+
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			if err := dispatcher.RunOnce(ctx); err != nil {
+				log.Error("sms dispatch", "err", err)
 			}
 		}
 	}
