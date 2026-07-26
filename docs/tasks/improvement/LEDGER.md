@@ -418,3 +418,9 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Prune list; first 3 conversations.
 - notes: R19/R36/R49/R58 remain ready_to_review pending Stephen decisions/accounts/screenshots/handles.
 
+## [2026-07-26] Staging next-steps plan — HITL + sequence check
+- agent/human: Stephen / Auto
+- evidence: Operator implement “Suggested next steps”. Paths 1–2 HITL reaffirmed under deferred FCM/proxy/pay. Helpers already merged (`c2d2dcb` / PR #56). R1 (TASK-INFRA-006 / PR #57) and Wave‑1 R2/R4/R5/R17 already `done` on backlog — no new engineering PR required for that sequence.
+- stephen_ask: Pick post‑R1 branch (Trust / Comply / Channels) or provision secrets (FCM / HTTPS_PROXY / pay sandboxes).
+- notes: Still banned until asked: Lazada/TikTok live, Vault `_FILE`, Google OAuth.
+
