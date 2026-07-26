@@ -131,22 +131,24 @@ export function PricingPage() {
                   Bắt đầu miễn phí
                 </Link>
               )}
-              {tier.cta === "waitlist" && tier.waitlistTier && (
+              {tier.cta === "waitlist" && tier.waitlistTier ? (
                 <button
                   type="button"
                   className="mt-8 rounded-xl bg-sky-700 px-4 py-3 text-sm font-extrabold text-white hover:bg-sky-800"
                   onClick={() => {
+                    const waitlistTier = tier.waitlistTier;
+                    if (!waitlistTier) return;
                     trackEvent("tier-click", { tier: tier.key });
                     if (checkoutLive) {
-                      window.location.href = `/billing?tier=${tier.waitlistTier}`;
+                      window.location.href = `/billing?tier=${waitlistTier}`;
                       return;
                     }
-                    setModalTier(tier.waitlistTier);
+                    setModalTier(waitlistTier);
                   }}
                 >
                   {checkoutLive ? "Thanh toán" : "Đăng ký chờ"}
                 </button>
-              )}
+              ) : null}
             </article>
           ))}
         </div>
