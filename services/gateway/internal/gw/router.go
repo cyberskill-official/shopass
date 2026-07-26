@@ -21,6 +21,7 @@ type Upstreams struct {
 	Track string
 	Price string
 	Deal  string
+	Notif string
 	BFF   string
 
 	// Handler fields are deliberately injectable for unit tests. Production
@@ -29,6 +30,7 @@ type Upstreams struct {
 	TrackHandler http.Handler
 	PriceHandler http.Handler
 	DealHandler  http.Handler
+	NotifHandler http.Handler
 	BFFHandler   http.Handler
 }
 
@@ -63,6 +65,7 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 	auth := handlerOrProxy(upstreams.AuthHandler, upstreams.Auth)
 	track := handlerOrProxy(upstreams.TrackHandler, upstreams.Track)
 	deal := handlerOrProxy(upstreams.DealHandler, upstreams.Deal)
+	notif := handlerOrProxy(upstreams.NotifHandler, upstreams.Notif)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
@@ -73,6 +76,10 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			track.ServeHTTP(w, r)
 		case strings.HasPrefix(path, "/v1/products/") && strings.HasSuffix(path, "/browser-snapshot"):
 			track.ServeHTTP(w, r)
+		case path == "/v1/alerts", strings.HasPrefix(path, "/v1/alerts/"):
+			track.ServeHTTP(w, r)
+		case path == "/v1/devices":
+			notif.ServeHTTP(w, r)
 		case strings.HasPrefix(path, "/v1/products/") && strings.HasSuffix(path, "/chart"):
 			deal.ServeHTTP(w, r)
 		default:

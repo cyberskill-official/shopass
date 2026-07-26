@@ -35,6 +35,24 @@ func intField(d map[string]any, key string) (int64, bool) {
 	return 0, false
 }
 
+func floatField(d map[string]any, key string) (float64, bool) {
+	v, ok := d[key]
+	if !ok {
+		return 0, false
+	}
+	switch val := v.(type) {
+	case float64:
+		return val, true
+	case float32:
+		return float64(val), true
+	case int64:
+		return float64(val), true
+	case int:
+		return float64(val), true
+	}
+	return 0, false
+}
+
 func strField(d map[string]any, key string) (string, bool) {
 	v, ok := d[key]
 	if !ok {
@@ -86,14 +104,24 @@ var templates = map[string]func(map[string]any) (Rendered, error){
 		}, nil
 	},
 	"bottom_predicted": func(d map[string]any) (Rendered, error) {
-		price, ok := intField(d, "price")
-		if !ok {
-			return Rendered{}, fmt.Errorf("template bottom_predicted thiếu price")
+		if price, ok := intField(d, "price"); ok {
+			return Rendered{
+				Title: "Giá chạm đáy dự kiến",
+				Body:  fmt.Sprintf("Đây là thời điểm tốt nhất để mua, giá %s.", formatVND(price)),
+			}, nil
 		}
-		return Rendered{
-			Title: "Giá chạm đáy dự kiến",
-			Body:  fmt.Sprintf("Đây là thời điểm tốt nhất để mua, giá %s.", formatVND(price)),
-		}, nil
+		// dealsvc nightly batch sends p_bottom_14d without a spot price.
+		if p, ok := floatField(d, "p_bottom_14d"); ok {
+			pct := int(p * 100)
+			if p > 0 && p <= 1 && pct == 0 {
+				pct = 1
+			}
+			return Rendered{
+				Title: "Giá chạm đáy dự kiến",
+				Body:  fmt.Sprintf("Xác suất chạm đáy trong 14 ngày khoảng %d%% — đây là thời điểm tốt để mua.", pct),
+			}, nil
+		}
+		return Rendered{}, fmt.Errorf("template bottom_predicted thiếu price hoặc p_bottom_14d")
 	},
 }
 

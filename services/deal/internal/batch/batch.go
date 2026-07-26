@@ -8,10 +8,10 @@ import (
 )
 
 type NotifItem struct {
-	UserID    int64
-	ProductID int64
-	Reason    string
-	Payload   map[string]any
+	UserID    int64          `json:"user_id"`
+	ProductID int64          `json:"product_id"`
+	Reason    string         `json:"reason"`
+	Payload   map[string]any `json:"payload"`
 }
 
 type NotifEnqueuer interface {
