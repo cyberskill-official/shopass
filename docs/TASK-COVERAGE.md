@@ -4,7 +4,7 @@ Date: 2026-07-03 (status alignment 2026-07-25). This maps the 91 tasks to what a
 
 **Source of truth for implementation presence.** Task frontmatter `status: done` must not contradict this file. As of 2026-07-25 the 15 tasks listed under "no code" were reset to `ready_to_implement` (and BACKLOG.md matched). Spec `audit.md` scores of `10/10` mean the *spec* passed task-audit before build — they are not evidence that code shipped. CyberOS HITL still requires a human to set `done`; agents must not invent completion.
 
-Headline: 83 of 91 tasks have code on disk; 8 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
+Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declared files exist. Of the code that does exist, the internal logic is largely real, but every point that touches an external system (marketplace scraping, CAPTCHA, payment gateways, push channels beyond FCM, ML fitting) is a stub or a baseline. So the scaffolding is real; the outside-world integration is not built yet.
 
 ## Per-module status
 
@@ -17,7 +17,7 @@ Headline: 83 of 91 tasks have code on disk; 8 have none. About 77% of the declar
 | TRACK | 4 | 95% | real | wishlist, alert_rule, firing engine. Reads user via the gateway placeholder. |
 | BILL | 5 | 94% | real, gateway calls stubbed | subscription/reconcile/referral/gating real; the MoMo/ZaloPay/VNPay calls are placeholders. |
 | CART | 6 | 90% | real | voucher catalog, snapshot, optimizer, per-country stacking. |
-| AFFIL | 5 | 82% | partial | tracking/deeplink/network present; TASK-AFFIL-005 (cashback layering) missing. |
+| AFFIL | 5 | 100% | real, VietQR stub | tracking/deeplink/network + cashback ledger (pending→available→paid, TRUST-005 hold, summary disclosure); VietQR payout is a noop stub. |
 | WEB | 5 | 100% | real | scaffold, landing/SEO, chart, wishlist UI, and the GraphQL BFF (TASK-WEB-005: read-only, behind gateway, resolvers delegate to REST, DataLoader anti-N+1, depth/cost caps). |
 | AUTH | 5 | 100% | real | JWT issue/refresh, password, account model, and social login (TASK-AUTH-004: OAuth Authorization Code + PKCE, id_token verify via JWKS, social_identity, takeover-safe email merge). Only the live Google token exchange is gated on a real client secret. |
 | PRICE | 5 | 100% | real | tracked_product, snapshot hypertable, history, and cross-platform compare (TASK-PRICE-004: GET /v1/compare, latest-per-product, server-side cheapest flag). |
@@ -27,11 +27,11 @@ Headline: 83 of 91 tasks have code on disk; 8 have none. About 77% of the declar
 | B2B | 4 | 0% | missing | entire module absent (P3). |
 | MOBILE | 3 | 0% | missing | entire module absent (P3). |
 
-## The 8 tasks with no code
+## The 7 tasks with no code
 
-TASK-AFFIL-005, TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
+TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
 
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 8 remaining are P2/P3 - B2B and mobile (whole modules), plus cashback (TASK-AFFIL-005) - consistent with an MVP-first build. TRUST/NOTIF/COMPLY P3 slices now have code (HITL-accepted via PRs #93–#100).
+All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 7 remaining are P2/P3 - B2B and mobile (whole modules). TASK-AFFIL-005 cashback layering now has code on disk (ready_to_review). TRUST/NOTIF/COMPLY P3 slices now have code (HITL-accepted via PRs #93–#100).
 
 ## The stubs that block a working MVP
 
@@ -68,7 +68,7 @@ Built the durable scrape queue (TASK-SCRAPE-001, `services/scrape/internal/pgque
 
 Built the scheduler that makes the loop self-running: `services/scrape/internal/feeder.SyncJobs` registers a `scrape_job` for every `tracked_product` that lacks one, and the orchestrator now persists tier-based rescheduling after each scrape (`Pool.commit` -> `Rescheduler`, implemented by `pgqueue.Reschedule`), so hot products re-scrape in minutes and cold ones in about a day. `scrapesvc` runs the feeder then drains the queue, so a periodic invocation keeps the whole loop going. Verified: all 14 runnable Go modules green with per-module integration databases (the CI `go` job now provisions `shopass_{deal,price,scrape}_test` so the DROP/CREATE integration suites do not collide).
 
-What genuinely remains is not one-session work: real payment-gateway calls and live Shopee scraping need third-party services and credentials to build and verify; and the missing modules (B2B, mobile) plus cashback layering (TASK-AFFIL-005) remain. TRUST/NOTIF/COMPLY P3 slices (anti-fraud, payout delay, device fingerprint, APNs/email/SMS dispatchers, per-country gating, SEA regimes) now have code on disk and were HITL-accepted (PRs #93–#100). The core value loop, however, is now real, tested end to end, deployable, and self-running.
+What genuinely remains is not one-session work: real payment-gateway calls and live Shopee scraping need third-party services and credentials to build and verify; and the missing modules (B2B, mobile) remain. Cashback layering (TASK-AFFIL-005) now has code on disk (ready_to_review). TRUST/NOTIF/COMPLY P3 slices (anti-fraud, payout delay, device fingerprint, APNs/email/SMS dispatchers, per-country gating, SEA regimes) now have code on disk and were HITL-accepted (PRs #93–#100). The core value loop, however, is now real, tested end to end, deployable, and self-running.
 
 ## Progress (2026-07-03, feature build)
 

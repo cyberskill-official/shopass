@@ -3,7 +3,7 @@ id: TASK-AFFIL-005
 title: "Cashback layering trên affiliate - chia % cho user, hold đến khi affiliate confirm, delay payout chống gian lận"
 module: AFFIL
 priority: SHOULD
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 1
@@ -284,4 +284,4 @@ Authorization: Bearer <jwt>
 
 ---
 
-*Hết TASK-AFFIL-005. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-AFFIL-005. Status: ready_to_review.*

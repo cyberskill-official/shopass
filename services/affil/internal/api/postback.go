@@ -6,8 +6,10 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	"shopass/services/affil/internal/affil"
+	"shopass/services/affil/internal/cashback"
 )
 
 type PostbackPayload struct {
@@ -15,6 +17,7 @@ type PostbackPayload struct {
 	OrderValue int64  `json:"order_value"`
 	Commission int64  `json:"commission"`
 	Status     string `json:"status"` // e.g. "approved", "rejected", "pending"
+	UserTier   string `json:"user_tier,omitempty"`
 }
 
 // PayoutHoldCreator is TRUST-005: create payout_hold on confirm (never pay immediately).
@@ -22,11 +25,18 @@ type PayoutHoldCreator interface {
 	OnConversionConfirmed(ctx context.Context, conversionID, beneficiaryID, amount int64) error
 }
 
+// CashbackLedger is TASK-AFFIL-005: pending entry on confirm, clawback on reject.
+type CashbackLedger interface {
+	OnConfirmed(ctx context.Context, c cashback.Conversion) (cashback.Entry, error)
+	Clawback(ctx context.Context, conversionID int64) error
+}
+
 // Handler contains dependencies for the API
 type PostbackHandler struct {
-	repo    *affil.Repo
-	secrets affil.SecretReader
-	holds   PayoutHoldCreator
+	repo     *affil.Repo
+	secrets  affil.SecretReader
+	holds    PayoutHoldCreator
+	cashback CashbackLedger
 }
 
 func NewPostbackHandler(repo *affil.Repo, secrets affil.SecretReader) *PostbackHandler {
@@ -39,6 +49,12 @@ func NewPostbackHandler(repo *affil.Repo, secrets affil.SecretReader) *PostbackH
 // WithPayoutHolds wires TRUST-005 hold creation after network confirm.
 func (h *PostbackHandler) WithPayoutHolds(holds PayoutHoldCreator) *PostbackHandler {
 	h.holds = holds
+	return h
+}
+
+// WithCashback wires TASK-AFFIL-005 ledger hooks.
+func (h *PostbackHandler) WithCashback(ledger CashbackLedger) *PostbackHandler {
+	h.cashback = ledger
 	return h
 }
 
@@ -85,8 +101,26 @@ func (h *PostbackHandler) HandlePostback(w http.ResponseWriter, req *http.Reques
 				_ = h.holds.OnConversionConfirmed(req.Context(), seed.ConversionID, seed.BeneficiaryID, seed.Commission)
 			}
 		}
+		if h.cashback != nil {
+			if seed, err := h.repo.HoldSeedByID(req.Context(), cid); err == nil {
+				tier := p.UserTier
+				if tier == "" {
+					tier = cashback.TierFree
+				}
+				_, _ = h.cashback.OnConfirmed(req.Context(), cashback.Conversion{
+					ID:          seed.ConversionID,
+					UserID:      seed.BeneficiaryID,
+					Commission:  seed.Commission,
+					UserTier:    tier,
+					ConfirmedAt: time.Now().UTC(),
+				})
+			}
+		}
 	case "rejected":
 		_ = h.repo.RejectConversion(req.Context(), cid, "network rejected")
+		if h.cashback != nil {
+			_ = h.cashback.Clawback(req.Context(), cid)
+		}
 	default:
 		// giữ pending
 	}

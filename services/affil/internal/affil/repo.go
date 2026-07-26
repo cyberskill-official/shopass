@@ -91,10 +91,11 @@ func (r *Repo) HoldSeedByID(ctx context.Context, id int64) (HoldSeed, error) {
 }
 
 func (r *Repo) RejectConversion(ctx context.Context, id int64, reason string) error {
+	// Allow pending→rejected and confirmed→rejected (AFFIL-005 clawback path).
 	_, err := r.pool.Exec(ctx,
 		`UPDATE affiliate_conversion
 		 SET status='rejected'
-		 WHERE id=$1 AND status='pending'`, id) // status can also just go to rejected
+		 WHERE id=$1 AND status IN ('pending','confirmed')`, id)
 	return err
 }
 
