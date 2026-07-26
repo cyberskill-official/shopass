@@ -29,11 +29,12 @@ def read_history(conn, product_id: int) -> pd.DataFrame:
 
 _UPSERT = """
 INSERT INTO price_forecast
-  (product_id, run_date, horizon_day, yhat, yhat_lower, yhat_upper, p_bottom_14d, model_kind, scored_at)
+  (product_id, run_date, horizon_day, yhat, yhat_lower, yhat_upper, p_bottom_14d, model_kind, scored_at, model_run_id)
 VALUES %s
 ON CONFLICT (product_id, run_date, horizon_day) DO UPDATE SET
   yhat = EXCLUDED.yhat, yhat_lower = EXCLUDED.yhat_lower, yhat_upper = EXCLUDED.yhat_upper,
-  p_bottom_14d = EXCLUDED.p_bottom_14d, model_kind = EXCLUDED.model_kind, scored_at = EXCLUDED.scored_at
+  p_bottom_14d = EXCLUDED.p_bottom_14d, model_kind = EXCLUDED.model_kind, scored_at = EXCLUDED.scored_at,
+  model_run_id = EXCLUDED.model_run_id
 """
 
 
@@ -46,8 +47,13 @@ def upsert_forecasts(conn, rows: list[tuple]) -> int:
     return len(rows)
 
 
-def df_to_rows(product_id: int, run_date: date, df: pd.DataFrame,
-               scored_at: datetime | None = None) -> list[tuple]:
+def df_to_rows(
+    product_id: int,
+    run_date: date,
+    df: pd.DataFrame,
+    scored_at: datetime | None = None,
+    model_run_id: int | None = None,
+) -> list[tuple]:
     scored_at = scored_at or datetime.now(timezone.utc)
     rows = []
     for _, r in df.iterrows():
@@ -55,5 +61,6 @@ def df_to_rows(product_id: int, run_date: date, df: pd.DataFrame,
             product_id, run_date, int(r["horizon_day"]),
             int(r["yhat"]), int(r["yhat_lower"]), int(r["yhat_upper"]),
             float(r["p_bottom_14d"]), str(r["model_kind"]), scored_at,
+            model_run_id,
         ))
     return rows

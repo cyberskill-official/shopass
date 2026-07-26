@@ -77,3 +77,13 @@ groups:
           job_name: forecast
         annotations:
           summary: "Forecast job heartbeat missing (>36h)"
+
+      # R26: model evaluation gate tripped (Pushgateway counter).
+      - alert: ShopassModelGateTripped
+        expr: increase(shopass_ml_gate_trips_total[1h]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          nfr: model-quality
+        annotations:
+          summary: "ML forecast gate rejected a model run (fallback/suppress active)"
