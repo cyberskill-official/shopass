@@ -9,4 +9,10 @@ describe("Sitemap", () => {
       expect(urls).toContain(`${siteURL}/${p.slug}`);
     }
   });
+
+  it("includes privacy and terms pages (R34)", () => {
+    const urls = sitemap().map((e) => e.url);
+    expect(urls).toContain(`${siteURL}/chinh-sach-bao-mat`);
+    expect(urls).toContain(`${siteURL}/dieu-khoan`);
+  });
 });

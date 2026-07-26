@@ -3,8 +3,13 @@ import { KEYWORD_PAGES } from "@/lib/seo/keywords";
 import { siteURL } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return KEYWORD_PAGES.map((p) => ({
+  const keywords = KEYWORD_PAGES.map((p) => ({
     url: `${siteURL}/${p.slug}`,
     lastModified: new Date(),
   }));
+  const legal = [
+    { url: `${siteURL}/chinh-sach-bao-mat`, lastModified: new Date() },
+    { url: `${siteURL}/dieu-khoan`, lastModified: new Date() },
+  ];
+  return [...keywords, ...legal];
 }

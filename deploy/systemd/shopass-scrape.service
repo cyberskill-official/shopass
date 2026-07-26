@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the SănDeal durable scrape queue once
+Description=Run the Shopass durable scrape queue once
 Wants=network-online.target
 After=network-online.target docker.service
 Requires=docker.service
@@ -15,3 +15,5 @@ IOSchedulingClass=best-effort
 # flock prevents an overdue timer and a manual retry from draining the queue at
 # the same time. --no-deps assumes the main production stack is already up.
 ExecStart=/usr/bin/flock -n /run/lock/shopass-scrape.lock /usr/bin/docker compose --env-file /etc/shopass/runtime.env -f /srv/shopass/deploy/docker-compose.production.yml run --rm --no-deps scrapesvc
+# R17 heartbeat → Pushgateway (observability profile). Override URL via runtime.env.
+ExecStartPost=/srv/shopass/deploy/scripts/job-heartbeat.sh scrape

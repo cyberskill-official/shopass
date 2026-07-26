@@ -172,9 +172,20 @@ export default function Home() {
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-slate-900 text-xs text-white">S</span>
             Shopass
           </div>
-          <p className="text-center text-sm font-medium text-slate-500 sm:text-right">
-            Sản phẩm đang trong giai đoạn Closed Beta.<br className="sm:hidden" /> Dữ liệu giá minh bạch cho người dùng Việt Nam.
-          </p>
+          <div className="text-center text-sm font-medium text-slate-500 sm:text-right">
+            <p>
+              <Link href="/chinh-sach-bao-mat" className="hover:text-blue-600 hover:underline">
+                Chính sách bảo mật
+              </Link>
+              {" · "}
+              <Link href="/dieu-khoan" className="hover:text-blue-600 hover:underline">
+                Điều khoản
+              </Link>
+            </p>
+            <p className="mt-2">
+              Sản phẩm đang trong giai đoạn Closed Beta.<br className="sm:hidden" /> Dữ liệu giá minh bạch cho người dùng Việt Nam.
+            </p>
+          </div>
         </div>
       </footer>
     </main>

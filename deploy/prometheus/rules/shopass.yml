@@ -1,0 +1,79 @@
+groups:
+  - name: shopass-nfr
+    rules:
+      # NFR-INFRA-001: cache-class p95 < 300ms for 5m (gateway histogram).
+      - alert: ShopassCacheP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, route) (rate(http_request_duration_ms_bucket{service="gateway"}[5m]))
+          ) > 300
+          and on() (
+            sum(rate(http_requests_total{service="gateway"}[5m])) > 0.1
+          )
+        for: 5m
+        labels:
+          severity: warning
+          nfr: NFR-INFRA-001
+        annotations:
+          summary: "Gateway p95 latency > 300ms ({{ $labels.route }})"
+          description: "NFR-INFRA-001 cache/read target breached for 5 minutes."
+
+      # NFR-INFRA-001: chart-class soft target < 500ms (route contains chart|price).
+      - alert: ShopassChartP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, route) (
+              rate(http_request_duration_ms_bucket{service="gateway", route=~".*(chart|price|deal).*"}[5m])
+            )
+          ) > 500
+        for: 5m
+        labels:
+          severity: warning
+          nfr: NFR-INFRA-001
+        annotations:
+          summary: "Chart-class p95 > 500ms ({{ $labels.route }})"
+
+      # NFR-INFRA-002: error burn — 5xx ratio > 1% for 10m.
+      - alert: ShopassErrorRateHigh
+        expr: |
+          (
+            sum(rate(http_requests_total{service="gateway", status=~"5..|Internal Server Error"}[5m]))
+            /
+            clamp_min(sum(rate(http_requests_total{service="gateway"}[5m])), 1e-9)
+          ) > 0.01
+        for: 10m
+        labels:
+          severity: critical
+          nfr: NFR-INFRA-002
+        annotations:
+          summary: "Gateway 5xx ratio > 1% for 10m"
+
+      - alert: ShopassServiceDown
+        expr: probe_success{probe="healthz"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Healthz probe failed for {{ $labels.instance }}"
+
+      # R17: scrape timer should fire ~every 5m; alert if heartbeat older than 7.5m.
+      - alert: ShopassScrapeJobStale
+        expr: (time() - shopass_job_last_success_unixtime{job_name="scrape"}) > 450
+        for: 2m
+        labels:
+          severity: warning
+          job_name: scrape
+        annotations:
+          summary: "Scrape job heartbeat missing (>1.5x period)"
+
+      # R17: forecast nightly; alert if older than 36h.
+      - alert: ShopassForecastJobStale
+        expr: (time() - shopass_job_last_success_unixtime{job_name="forecast"}) > 129600
+        for: 30m
+        labels:
+          severity: warning
+          job_name: forecast
+        annotations:
+          summary: "Forecast job heartbeat missing (>36h)"

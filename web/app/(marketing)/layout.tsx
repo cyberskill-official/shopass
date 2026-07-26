@@ -16,8 +16,19 @@ export default function MarketingLayout({
       <main className="flex-1">
         {children}
       </main>
-      <footer className="bg-gray-100 py-6 text-center text-gray-600">
-        <p>&copy; 2026 Shopass. All rights reserved.</p>
+      <footer className="bg-gray-100 px-6 py-6 text-center text-sm text-gray-600">
+        <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <Link href="/chinh-sach-bao-mat" className="hover:underline">
+            Chính sách bảo mật
+          </Link>
+          <Link href="/dieu-khoan" className="hover:underline">
+            Điều khoản
+          </Link>
+          <a href="mailto:info@cyberskill.world" className="hover:underline">
+            DSAR
+          </a>
+        </p>
+        <p className="mt-3">&copy; 2026 Shopass · CyberSkill JSC</p>
       </footer>
     </div>
   );

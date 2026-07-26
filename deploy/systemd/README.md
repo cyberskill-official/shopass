@@ -1,8 +1,14 @@
-# Host scheduler units
+# Host scheduler units (R17)
 
 The production Compose file keeps `scrapesvc` and `mlforecast` as one-shot
 jobs. These systemd timers run them from the host instead of granting a
 container the Docker socket.
+
+After each successful run, `ExecStartPost` calls
+`deploy/scripts/job-heartbeat.sh` to push
+`shopass_job_last_success_unixtime{job_name=...}` to Pushgateway (observability
+profile). Set `PUSHGATEWAY_URL` in `/etc/shopass/runtime.env` if not using
+`http://127.0.0.1:9091`.
 
 The supplied units assume the repository is checked out at `/srv/shopass` and
 the root-owned runtime configuration is `/etc/shopass/runtime.env`. Adapt both

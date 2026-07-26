@@ -17,18 +17,18 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R7 | Session restore on page reload | A | S | - | - | done (PR #60) |
 | R8 | Extension env-config endpoints + domain decision | A | S | - | decision | done (PR #60) |
 | R9 | Guard demo seed against prod | A | S | - | - | done (PR #60) |
-| R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | ready_to_review |
-| R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | todo |
-| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | todo |
-| R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | todo |
-| R14 | Centralized logs (Loki) | B | M | - | - | todo |
-| R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | todo |
-| R16 | Zero-downtime deploys + migration guards | B | M | R15 | - | todo |
-| R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | todo |
-| R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | todo |
-| R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | todo |
-| R40 | Analytics + funnel events + UTM discipline | E | S | - | decision (GA4 vs Plausible) | todo |
-| R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | todo |
+| R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | done (PR #61) |
+| R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | needs_stephen |
+| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen |
+| R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | ready_to_review |
+| R14 | Centralized logs (Loki) | B | M | - | - | ready_to_review |
+| R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen |
+| R16 | Zero-downtime deploys + migration guards | B | M | R15 | - | blocked |
+| R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | ready_to_review |
+| R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen |
+| R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | ready_to_review |
+| R40 | Analytics + funnel events + UTM discipline | E | S | - | decision (GA4 vs Plausible) | needs_stephen |
+| R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | needs_stephen |
 
 ## Wave 2 - real data and first users (days 31-60)
 
