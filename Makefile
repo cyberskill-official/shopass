@@ -5,7 +5,7 @@ COMPOSE := docker compose -f deploy/docker-compose.yml
 DBEXEC  := $(COMPOSE) exec -T db psql -U $(or $(POSTGRES_USER),postgres) -d $(or $(POSTGRES_DB),shopass)
 
 .DEFAULT_GOAL := help
-.PHONY: help env up down restart logs ps migrate seed scrape forecast deal-once smoke psql dev-db clean test test-go test-web test-ml
+.PHONY: help env up down restart logs ps migrate seed scrape forecast deal-once smoke simulate-prices grant-premium psql dev-db clean test test-go test-web test-ml
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | sort | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-11s\033[0m %s\n",$$1,$$2}'
@@ -62,6 +62,13 @@ smoke: ## Demo the loop via containers: seed -> scrape -> deal -> show rows
 	$(COMPOSE) run --rm -e RUN_ONCE=1 dealsvc
 	@echo '--- price_snapshot(100) ---'; $(DBEXEC) -c 'SELECT product_id, price FROM price_snapshot WHERE product_id=100;'
 	@echo '--- bottom_alert_log(100) ---'; $(DBEXEC) -c 'SELECT user_id, product_id, p_bottom FROM bottom_alert_log WHERE product_id=100;'
+
+simulate-prices: ## Post dropping price series via pricesvc ingest (no live scrape)
+	@bash scripts/simulate_price_series.sh
+
+grant-premium: ## Temporary local Premium grant (USER_ID= required; skips checkout/IPN)
+	@test -n "$(USER_ID)" || (echo 'usage: make grant-premium USER_ID=<id>' >&2; exit 1)
+	@USER_ID=$(USER_ID) bash scripts/grant_premium_local.sh
 
 psql: ## Open a psql shell on the database
 	$(COMPOSE) exec db psql -U $(or $(POSTGRES_USER),postgres) -d $(or $(POSTGRES_DB),shopass)
