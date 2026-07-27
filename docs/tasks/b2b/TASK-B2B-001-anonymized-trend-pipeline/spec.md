@@ -3,7 +3,7 @@ id: TASK-B2B-001
 title: "Pipeline dữ liệu xu hướng thị trường ẩn danh - aggregate giá theo category x thời gian từ price_daily, cổng k-anonymity (k>=50), KHÔNG lộ user hay SKU đơn lẻ, sinh bảng market_trend_daily nguồn cho mọi sản phẩm B2B"
 module: B2B
 priority: SHOULD
-status: ready_to_review
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 1
@@ -353,3 +353,5 @@ Xem §3. Thứ tự: migration 0001 (bảng) -> aggregate.go (truy vấn nhóm t
 ---
 
 *Hết TASK-B2B-001. Status: ready_to_review (awaiting HITL).*
+
+*HITL accept (operator merge-then-continue): feature PR #104 merge `1bc583fce6be2eda10737dfbfe79c43d20157ea5` → done.*
