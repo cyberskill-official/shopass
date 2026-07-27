@@ -54,7 +54,7 @@ func setupHandler(t *testing.T, sub report.Subscription, cells []trend.MarketTre
 		Now:     func() time.Time { return time.Date(2026, 6, 21, 12, 0, 0, 0, time.UTC) },
 	}
 	mux := http.NewServeMux()
-	RegisterRoutes(mux, h)
+	RegisterRoutes(mux, h, nil)
 	return mux
 }
 
