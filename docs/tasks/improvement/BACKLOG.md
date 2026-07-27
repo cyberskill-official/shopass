@@ -28,14 +28,14 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen |
 | R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | done (PR #62) |
 | R40 | Analytics + funnel events + UTM discipline | E | S | - | decision (GA4 vs Plausible) | needs_stephen |
-| R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | ready_to_review |
+| R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | done |
 
 ## Wave 2 - real data and first users (days 31-60)
 
 | ID | Title | Card | Effort | Depends on | Stephen input | Status |
 |----|-------|------|--------|-----------|---------------|--------|
 | R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | done (PR #63) |
-| R19 | Data retention + chunk policy decision | B | S | - | decision | ready_to_review |
+| R19 | Data retention + chunk policy decision | B | S | - | decision | done |
 | R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | todo |
 | R25 | Pluggable CAPTCHA path (manual queue first) | C | M | R24 | budget (optional solver) | todo |
 | R26 | ML model versioning + evaluation gate | C | M | - | - | done (PR #65) |
@@ -43,7 +43,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R30 | Google OAuth live end-to-end test | C | S | R11 | creds (Google client) | todo |
 | R31 | DNR rules integration tests | C | S | - | - | done (PR #63) |
 | R35 | Transparency page (anti-Honey positioning) | D | S | R34 | - | done (PR #63) |
-| R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | ready_to_review |
+| R36 | Open-source the extension publicly | D | M | R2, R3, R31 | decision | done |
 | R38 | Real landing page (hero, demo, trust strip, FAQ) | E | M | R4 | - | done (PR #65) |
 | R39 | Pricing page + Premium waitlist capture | E | S | R38 | - | done |
 | R41 | Programmatic SEO: public price-history pages (pilot) | E | L | R24 | - | todo |
@@ -75,4 +75,4 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R54 | B2B lead magnet: VN price index report (gated) | F | M | R24 | - | todo |
 | R56 | Partnership + KOC affiliate probes | F | M | R52 | outreach | done |
 | R57 | Support + feedback rails (Zalo OA inbox, in-app form, roadmap page) | F | S | R23 | - | todo |
-| R58 | Brand consistency sweep + handle registration | F | S | R8 | decision, account | ready_to_review |
+| R58 | Brand consistency sweep + handle registration | F | S | R8 | decision, account | done |

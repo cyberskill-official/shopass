@@ -418,6 +418,34 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: Prune list; first 3 conversations.
 - notes: R19/R36/R49/R58 remain ready_to_review pending Stephen decisions/accounts/screenshots/handles.
 
+## [2026-07-27] R19 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: docs/hitl-accept-improvement-r19-r36-r49-r58 (this PR)
+- evidence: Operator "accept" for improvement ready_to_review queue; retention policy doc + existing compression migration accepted as the product decision record.
+- stephen_ask: Confirm `timescaledb_information.jobs` shows retention/compress jobs on staging/prod when those envs exist.
+- notes: No new migration required — policy already encoded in `0020_compression_policy.up.sql`.
+
+## [2026-07-27] R36 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: docs/hitl-accept-improvement-r19-r36-r49-r58 (this PR)
+- evidence: Operator "accept"; extension OSS prep docs (README/SECURITY/CONTRIBUTING/REPRODUCIBLE-BUILD + MIT) accepted as the go-public decision/kit.
+- stephen_ask: Create public mirror (`shopass-extension` recommended); run gitleaks on final public history before push; link from transparency page (R35).
+- notes: Docs/kit accepted — public GitHub mirror + CI on that mirror remain ops follow-up.
+
+## [2026-07-27] R49 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: docs/hitl-accept-improvement-r19-r36-r49-r58 (this PR)
+- evidence: Operator "accept"; store kit (icons, locales, LISTING-VI/EN, DATA-DISCLOSURE, SCREENSHOTS checklist, package.sh) accepted.
+- stephen_ask: Capture 5×1280 screenshots; create Chrome ($5)/Edge/Cốc Cốc developer accounts; submit listing; approve or replace placeholder mark.
+- notes: Kit/docs done — store account creation, screenshots, and submission remain ops.
+
+## [2026-07-27] R58 - HITL accept → done
+- agent/human: Stephen / Auto
+- branch/commit: docs/hitl-accept-improvement-r19-r36-r49-r58 (this PR)
+- evidence: Operator "accept"; `docs/growth/BRAND-SHEET.md` + handle checklist accepted as brand consistency decision surface.
+- stephen_ask: Confirm final public name/domain if still undecided; register TikTok/Facebook/Telegram/Zalo OA/GitHub/X handles; supply final logo; vault credentials outside repo.
+- notes: Brand sheet accepted — live handle registration + final logo swap remain ops.
+
 ## [2026-07-26] Staging next-steps plan — HITL + sequence check
 - agent/human: Stephen / Auto
 - evidence: Operator implement “Suggested next steps”. Paths 1–2 HITL reaffirmed under deferred FCM/proxy/pay. Helpers already merged (`c2d2dcb` / PR #56). R1 (TASK-INFRA-006 / PR #57) and Wave‑1 R2/R4/R5/R17 already `done` on backlog — no new engineering PR required for that sequence.
