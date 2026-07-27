@@ -1,10 +1,10 @@
 import { MemoryAccessToken } from "../src/auth/tokenStore";
-import { resolveScreen } from "../src/app/RootNavigator";
+import { resolveScreen, APP_TABS } from "../src/app/RootNavigator";
 import { buildShareURL } from "../src/share/shareLink";
 import { parseDeepLink } from "../src/deeplink/linkHandler";
 import { PendingReferral } from "../src/deeplink/pendingReferral";
 
-describe("mobile scaffold", () => {
+describe("mobile scaffold integration", () => {
   it("keeps access token in memory only", () => {
     const mem = new MemoryAccessToken();
     expect(mem.get()).toBeNull();
@@ -18,6 +18,8 @@ describe("mobile scaffold", () => {
     expect(resolveScreen(false)).toBe("Login");
     expect(resolveScreen(true)).toBe("Home");
     expect(resolveScreen(true, 42)).toBe("Product");
+    expect(APP_TABS).toContain("Track");
+    expect(APP_TABS).toContain("Checkout");
   });
 
   it("share links only carry product_id + ref", () => {

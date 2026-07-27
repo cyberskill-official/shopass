@@ -1,3 +1,4 @@
+/** Spec surface for TASK-MOBILE-001. */
 export {
   resolveScreen,
   resolveTab,

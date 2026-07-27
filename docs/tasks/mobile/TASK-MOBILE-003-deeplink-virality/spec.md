@@ -3,7 +3,7 @@ id: TASK-MOBILE-003
 title: "Deep-link + share-on-sale virality + referral - sinh share link mang referral_code (TASK-BILL-004) khi user chia sẻ deal đang sale; mở app từ link (universal/app link) gắn attribution lúc đăng ký; chống self-referral phía client"
 module: MOBILE
 priority: COULD
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 2
@@ -312,4 +312,4 @@ https://sandeal.app/p/90112?ref=CHI2026
 
 ---
 
-*Hết TASK-MOBILE-003. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-MOBILE-003. Status: ready_to_review (awaiting HITL) (mục tiêu audit 10/10).*

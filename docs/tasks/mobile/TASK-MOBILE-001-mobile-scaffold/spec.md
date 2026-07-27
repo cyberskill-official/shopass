@@ -3,7 +3,7 @@ id: TASK-MOBILE-001
 title: "Scaffold mobile app (React Native) + auth (JWT của TASK-AUTH-002, lưu token trong secure storage) + đăng ký push FCM/APNs (đăng device token về backend cho TASK-NOTIF-002/005)"
 module: MOBILE
 priority: SHOULD
-status: ready_to_implement
+status: ready_to_review
 verify: T
 phase: P3
 milestone: P3 - slice 1
@@ -328,4 +328,4 @@ Authorization: Bearer <access_jwt_ngắn_hạn>
 
 ---
 
-*Hết TASK-MOBILE-001. Status: ready_to_implement (mục tiêu audit 10/10).*
+*Hết TASK-MOBILE-001. Status: ready_to_review (awaiting HITL) (mục tiêu audit 10/10).*

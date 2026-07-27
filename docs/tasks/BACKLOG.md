@@ -251,9 +251,9 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | ready_to_implement | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
-| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | ready_to_implement | TASK-MOBILE-001, TASK-CART-003 | 10h |
-| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | ready_to_implement | TASK-MOBILE-001, TASK-BILL-004 | 6h |
+| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | ready_to_review | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
+| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | ready_to_review | TASK-MOBILE-001, TASK-CART-003 | 10h |
+| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | ready_to_review | TASK-MOBILE-001, TASK-BILL-004 | 6h |
 
 ### P3.4 - COMPLY - per-country gating + SEA + e-commerce law
 

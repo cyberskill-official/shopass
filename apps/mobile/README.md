@@ -1,15 +1,15 @@
-# Shopass mobile (scaffold)
+# Shopass mobile (React Native TypeScript)
 
-TypeScript modules for React Native (MOBILE-001/002/003):
+Logic-first scaffold for TASK-MOBILE-001/002/003:
 
-- Secure refresh storage contract + in-memory access token
-- Gateway HTTP client with single refresh retry
-- FCM device register/unregister → `/v1/devices`
-- Track/chart + explicit-tap cart optimize clients
-- Share/deeplink helpers (`product_id` + `ref` only) with pending referral + anti-self-referral
-
-Full RN app shell (Expo/CLI), Keychain bindings, and AASA/assetlinks are follow-ups once the scaffold lands.
+- Auth via shared JWT (AUTH-002) with refresh in Keychain/Keystore
+- FCM device registration (`POST /v1/devices`) + unregister on logout
+- Thin track/checkout clients (no client-side sale math; user-initiated optimize only)
+- Universal/app link share + pending referral attribution
 
 ```bash
-cd apps/mobile && npm ci && npm test
+npm install
+npm test
 ```
+
+Native RN shell / Firebase wiring is intentionally deferred until store credentials land; unit tests cover contracts with mocks.

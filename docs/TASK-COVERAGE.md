@@ -24,14 +24,12 @@ Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declar
 | COMPLY | 8 | 100% | real | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, per-country gating, and SEA regime adapters (VN/ID/TH) present. |
 | NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike, email/APNs/SMS noop dispatchers present. |
 | TRUST | 6 | 100% | real | open-source, data-minimization, security-audit, anti-fraud, payout delay/guard, and device fingerprint (hash-only + device edges) present. |
-| B2B | 4 | 100% files | ready_to_review | Trend pipeline, gated reports, seller position, premium API key+rate-limit present; HITL pending. |
-| MOBILE | 3 | partial | scaffold | TypeScript client scaffold present (auth/push/track/deeplink); not yet full RN app. |
+| B2B | 4 | 100% files | ready_to_review | Trend pipeline, gated reports, seller position, premium API key+rate-limit present; HITL pending (#104–#107). |
+| MOBILE | 3 | 100% logic scaffold | ready_to_review | RN TypeScript clients: auth/keychain, push, track, checkout assist, deeplink/share. |
 
 ## Remaining product gaps (P3)
 
-TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003 (all TASK-B2B-* at `ready_to_review`).
-
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are built. TASK-AFFIL-005 cashback layering is HITL-accepted done (PR #102). TRUST/NOTIF/COMPLY P3 slices were HITL-accepted (PRs #93–#100).
+None in `ready_to_implement`. All TASK-B2B-* and TASK-MOBILE-* at `ready_to_review` (HITL). TASK-AFFIL-005 done (PR #102). TRUST/NOTIF/COMPLY P3 HITL-accepted (PRs #93–#100).
 
 ## The stubs that block a working MVP
 
@@ -68,7 +66,7 @@ Built the durable scrape queue (TASK-SCRAPE-001, `services/scrape/internal/pgque
 
 Built the scheduler that makes the loop self-running: `services/scrape/internal/feeder.SyncJobs` registers a `scrape_job` for every `tracked_product` that lacks one, and the orchestrator now persists tier-based rescheduling after each scrape (`Pool.commit` -> `Rescheduler`, implemented by `pgqueue.Reschedule`), so hot products re-scrape in minutes and cold ones in about a day. `scrapesvc` runs the feeder then drains the queue, so a periodic invocation keeps the whole loop going. Verified: all 14 runnable Go modules green with per-module integration databases (the CI `go` job now provisions `shopass_{deal,price,scrape}_test` so the DROP/CREATE integration suites do not collide).
 
-What genuinely remains is not one-session work: real payment-gateway calls and live Shopee scraping need third-party services and credentials to build and verify; and the missing modules (B2B, mobile) remain. Cashback layering (TASK-AFFIL-005) is HITL-accepted done (PR #102). TRUST/NOTIF/COMPLY P3 slices (anti-fraud, payout delay, device fingerprint, APNs/email/SMS dispatchers, per-country gating, SEA regimes) now have code on disk and were HITL-accepted (PRs #93–#100). The core value loop, however, is now real, tested end to end, deployable, and self-running.
+What genuinely remains is not one-session work: real payment-gateway calls and live Shopee scraping need third-party services and credentials to build and verify. B2B and mobile modules now have spec-aligned code in open PRs (#104–#108) awaiting HITL. Cashback layering (TASK-AFFIL-005) is HITL-accepted done (PR #102). TRUST/NOTIF/COMPLY P3 slices were HITL-accepted (PRs #93–#100). The core value loop is real, tested end to end, deployable, and self-running.
 
 ## Progress (2026-07-03, feature build)
 
