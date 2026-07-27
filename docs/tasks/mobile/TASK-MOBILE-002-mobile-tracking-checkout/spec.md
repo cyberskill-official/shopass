@@ -3,7 +3,7 @@ id: TASK-MOBILE-002
 title: "Mobile theo dõi giá + nhận alert + universal checkout assistant - màn theo dõi/wishlist + biểu đồ giá + nhận push alert; checkout assistant gọi optimizer voucher (TASK-CART-003) hiển thị tổ hợp tối ưu KHI người dùng chủ động yêu cầu"
 module: MOBILE
 priority: SHOULD
-status: ready_to_review
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 2
@@ -319,3 +319,5 @@ Xem §3. Thứ tự: trackClient.ts (đọc wishlist/price-history/alert) -> tra
 ---
 
 *Hết TASK-MOBILE-002. Status: ready_to_review (awaiting HITL) (mục tiêu audit 10/10).*
+
+*HITL accept (operator merge-then-continue): feature PR #108 merge `de58113edfca652964343d4e75861e4dd25a2675` → done.*

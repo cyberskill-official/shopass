@@ -24,12 +24,12 @@ Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declar
 | COMPLY | 8 | 100% | real | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, per-country gating, and SEA regime adapters (VN/ID/TH) present. |
 | NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike, email/APNs/SMS noop dispatchers present. |
 | TRUST | 6 | 100% | real | open-source, data-minimization, security-audit, anti-fraud, payout delay/guard, and device fingerprint (hash-only + device edges) present. |
-| B2B | 4 | 100% files | ready_to_review | Trend pipeline, gated reports, seller position, premium API key+rate-limit present; HITL pending (#104–#107). |
-| MOBILE | 3 | 100% logic scaffold | ready_to_review | RN TypeScript clients: auth/keychain, push, track, checkout assist, deeplink/share. |
+| B2B | 4 | 100% | done | Trend, gated reports, seller position, premium API (#104–#107). HITL-accepted. |
+| MOBILE | 3 | 100% logic scaffold | done | RN TypeScript clients (#108): auth/keychain, push, track, checkout assist, deeplink/share. HITL-accepted. |
 
 ## Remaining product gaps (P3)
 
-None in `ready_to_implement`. All TASK-B2B-* and TASK-MOBILE-* at `ready_to_review` (HITL). TASK-AFFIL-005 done (PR #102). TRUST/NOTIF/COMPLY P3 HITL-accepted (PRs #93–#100).
+None. All declared product tasks are HITL-accepted `done` (B2B #104–#107, MOBILE #108, AFFIL-005 #102, TRUST/NOTIF/COMPLY #93–#100).
 
 ## The stubs that block a working MVP
 

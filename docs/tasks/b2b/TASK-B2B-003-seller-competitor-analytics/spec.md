@@ -3,7 +3,7 @@ id: TASK-B2B-003
 title: "Seller-facing competitor price analytics - seller theo dõi vị thế giá của chính mình so với phân vị thị trường (median/p25/p75) theo category từ market_trend_daily, KHÔNG lộ giá đối thủ đơn lẻ"
 module: B2B
 priority: COULD
-status: ready_to_review
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 2
@@ -310,3 +310,5 @@ Xem §3. Thứ tự: migration 0003 (seller_owned_sku) -> ownership.go (cổng x
 ---
 
 *Hết TASK-B2B-003. Status: ready_to_review (awaiting HITL) (mục tiêu audit 10/10).*
+
+*HITL accept (operator merge-then-continue): feature PR #106 merge `dfcc99751fb3481680beab21cb997fcfb733a87e` → done.*

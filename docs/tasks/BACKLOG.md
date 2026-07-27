@@ -242,18 +242,18 @@ Tài liệu này là **nguồn sự thật duy nhất** cho những gì SănDeal
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | ready_to_review | TASK-PRICE-002, TASK-COMPLY-003 | 10h |
-| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | ready_to_review | TASK-B2B-001, TASK-BILL-001 | 8h |
-| **TASK-B2B-003** | Seller-facing competitor price analytics | COULD | ready_to_review | TASK-B2B-001 | 8h |
-| **TASK-B2B-004** | Premium API access (tiers, rate-limited) | COULD | ready_to_review | TASK-INFRA-001, TASK-B2B-001 | 6h |
+| **TASK-B2B-001** | Pipeline dữ liệu xu hướng thị trường ẩn danh (k-anonymity, aggregate) | SHOULD | done | TASK-PRICE-002, TASK-COMPLY-003 | 10h |
+| **TASK-B2B-002** | Báo cáo B2B insights + subscription | SHOULD | done | TASK-B2B-001, TASK-BILL-001 | 8h |
+| **TASK-B2B-003** | Seller-facing competitor price analytics | COULD | done | TASK-B2B-001 | 8h |
+| **TASK-B2B-004** | Premium API access (tiers, rate-limited) | COULD | done | TASK-INFRA-001, TASK-B2B-001 | 6h |
 
 ### P3.3 - MOBILE - mobile app + SEA virality
 
 | TASK-ID | Tiêu đề | Pri | Status | Depends on | Effort |
 |---|---|:-:|:-:|---|---:|
-| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | ready_to_review | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
-| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | ready_to_review | TASK-MOBILE-001, TASK-CART-003 | 10h |
-| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | ready_to_review | TASK-MOBILE-001, TASK-BILL-004 | 6h |
+| **TASK-MOBILE-001** | Scaffold mobile (React Native/Flutter) + auth + push | SHOULD | done | TASK-AUTH-002, TASK-NOTIF-002 | 12h |
+| **TASK-MOBILE-002** | Mobile theo dõi giá + alert + universal checkout assistant | SHOULD | done | TASK-MOBILE-001, TASK-CART-003 | 10h |
+| **TASK-MOBILE-003** | Deep-link + share-on-sale virality + referral | COULD | done | TASK-MOBILE-001, TASK-BILL-004 | 6h |
 
 ### P3.4 - COMPLY - per-country gating + SEA + e-commerce law
 

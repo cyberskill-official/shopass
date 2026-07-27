@@ -3,7 +3,7 @@ id: TASK-B2B-002
 title: "Báo cáo B2B insights + subscription bán cho brand/seller - sinh report xu hướng giá category/thị trường từ market_trend_daily, gating theo gói b2b_subscription, render JSON + export, đọc DUY NHẤT dữ liệu đã ẩn danh"
 module: B2B
 priority: SHOULD
-status: ready_to_review
+status: done
 verify: T
 phase: P3
 milestone: P3 - slice 1
@@ -336,3 +336,5 @@ Xem §3. Thứ tự: migration 0002 (b2b_subscription) -> entitlement.go (nạp 
 ---
 
 *Hết TASK-B2B-002. Status: ready_to_review (awaiting HITL).*
+
+*HITL accept (operator merge-then-continue): feature PR #105 merge `3765ec8b8a9ba4086b916dc942962edfac2a705f` → done.*
