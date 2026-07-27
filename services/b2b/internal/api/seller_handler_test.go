@@ -28,7 +28,7 @@ func setupSeller(t *testing.T, owned []seller.OwnedSKU, cells []trend.MarketTren
 		Metrics:   newSellerMetrics(),
 	}
 	mux := http.NewServeMux()
-	RegisterRoutes(mux, nil, h)
+	RegisterRoutes(mux, nil, h, nil)
 	return mux
 }
 
