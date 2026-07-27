@@ -24,14 +24,14 @@ Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declar
 | COMPLY | 8 | 100% | real | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, per-country gating, and SEA regime adapters (VN/ID/TH) present. |
 | NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike, email/APNs/SMS noop dispatchers present. |
 | TRUST | 6 | 100% | real | open-source, data-minimization, security-audit, anti-fraud, payout delay/guard, and device fingerprint (hash-only + device edges) present. |
-| B2B | 4 | 0% | missing | entire module absent (P3). |
-| MOBILE | 3 | 0% | missing | entire module absent (P3). |
+| B2B | 4 | partial | in progress | TASK-B2B-001 trend pipeline (k-anon + job + repo) present; reports/seller/API key still thin stubs pending follow-up PRs. |
+| MOBILE | 3 | partial | scaffold | TypeScript client scaffold present (auth/push/track/deeplink); not yet full RN app. |
 
-## The 7 tasks with no code
+## Remaining product gaps (P3)
 
-TASK-B2B-001, TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003.
+TASK-B2B-002, TASK-B2B-003, TASK-B2B-004, TASK-MOBILE-001, TASK-MOBILE-002, TASK-MOBILE-003 (B2B-001 at `ready_to_review`).
 
-All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are now built (see below). The 7 remaining are P2/P3 - B2B and mobile (whole modules). TASK-AFFIL-005 cashback layering is HITL-accepted done (PR #102 merge `8f3543878bb9a1af86078e98ae7dca8ae668193d`). TRUST/NOTIF/COMPLY P3 slices now have code (HITL-accepted via PRs #93–#100).
+All three P1 gaps (TASK-PRICE-004, TASK-WEB-005, TASK-AUTH-004) are built. TASK-AFFIL-005 cashback layering is HITL-accepted done (PR #102). TRUST/NOTIF/COMPLY P3 slices were HITL-accepted (PRs #93–#100).
 
 ## The stubs that block a working MVP
 
