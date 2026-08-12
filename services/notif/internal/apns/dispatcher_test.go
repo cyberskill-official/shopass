@@ -94,11 +94,12 @@ func TestDispatcher_500_LeavesQueued(t *testing.T) {
 	require.Empty(t, repo.failed)
 }
 
-func TestNoopClient_MarksSent(t *testing.T) {
+func TestNoopClient_MarksFailed(t *testing.T) {
 	repo := &memRepo{jobs: []PushJob{{NotifID: 7, UserID: 1, Token: "t"}}}
 	d := NewDispatcher(NewNoopClient(nil), repo, 10)
 	require.NoError(t, d.RunOnce(context.Background()))
-	require.Equal(t, []int64{7}, repo.sent)
+	require.Equal(t, []int64{7}, repo.failed)
+	require.Empty(t, repo.sent)
 }
 
 func TestBuildAlertPayload_EnforcesSize(t *testing.T) {

@@ -96,7 +96,7 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 			bill.ServeHTTP(w, r)
 		case path == "/v1/referral/me", path == "/v1/referral/attribute":
 			bill.ServeHTTP(w, r)
-		case strings.HasPrefix(path, "/v1/consent"), path == "/v1/dsar", strings.HasPrefix(path, "/v1/comply/"):
+		case strings.HasPrefix(path, "/v1/consent"), path == "/v1/dsar":
 			comply.ServeHTTP(w, r)
 		default:
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
@@ -140,6 +140,8 @@ func sanitizeClientIdentity() func(http.Handler) http.Handler {
 				"X-User-Locale",
 				"X-User-Tier",
 				"X-Forwarded-User",
+				"X-Service-Token",
+				"X-Operator-Token",
 			} {
 				r.Header.Del(header)
 			}

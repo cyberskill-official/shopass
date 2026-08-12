@@ -204,6 +204,7 @@ jobs:
           DATABASE_URL: postgres://u:p@db:5432/shopass?sslmode=disable
           PRICE_INTERNAL_SERVICE_TOKEN: ci-token
           BILL_INTERNAL_SERVICE_TOKEN: ci-token
+          COMPLY_OPERATOR_TOKEN: ci-operator-token
           APP_ORIGIN: https://example.com
           AUTH_KEY_ID: ci-key
           DB_PASSWORD_FILE: /tmp/ci-db-password

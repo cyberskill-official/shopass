@@ -28,21 +28,31 @@ https://localhost {
 	@api path /v1/* /graphql /graphql/*
 	handle @api {
 		reverse_proxy gateway:8080 {
+			health_uri /healthz
+			health_interval 5s
+			health_timeout 2s
+			health_status 200
 			header_up -X-User-Id
 			header_up -X-User-Locale
 			header_up -X-User-Tier
 			header_up X-Real-IP {remote_host}
 			header_up -X-Service-Token
+			header_up -X-Operator-Token
 		}
 	}
 
 	handle {
 		reverse_proxy web:3000 {
+			health_uri /api/healthz
+			health_interval 5s
+			health_timeout 2s
+			health_status 200
 			header_up -X-User-Id
 			header_up -X-User-Locale
 			header_up -X-User-Tier
 			header_up X-Real-IP {remote_host}
 			header_up -X-Service-Token
+			header_up -X-Operator-Token
 		}
 	}
 }

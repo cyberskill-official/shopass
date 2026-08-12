@@ -1,4 +1,4 @@
-import { authedFetch, setJwt, NoAuthError } from "../src/sync/auth-bridge";
+import { authedFetch, setJwt, refreshJwt, NoAuthError } from "../src/sync/auth-bridge";
 import { SyncEnvelope } from "../src/shared/types";
 
 describe("auth-bridge", () => {
@@ -33,5 +33,17 @@ describe("auth-bridge", () => {
         "Content-Type": "application/json"
       }
     }));
+  });
+
+  it("refreshJwt does not mint a token", async () => {
+    await setJwt(undefined);
+    await refreshJwt();
+    await expect(
+      authedFetch("http://localhost", {
+        payload: { platform: "shopee", items: [], vouchers: [] },
+        clientTs: 1,
+      }),
+    ).rejects.toThrow(NoAuthError);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

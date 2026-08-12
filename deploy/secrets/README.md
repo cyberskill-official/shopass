@@ -37,9 +37,14 @@ platform secret injector:
 - `GOOGLE_CLIENT_SECRET`, only if Google OAuth is enabled
 - `HTTPS_PROXY`, when it contains proxy credentials
 - `PRICE_INTERNAL_SERVICE_TOKEN`, a randomly generated shared value supplied
-  identically to `tracksvc` and `pricesvc`. It authenticates only private
-  track-to-price calls through `X-Service-Token`; do not put it in Caddy,
-  browser configuration, logs, or a source-controlled env file.
+  identically to `tracksvc` and `pricesvc`. It authenticates private
+  track-to-price calls and pricesvc→tracksvc price-changed notifications
+  through `X-Service-Token`; do not put it in Caddy, browser configuration,
+  logs, or a source-controlled env file.
+- `BILL_INTERNAL_SERVICE_TOKEN`, shared by tracksvc and billsvc for gating.
+- `COMPLY_OPERATOR_TOKEN`, required for breach open/advance/close on the
+  private complysvc network. The public gateway does not allowlist those
+  routes. Caddy and the gateway strip `X-Operator-Token` from browsers.
 
 This is a transitional compatibility requirement, not a claim that the
 application meets FR-INFRA-003's no-secret-in-environment invariant. Before a

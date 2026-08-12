@@ -36,6 +36,7 @@ type AlertRuleRepo interface {
 	ToggleActive(ctx context.Context, ruleID int64, active bool) error
 	DeleteRule(ctx context.Context, ruleID int64) error
 	ListAlerts(ctx context.Context, ruleID int64) ([]Alert, error)
+	ActiveByProduct(ctx context.Context, productID int64) ([]AlertRule, error)
 }
 
 type alertRuleRepoImpl struct {
@@ -125,4 +126,27 @@ func (r *alertRuleRepoImpl) ListAlerts(ctx context.Context, ruleID int64) ([]Ale
 		alerts = append(alerts, a)
 	}
 	return alerts, rows.Err()
+}
+
+func (r *alertRuleRepoImpl) ActiveByProduct(ctx context.Context, productID int64) ([]AlertRule, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT id, user_id, product_id, rule_type, threshold, channel, active, created_at
+		FROM alert_rule
+		WHERE product_id = $1 AND active = true
+		ORDER BY id
+	`, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rules []AlertRule
+	for rows.Next() {
+		var rule AlertRule
+		if err := rows.Scan(&rule.ID, &rule.UserID, &rule.ProductID, &rule.RuleType, &rule.Threshold, pq.Array(&rule.Channel), &rule.Active, &rule.CreatedAt); err != nil {
+			return nil, err
+		}
+		rules = append(rules, rule)
+	}
+	return rules, rows.Err()
 }

@@ -15,10 +15,20 @@ Current endpoint coverage:
 | `tracksvc` | `/healthz` | No - liveness only; it does not verify DB connectivity |
 | `dealsvc` | `/healthz` | No - liveness only; it does not verify DB connectivity |
 | `bff` | `/healthz` | No - image/probe support still needed |
-| `gateway` | `/healthz` | No - liveness only; it does not verify Redis/JWKS reachability |
-| `pricesvc` | none | No |
-| `notifsvc` | none | No |
-| `web` | none dedicated | No |
+| `gateway` | `/healthz` | No - liveness only; it does not verify Redis/JWKS reachability. Caddy now probes this URI. |
+| `pricesvc` | `/healthz` | No - liveness only; distroless images still cannot shell-probe |
+| `notifsvc` | `/healthz` | No - liveness only; distroless images still cannot shell-probe |
+| `web` | `/api/healthz` | No - cheap JSON liveness; Caddy probes it. Not a dependency-aware `/readyz`. |
+| `complysvc` | `/healthz` | No - liveness only |
+
+## Partial edge step (2026-08-13)
+
+Caddy `health_uri` on the gateway (`/healthz`) and web (`/api/healthz`)
+upstreams reduces sending traffic to a process that is not listening yet.
+It does **not** replace `/livez`+`/readyz`, distroless probe binaries, or
+Compose `service_healthy` for application containers. A 502 on the public
+host can still mean the stack is down, DNS/TLS is wrong, or Caddy has no
+healthy upstream.
 
 ## Required source work (deliberately not included in deployment hardening)
 

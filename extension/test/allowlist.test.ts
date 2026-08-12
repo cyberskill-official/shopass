@@ -32,7 +32,7 @@ describe("R31 outbound allowlist", () => {
 
   it("rejects non-allowlisted API hosts", () => {
     expect(isAllowedApiUrl("https://evil.example/v1/ext/sync")).toBe(false);
-    expect(isAllowedApiUrl("https://api.shopass.cyberskill.world.evil/x")).toBe(false);
+    expect(isAllowedApiUrl("https://shopass.cyberskill.world.evil/x")).toBe(false);
     expect(isAllowedApiUrl("http://127.0.0.1:9999/v1")).toBe(false);
   });
 

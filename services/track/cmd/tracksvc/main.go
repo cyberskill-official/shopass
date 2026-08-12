@@ -16,6 +16,7 @@ import (
 
 	"shopass/services/track/internal/api"
 	"shopass/services/track/internal/billclient"
+	"shopass/services/track/internal/engine"
 	"shopass/services/track/internal/priceclient"
 	"shopass/services/track/internal/priming"
 	"shopass/services/track/internal/track"
@@ -79,7 +80,8 @@ func main() {
 	}
 
 	wh := api.NewWishlistHandler(track.NewWishlistRepo(db)).WithGate(featureGate)
-	ah := api.NewAlertRuleHandler(track.NewAlertRuleRepo(db)).WithGate(featureGate)
+	ruleRepo := track.NewAlertRuleRepo(db)
+	ah := api.NewAlertRuleHandler(ruleRepo).WithGate(featureGate)
 	th := api.NewHandler(
 		track.NewShopeeVNPlatformMap(),
 		priceClient,
@@ -87,11 +89,25 @@ func main() {
 		priming.NewNoopQueue(),
 	)
 
+	eval := engine.NewEngine(
+		ruleRepo,
+		&engine.PGMedian{DB: db},
+		engine.UnknownDeal{},
+		&engine.PGStateRepo{DB: db},
+		&engine.SQLHandoff{
+			DB:       db,
+			NotifURL: os.Getenv("NOTIFSVC_URL"),
+			HTTP:     &http.Client{Timeout: 5 * time.Second},
+			Log:      log,
+		},
+	)
+
 	mux := http.NewServeMux()
 	// Register the new track endpoint together with the existing wishlist and
 	// alert routes. This preserves their public surface while wiring the beta
 	// flow through pricesvc rather than a cross-service database write.
 	api.RegisterRoutes(mux, th, wh, ah)
+	api.NewPriceChangedHandler(eval, os.Getenv("PRICE_INTERNAL_SERVICE_TOKEN")).RegisterRoutes(mux)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write([]byte(`{"ok":true}`))

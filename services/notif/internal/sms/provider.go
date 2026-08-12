@@ -27,7 +27,7 @@ type Provider interface {
 	Send(ctx context.Context, msg Message) (SendResult, error)
 }
 
-// LogProvider is the CI/dev-safe default: log intent and report sent.
+// LogProvider is the CI/dev-safe default: log intent and refuse delivery.
 type LogProvider struct {
 	log  *slog.Logger
 	name string
@@ -46,12 +46,12 @@ func NewLogProvider(log *slog.Logger, name string) LogProvider {
 func (p LogProvider) Name() string { return p.name }
 
 func (p LogProvider) Send(_ context.Context, msg Message) (SendResult, error) {
-	p.log.Info("sms noop provider accepted message",
+	p.log.Info("sms noop provider refused message",
 		"provider", p.name,
 		"to", msg.To,
 		"brand", msg.Brand,
 		"high_value", msg.HighValue,
 		"otp", msg.OTP,
 	)
-	return ResultSent, nil
+	return ResultRejected, nil
 }

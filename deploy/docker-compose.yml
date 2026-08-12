@@ -75,6 +75,10 @@ services:
       # Local-only shared token for tracksvc -> pricesvc. Production requires
       # a distinct secret through docker-compose.production.yml.
       PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
+      # After a written snapshot, pricesvc notifies tracksvc to evaluate
+      # price_below / drop_pct rules. Best-effort; ingest still succeeds if
+      # track is down.
+      TRACK_INTERNAL_URL: ${TRACK_INTERNAL_URL:-http://tracksvc:8083}
     depends_on:
       migrate: { condition: service_completed_successfully }
 
@@ -135,6 +139,7 @@ services:
       PRICE_INTERNAL_SERVICE_TOKEN: ${PRICE_INTERNAL_SERVICE_TOKEN:-dev-only-change-me}
       BILL_INTERNAL_URL: http://billsvc:8086
       BILL_INTERNAL_SERVICE_TOKEN: ${BILL_INTERNAL_SERVICE_TOKEN:-dev-only-bill-token}
+      NOTIFSVC_URL: http://notifsvc:8082/notify
     depends_on:
       migrate: { condition: service_completed_successfully }
       billsvc: { condition: service_started }
@@ -165,6 +170,9 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-shopass}?sslmode=disable
       COMPLY_ADDR: ":8087"
+      # Local-only operator credential for breach open/advance/close.
+      # Caddy and the gateway strip X-Operator-Token from browsers.
+      COMPLY_OPERATOR_TOKEN: ${COMPLY_OPERATOR_TOKEN:-dev-only-operator-token}
     depends_on:
       migrate: { condition: service_completed_successfully }
 

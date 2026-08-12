@@ -24,7 +24,7 @@ Consent purposes: see monorepo `docs/compliance/CONSENT-SURFACES.md` and `DATA-I
 | `https://shopee.vn/*` | Content script + price/cart helpers on Shopee VN |
 | `https://*.tiktok.com/*` | TikTok Shop content script |
 | `https://www.lazada.vn/*` | Lazada VN content script |
-| `https://api.shopass.cyberskill.world/*` | Sync track/alerts/consent with Shopass API |
+| `https://shopass.cyberskill.world/*` | Same-origin Shopass API (`/v1/*`) for sync/alerts/consent |
 | `http://127.0.0.1:8080/*` | Local/dev gateway only (omit from store build if packaging prod-only) |
 
 ## Remote code

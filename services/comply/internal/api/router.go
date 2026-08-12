@@ -29,11 +29,11 @@ type BreachService interface {
 	Overdue(ctx context.Context) ([]breach.BreachIncident, error)
 }
 
-func RegisterRoutes(mux *http.ServeMux, consentSvc ConsentService, dsarSvc DSARService, breachSvc BreachService) {
+func RegisterRoutes(mux *http.ServeMux, consentSvc ConsentService, dsarSvc DSARService, breachSvc BreachService, operatorToken string) {
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 	})
 	NewConsentHandler(consentSvc).RegisterRoutes(mux)
 	NewDSARHandler(dsarSvc).RegisterRoutes(mux)
-	NewBreachHandler(breachSvc).RegisterRoutes(mux)
+	NewBreachHandler(breachSvc, operatorToken).RegisterRoutes(mux)
 }

@@ -18,6 +18,6 @@ Gateway default ~100 req/min per user. Sustained 50 RPS needs a token pool or st
 
 | Date (UTC) | Commit | Base URL | Product | Tokens | Chart p95 | Cache p95 | Errors | CI |
 |------------|--------|----------|---------|--------|-----------|-----------|--------|-----|
-| _pending first green weekly run_ | — | `api.shopass.cyberskill.world` | secret | — | — | — | — | — |
+| _pending first green weekly run_ | — | `shopass.cyberskill.world` | secret | — | — | — | — | — |
 
 Append a row after each weekly (or dispatch) run. Paste artifact / Actions URL in the CI column.

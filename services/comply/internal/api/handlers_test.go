@@ -105,7 +105,7 @@ func (m *mockBreachService) Overdue(ctx context.Context) ([]breach.BreachInciden
 func TestConsentGrantRequiresGatewayIdentity(t *testing.T) {
 	mux := http.NewServeMux()
 	cs := &mockConsentService{}
-	RegisterRoutes(mux, cs, &mockDSARService{}, &mockBreachService{})
+	RegisterRoutes(mux, cs, &mockDSARService{}, &mockBreachService{}, "test-operator-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/consent/grant", strings.NewReader(`{"purpose":"cart_read","source":"web"}`))
 	rec := httptest.NewRecorder()
@@ -121,7 +121,7 @@ func TestConsentGrantAndHistory(t *testing.T) {
 			{UserID: 99, PurposeKey: "cart_read", Granted: true},
 		},
 	}
-	RegisterRoutes(mux, cs, &mockDSARService{}, &mockBreachService{})
+	RegisterRoutes(mux, cs, &mockDSARService{}, &mockBreachService{}, "test-operator-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/consent/grant", strings.NewReader(`{"purpose":"cart_read","source":"extension"}`))
 	req.Header.Set("X-User-Id", "42")
@@ -143,7 +143,7 @@ func TestConsentGrantAndHistory(t *testing.T) {
 func TestDSARPortabilityCompletesWithExport(t *testing.T) {
 	mux := http.NewServeMux()
 	ds := &mockDSARService{}
-	RegisterRoutes(mux, &mockConsentService{}, ds, &mockBreachService{})
+	RegisterRoutes(mux, &mockConsentService{}, ds, &mockBreachService{}, "test-operator-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/dsar", strings.NewReader(`{"kind":"portability"}`))
 	req.Header.Set("X-User-Id", "42")
@@ -158,7 +158,7 @@ func TestDSARPortabilityCompletesWithExport(t *testing.T) {
 func TestDSAREraseExecutesErasePath(t *testing.T) {
 	mux := http.NewServeMux()
 	ds := &mockDSARService{}
-	RegisterRoutes(mux, &mockConsentService{}, ds, &mockBreachService{})
+	RegisterRoutes(mux, &mockConsentService{}, ds, &mockBreachService{}, "test-operator-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/dsar", strings.NewReader(`{"kind":"erase"}`))
 	req.Header.Set("X-User-Id", "42")
@@ -172,27 +172,56 @@ func TestDSAREraseExecutesErasePath(t *testing.T) {
 func TestBreachRoutes(t *testing.T) {
 	mux := http.NewServeMux()
 	bs := &mockBreachService{}
-	RegisterRoutes(mux, &mockConsentService{}, &mockDSARService{}, bs)
+	RegisterRoutes(mux, &mockConsentService{}, &mockDSARService{}, bs, "test-operator-token")
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/comply/breach/open", strings.NewReader(`{"summary":"log leak","severity":"high"}`))
+	req.Header.Set("X-Operator-Token", "test-operator-token")
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusCreated, rec.Code)
 	require.Len(t, bs.opened, 1)
 
 	req = httptest.NewRequest(http.MethodPost, "/v1/comply/breach/1/advance", strings.NewReader(`{"status":"notified_subjects"}`))
+	req.Header.Set("X-Operator-Token", "test-operator-token")
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusBadRequest, rec.Code)
 
 	req = httptest.NewRequest(http.MethodPost, "/v1/comply/breach/9/close", nil)
+	req.Header.Set("X-Operator-Token", "test-operator-token")
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusConflict, rec.Code)
 
 	req = httptest.NewRequest(http.MethodGet, "/v1/comply/breach/overdue", nil)
+	req.Header.Set("X-Operator-Token", "test-operator-token")
 	rec = httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 	require.Equal(t, http.StatusOK, rec.Code)
 	require.Contains(t, rec.Body.String(), "log leak")
+}
+
+func TestBreachRoutesRejectMissingOperatorToken(t *testing.T) {
+	mux := http.NewServeMux()
+	bs := &mockBreachService{}
+	RegisterRoutes(mux, &mockConsentService{}, &mockDSARService{}, bs, "test-operator-token")
+
+	req := httptest.NewRequest(http.MethodPost, "/v1/comply/breach/open", strings.NewReader(`{"summary":"log leak","severity":"high"}`))
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusForbidden, rec.Code)
+	require.Empty(t, bs.opened)
+}
+
+func TestBreachRoutesFailClosedWithoutConfiguredToken(t *testing.T) {
+	mux := http.NewServeMux()
+	bs := &mockBreachService{}
+	RegisterRoutes(mux, &mockConsentService{}, &mockDSARService{}, bs, "")
+
+	req := httptest.NewRequest(http.MethodPost, "/v1/comply/breach/open", strings.NewReader(`{"summary":"log leak","severity":"high"}`))
+	req.Header.Set("X-Operator-Token", "anything")
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusForbidden, rec.Code)
+	require.Empty(t, bs.opened)
 }

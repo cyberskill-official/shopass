@@ -46,8 +46,17 @@ func main() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
-	api.NewHandler(productRepo).RegisterRoutes(mux)                                     // GET price-history
-	api.NewIngestHandler(price.NewSnapshotRepo(pool), serviceToken).RegisterRoutes(mux) // POST snapshots
+	api.NewHandler(productRepo).RegisterRoutes(mux) // GET price-history
+	ingest := api.NewIngestHandler(price.NewSnapshotRepo(pool), serviceToken)
+	if trackURL := strings.TrimSpace(os.Getenv("TRACK_INTERNAL_URL")); trackURL != "" {
+		notifier, err := api.NewHTTPPriceChangeNotifier(trackURL, serviceToken)
+		if err != nil {
+			log.Error("TRACK_INTERNAL_URL", "err", err)
+			os.Exit(1)
+		}
+		ingest = ingest.WithNotifier(notifier)
+	}
+	ingest.RegisterRoutes(mux)
 	api.NewProductUpsertHandler(productRepo, serviceToken).RegisterRoutes(mux)
 	server := &http.Server{
 		Addr:              addr,

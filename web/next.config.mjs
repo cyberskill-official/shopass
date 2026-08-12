@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
-// API traffic stays same-origin and is routed by Caddy to the gateway. Do not
-// add service-to-service rewrites here: doing so bypasses JWT verification and
-// exposes private APIs through the public web process.
+// Browser /v1/* traffic is same-origin. Production Caddy intercepts /v1 before
+// Next.js and sends it to the JWT gateway. Local Docker without Caddy uses the
+// App Router catch-all at app/v1/[...path] which proxies only to
+// GATEWAY_INTERNAL_BASE_URL (never to pricesvc/tracksvc). Do not add
+// service-to-service rewrites here: that would bypass JWT verification.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },

@@ -88,7 +88,7 @@ func main() {
 	breachSvc := breach.NewService(breach.NewPgRepo(pool))
 
 	mux := http.NewServeMux()
-	api.RegisterRoutes(mux, consentSvc, dsarSvc, breachSvc)
+	api.RegisterRoutes(mux, consentSvc, dsarSvc, breachSvc, os.Getenv("COMPLY_OPERATOR_TOKEN"))
 
 	server := &http.Server{
 		Addr:              env("COMPLY_ADDR", ":8087"),
