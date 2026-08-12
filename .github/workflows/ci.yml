@@ -169,14 +169,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      # Pin CmdStan so install_cmdstan does not call GitHub /releases/latest
+      # (unauthenticated 403 rate-limit). Cache skips the tarball + compile.
+      - name: Cache CmdStan
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cmdstan
+          key: cmdstan-2.39.0-${{ runner.os }}
       - name: Install CmdStan (needed for the Prophet fit test)
         run: |
           python - <<'PY'
           import os
+          from pathlib import Path
+
           import cmdstanpy
           from prophet import Prophet
 
-          cmdstanpy.install_cmdstan(overwrite=False)
+          pinned = "2.39.0"
+          home = Path.home() / ".cmdstan" / f"cmdstan-{pinned}"
+          if home.is_dir():
+              cmdstanpy.set_cmdstan_path(str(home))
+          else:
+              cmdstanpy.install_cmdstan(version=pinned, overwrite=False)
           path = cmdstanpy.cmdstan_path()
           print(f"CMDSTAN={path}")
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:

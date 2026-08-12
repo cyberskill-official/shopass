@@ -10,8 +10,8 @@ import os
 from pathlib import Path
 
 # Prefer an existing CmdStan install (any version under ~/.cmdstan/cmdstan-*).
-# CI installs via cmdstanpy.install_cmdstan() which is not pinned to 2.39.0;
-# hard-coding that version left Prophet without a stan_backend on runners.
+# CI pins cmdstanpy.install_cmdstan(version="2.39.0") and exports CMDSTAN;
+# do not hard-code that path here — local installs may use another version.
 def _configure_cmdstan() -> None:
     try:
         import cmdstanpy
