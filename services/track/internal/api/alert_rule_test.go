@@ -75,6 +75,16 @@ func (m *mockAlertRuleRepo) ListAlerts(ctx context.Context, ruleID int64) ([]tra
 	return m.alerts[ruleID], nil
 }
 
+func (m *mockAlertRuleRepo) ActiveByProduct(ctx context.Context, productID int64) ([]track.AlertRule, error) {
+	var res []track.AlertRule
+	for _, r := range m.rules {
+		if r.ProductID == productID && r.Active {
+			res = append(res, r)
+		}
+	}
+	return res, nil
+}
+
 func setupAlertRuleHandler(t *testing.T) *AlertRuleHandler {
 	return NewAlertRuleHandler(&mockAlertRuleRepo{})
 }

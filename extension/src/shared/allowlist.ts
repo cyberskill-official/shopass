@@ -12,7 +12,7 @@ export const MARKETPLACE_HOST_PERMISSIONS = [
 
 /** Shopass API / gateway hosts the extension may call (sync, ws upgrade path). */
 export const API_HOST_PERMISSIONS = [
-  "https://api.shopass.cyberskill.world/*",
+  "https://shopass.cyberskill.world/*",
   "http://127.0.0.1:8080/*",
 ] as const;
 
@@ -23,7 +23,7 @@ export const ALL_HOST_PERMISSIONS = [
 
 /** Hostnames allowed for extension-initiated API traffic (no path/scheme). */
 export const ALLOWED_API_HOSTNAMES = [
-  "api.shopass.cyberskill.world",
+  "shopass.cyberskill.world",
   "127.0.0.1",
 ] as const;
 

@@ -12,7 +12,7 @@ Mixed gateway load against **NFR-INFRA-001**:
 ## Local
 
 ```bash
-export K6_BASE_URL=https://api.shopass.cyberskill.world
+export K6_BASE_URL=https://shopass.cyberskill.world
 export K6_ACCESS_TOKEN='…'          # or K6_ACCESS_TOKENS=t1,t2,t3
 export K6_PRODUCT_ID=1
 k6 run loadtests/k6/nfr-infra-001.js

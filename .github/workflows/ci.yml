@@ -169,20 +169,45 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      # Do not use cmdstanpy.install_cmdstan() here: it probes GitHub with
+      # unauthenticated urllib (no User-Agent). Runners get 403 / connection
+      # reset. Download the pinned tarball with the Actions token, then make.
+      - name: Cache CmdStan
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: ~/.cmdstan
+          key: cmdstan-2.39.0-${{ runner.os }}
       - name: Install CmdStan (needed for the Prophet fit test)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          PINNED=2.39.0
+          DEST="${HOME}/.cmdstan/cmdstan-${PINNED}"
+          mkdir -p "${HOME}/.cmdstan"
+          if [[ ! -x "${DEST}/bin/stanc" ]]; then
+            TMP="$(mktemp -d)"
+            curl -fL --retry 5 --retry-all-errors --retry-delay 2 \
+              -A "shopass-ci" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/octet-stream" \
+              -o "${TMP}/cmdstan-${PINNED}.tar.gz" \
+              "https://github.com/stan-dev/cmdstan/releases/download/v${PINNED}/cmdstan-${PINNED}.tar.gz"
+            tar -xzf "${TMP}/cmdstan-${PINNED}.tar.gz" -C "${HOME}/.cmdstan"
+            make -C "${DEST}" build -j"$(nproc)"
+          fi
+          echo "CMDSTAN=${DEST}" >> "${GITHUB_ENV}"
           python - <<'PY'
           import os
+          from pathlib import Path
+
           import cmdstanpy
           from prophet import Prophet
 
-          cmdstanpy.install_cmdstan(overwrite=False)
-          path = cmdstanpy.cmdstan_path()
-          print(f"CMDSTAN={path}")
-          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:
-              fh.write(f"CMDSTAN={path}\n")
-          # Fail the install step early if Prophet cannot bind CMDSTANPY.
+          dest = str(Path.home() / ".cmdstan" / "cmdstan-2.39.0")
+          cmdstanpy.set_cmdstan_path(dest)
           m = Prophet(stan_backend="CMDSTANPY")
+          print(f"CMDSTAN={dest}")
           print("prophet_backend", type(m.stan_backend).__name__)
           PY
       - name: Test
@@ -204,6 +229,7 @@ jobs:
           DATABASE_URL: postgres://u:p@db:5432/shopass?sslmode=disable
           PRICE_INTERNAL_SERVICE_TOKEN: ci-token
           BILL_INTERNAL_SERVICE_TOKEN: ci-token
+          COMPLY_OPERATOR_TOKEN: ci-operator-token
           APP_ORIGIN: https://example.com
           AUTH_KEY_ID: ci-key
           DB_PASSWORD_FILE: /tmp/ci-db-password

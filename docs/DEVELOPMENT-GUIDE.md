@@ -15,7 +15,7 @@ Bắt buộc:
 Chỉ cần khi bạn muốn chạy service ngoài Docker hoặc chạy test ở local:
 
 - Go 1.25 (khớp `go.mod`).
-- Node.js 22 và npm (extension + web).
+- Node.js 24 và npm (extension + web).
 - Python 3.11 (service ml). Chạy Prophet đầy đủ cần CmdStan; image ml đã cài sẵn nên trong Docker không phải lo.
 
 ## 2. Bắt đầu nhanh (tất cả trong Docker)
@@ -28,7 +28,9 @@ make up           # build + chạy: db, migrate, pricesvc, dealsvc, notifsvc, we
 make ps           # xem trạng thái các service
 ```
 
-Mở web tại http://localhost:3000 và API giá tại http://localhost:8081.
+Mở web tại http://127.0.0.1:3000. Browser API calls are same-origin `/v1/*`
+(Next.js proxies them to the private gateway at `:8080`). Do not call pricesvc
+on `:8081` from a browser; that port is not published.
 
 Xem toàn bộ vòng lặp lõi chạy end to end (scrape giá -> lưu -> dự báo đáy -> bắn cảnh báo):
 
@@ -96,7 +98,7 @@ Một điểm cần biết: bài test migration của module `db` dùng testcont
 
 ## 7. Xử lý sự cố
 
-Cổng bị trùng (5432/8081/3000 đã có tiến trình khác): sửa `DB_PORT`, `PRICE_PORT`, hoặc `WEB_PORT` trong `deploy/.env` rồi `make up` lại.
+Cổng bị trùng (5432/8080/3000 đã có tiến trình khác): sửa `DB_PORT`, `GATEWAY_PORT`, hoặc `WEB_PORT` trong `deploy/.env` rồi `make up` lại.
 
 Service báo lỗi kết nối DB lúc khởi động: `db` cần vài giây để sẵn sàng. Compose đã có healthcheck và `migrate` chỉ chạy sau khi `db` healthy; nếu vẫn lỗi, xem `make logs` và thử `make restart`.
 

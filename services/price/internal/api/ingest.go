@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -21,6 +22,13 @@ type IngestHandler struct {
 	snaps             SnapshotWriter
 	serviceTokenHash  [sha256.Size]byte
 	tokenIsConfigured bool
+	notifier          PriceChangeNotifier
+}
+
+// PriceChangeNotifier is invoked after a snapshot is actually written.
+// Failures must not fail ingest; the next scrape pass retries evaluation.
+type PriceChangeNotifier interface {
+	NotifyWritten(ctx context.Context, productID, price int64, listPrice *int64) error
 }
 
 // SnapshotWriter is the narrow price-store boundary used by the private
@@ -38,6 +46,11 @@ func NewIngestHandler(snaps SnapshotWriter, serviceToken string) *IngestHandler 
 		serviceTokenHash:  sha256.Sum256([]byte(serviceToken)),
 		tokenIsConfigured: strings.TrimSpace(serviceToken) != "",
 	}
+}
+
+func (h *IngestHandler) WithNotifier(n PriceChangeNotifier) *IngestHandler {
+	h.notifier = n
+	return h
 }
 
 func (h *IngestHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -119,6 +132,13 @@ func (h *IngestHandler) HandleIngest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeErr(w, http.StatusInternalServerError, "insert failed")
 		return
+	}
+	if written && h.notifier != nil {
+		notifyCtx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+		defer cancel()
+		if err := h.notifier.NotifyWritten(notifyCtx, snap.ProductID, snap.Price, snap.ListPrice); err != nil {
+			slog.Default().Warn("price-change notify failed", "product_id", snap.ProductID, "err", err)
+		}
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if written {

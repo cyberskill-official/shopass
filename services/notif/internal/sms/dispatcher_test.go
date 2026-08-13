@@ -44,11 +44,12 @@ func TestSMSDispatch_FailsGuard(t *testing.T) {
 	require.Equal(t, []int64{1}, repo.fail)
 }
 
-func TestSMSDispatch_NoopHighValueSends(t *testing.T) {
+func TestSMSDispatch_NoopHighValueFailsClosed(t *testing.T) {
 	repo := &mockRepo{jobs: []Job{{NotifID: 2, Address: "+84", Payload: json.RawMessage(`{"body":"deal","high_value":true}`)}}}
 	d := NewDispatcher(NewLogProvider(nil, "noop"), nil, "SHOPASS", repo, 10)
 	require.NoError(t, d.RunOnce(context.Background()))
-	require.Equal(t, []int64{2}, repo.sent)
+	require.Equal(t, []int64{2}, repo.fail)
+	require.Empty(t, repo.sent)
 }
 
 func TestSMSDispatch_PrimaryRetryFallsBackToTwilio(t *testing.T) {

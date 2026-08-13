@@ -2,6 +2,7 @@ package cashback
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -12,7 +13,8 @@ type Payer interface {
 	Pay(ctx context.Context, userID, amount int64, orderRef string) (gatewayRef string, err error)
 }
 
-// VietQRStub returns a synthetic VietQR payload (TASK-BILL-002 pattern; no live creds).
+// VietQRStub is the CI/dev-safe payer: it refuses Pay so MaybeRequestPayout
+// cannot MarkPaid without a live provider.
 type VietQRStub struct {
 	Log *slog.Logger
 }
@@ -22,11 +24,10 @@ func NewVietQRStub(log *slog.Logger) *VietQRStub {
 }
 
 func (v *VietQRStub) Pay(ctx context.Context, userID, amount int64, orderRef string) (string, error) {
-	ref := fmt.Sprintf("vietqr://cashback/%d?amount=%d&addInfo=%s", userID, amount, orderRef)
 	if v != nil && v.Log != nil {
-		v.Log.Info("cashback payout noop", "user_id", userID, "amount", amount, "ref", ref)
+		v.Log.Info("cashback payout stub refused", "user_id", userID, "amount", amount, "order_ref", orderRef)
 	}
-	return ref, nil
+	return "", errors.New("vietqr stub: live payout provider is not configured")
 }
 
 // MaybeRequestPayout aggregates available entries when sum >= threshold and pays once.

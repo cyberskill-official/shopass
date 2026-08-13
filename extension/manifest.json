@@ -21,7 +21,7 @@
     "https://shopee.vn/*",
     "https://*.tiktok.com/*",
     "https://www.lazada.vn/*",
-    "https://api.shopass.cyberskill.world/*",
+    "https://shopass.cyberskill.world/*",
     "http://127.0.0.1:8080/*"
   ],
   "declarative_net_request": {

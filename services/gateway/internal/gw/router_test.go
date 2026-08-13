@@ -101,8 +101,6 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		{http.MethodPost, "/v1/consent/grant", true, "comply"},
 		{http.MethodGet, "/v1/consent/history", true, "comply"},
 		{http.MethodPost, "/v1/dsar", true, "comply"},
-		{http.MethodPost, "/v1/comply/breach/open", true, "comply"},
-		{http.MethodGet, "/v1/comply/breach/overdue", true, "comply"},
 		{http.MethodPost, "/v1/tools/fake-sale-check", false, "deal"},
 		{http.MethodPost, "/graphql", true, "bff"},
 	}
@@ -152,6 +150,25 @@ func TestGatewayRejectsUnscopedPriceReadRoutes(t *testing.T) {
 			rr := httptest.NewRecorder()
 			h.ServeHTTP(rr, req)
 			require.Equal(t, http.StatusNotFound, rr.Code)
+		})
+	}
+}
+
+func TestGatewayRejectsBreachRoutes(t *testing.T) {
+	h := NewHandler(testDeps(t))
+	for _, path := range []string{
+		"/v1/comply/breach/open",
+		"/v1/comply/breach/overdue",
+		"/v1/comply/breach/1/advance",
+		"/v1/comply/breach/1/close",
+	} {
+		t.Run(path, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPost, path, nil)
+			req.Header.Set("Authorization", "Bearer valid-1")
+			rr := httptest.NewRecorder()
+			h.ServeHTTP(rr, req)
+			require.Equal(t, http.StatusNotFound, rr.Code)
+			require.Empty(t, rr.Header().Get("X-Upstream"))
 		})
 	}
 }

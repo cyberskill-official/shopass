@@ -38,7 +38,7 @@ jobs:
           K6_PRODUCT_ID: ${{ secrets.K6_PRODUCT_ID }}
         run: |
           set -euo pipefail
-          BASE_URL="${K6_BASE_URL:-https://api.shopass.cyberskill.world}"
+          BASE_URL="${K6_BASE_URL:-https://shopass.cyberskill.world}"
           PRODUCT_ID="${K6_PRODUCT_ID:-1}"
           docker run --rm \
             -v "$PWD:/work" -w /work \

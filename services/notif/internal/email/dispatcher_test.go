@@ -78,14 +78,14 @@ func TestEmailDispatch_DeadAddressInvalidatesAndFails(t *testing.T) {
 	require.Equal(t, []int64{1}, repo.fail)
 }
 
-func TestLogProvider_DefaultNoopSucceeds(t *testing.T) {
+func TestLogProvider_DefaultNoopFailsClosed(t *testing.T) {
 	out, err := NewLogProvider(nil, "").Send(context.Background(), EmailMessage{
 		To:       "user@example.com",
 		Subject:  "subject",
 		TextBody: "body",
 	})
 	require.NoError(t, err)
-	require.Equal(t, ResultSent, out.Result)
+	require.Equal(t, ResultFailed, out.Result)
 	require.Equal(t, "noop", out.ProviderMessageID)
 }
 

@@ -4,6 +4,9 @@
 # docker-compose.production.yml. It does not manufacture identity headers.
 # Every REST/GraphQL request is sent to the private JWT gateway; application
 # services never receive browser traffic directly.
+#
+# Production API is same-origin /v1 on {$APP_DOMAIN} (e.g.
+# https://shopass.cyberskill.world/v1/...). Do not depend on api.* DNS.
 {
 	email {$ACME_EMAIL}
 	admin off
@@ -44,15 +47,20 @@
 	@api path /v1/* /graphql /graphql/*
 	handle @api {
 		reverse_proxy gateway:8080 {
+			health_uri /healthz
+			health_interval 5s
+			health_timeout 2s
+			health_status 200
 			header_up -X-User-Id
 			header_up -X-User-Locale
 			header_up -X-User-Tier
 			# Overwrite rather than trust a browser-provided client-IP header. The
 			# private gateway uses this only for anonymous/auth rate-limit buckets.
 			header_up X-Real-IP {remote_host}
-			# This credential is only valid on the private tracksvc -> pricesvc
-			# hop. Browser traffic must never be allowed to present it.
+			# These credentials are only valid on private service hops.
+			# Browser traffic must never be allowed to present them.
 			header_up -X-Service-Token
+			header_up -X-Operator-Token
 		}
 	}
 
@@ -60,12 +68,17 @@
 	# headers before Next.js receives browser traffic.
 	handle {
 		reverse_proxy web:3000 {
+			health_uri /api/healthz
+			health_interval 5s
+			health_timeout 2s
+			health_status 200
 			header_up -X-User-Id
 			header_up -X-User-Locale
 			header_up -X-User-Tier
 			# Auth route handlers forward this Caddy-authenticated value to gateway.
 			header_up X-Real-IP {remote_host}
 			header_up -X-Service-Token
+			header_up -X-Operator-Token
 		}
 	}
 }

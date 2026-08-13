@@ -2,9 +2,8 @@
  * Build-time endpoint config for the Shopass MV3 extension.
  * Selected via SHOPASS_ENV at esbuild time (see build.mjs).
  *
- * Domains (operator 2026-07-26):
- *   web  https://shopass.cyberskill.world
- *   api  https://api.shopass.cyberskill.world
+ * Production API is same-origin /v1 on the web host. api.shopass.cyberskill.world
+ * has no DNS and must not be used.
  */
 
 export type ShopassEnv = "development" | "staging" | "production";
@@ -39,17 +38,17 @@ const configs: Record<ShopassEnv, EndpointConfig> = {
   staging: {
     env: "staging",
     webOrigin: "https://shopass.cyberskill.world",
-    apiOrigin: "https://api.shopass.cyberskill.world",
-    syncUrl: "https://api.shopass.cyberskill.world/v1/ext/sync",
-    wssUrl: "wss://api.shopass.cyberskill.world/v1/ext/ws",
+    apiOrigin: "https://shopass.cyberskill.world",
+    syncUrl: "https://shopass.cyberskill.world/v1/ext/sync",
+    wssUrl: "wss://shopass.cyberskill.world/v1/ext/ws",
     dsarUrl: "https://shopass.cyberskill.world/dsar",
   },
   production: {
     env: "production",
     webOrigin: "https://shopass.cyberskill.world",
-    apiOrigin: "https://api.shopass.cyberskill.world",
-    syncUrl: "https://api.shopass.cyberskill.world/v1/ext/sync",
-    wssUrl: "wss://api.shopass.cyberskill.world/v1/ext/ws",
+    apiOrigin: "https://shopass.cyberskill.world",
+    syncUrl: "https://shopass.cyberskill.world/v1/ext/sync",
+    wssUrl: "wss://shopass.cyberskill.world/v1/ext/ws",
     dsarUrl: "https://shopass.cyberskill.world/dsar",
   },
 };

@@ -32,7 +32,8 @@ type SendOutcome struct {
 	ProviderMessageID string
 }
 
-// LogProvider is the default CI/dev-safe provider: it records intent and reports success.
+// LogProvider is the default CI/dev-safe provider: it records intent and
+// reports failure so a missing SMTP/SES credential can never look delivered.
 type LogProvider struct {
 	log  *slog.Logger
 	name string
@@ -49,12 +50,12 @@ func NewLogProvider(log *slog.Logger, name string) LogProvider {
 }
 
 func (p LogProvider) Send(_ context.Context, msg EmailMessage) (SendOutcome, error) {
-	p.log.Info("email noop provider accepted message",
+	p.log.Info("email noop provider refused message",
 		"provider", p.name,
 		"to", msg.To,
 		"subject", msg.Subject,
 	)
-	return SendOutcome{Result: ResultSent, ProviderMessageID: "noop"}, nil
+	return SendOutcome{Result: ResultFailed, ProviderMessageID: "noop"}, nil
 }
 
 // SESProvider is intentionally only an interface-shaped stub here; wiring the

@@ -32,8 +32,8 @@ export async function setJwt(jwt: string | undefined): Promise<void> {
 }
 
 export async function refreshJwt(): Promise<void> {
-  // Logic to refresh JWT using refresh token (from TASK-AUTH-002)
-  // Mocked for now
+  // HttpOnly __Host- refresh credentials are not visible to chrome-extension://.
+  // Do not invent tokens. flushQueue retries once then fail-closes on 401.
 }
 
 export async function authedFetch(url: string, env: SyncEnvelope): Promise<Response> {

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-// NoopClient records intent and reports ResultSent without contacting Apple.
+// NoopClient records intent and reports ResultFailed without contacting Apple.
 type NoopClient struct {
 	log *slog.Logger
 }
@@ -18,11 +18,11 @@ func NewNoopClient(log *slog.Logger) *NoopClient {
 }
 
 func (c *NoopClient) Send(_ context.Context, deviceToken string, payload []byte) (SendResult, error) {
-	c.log.Info("apns noop accepted push",
+	c.log.Info("apns noop refused push",
 		"token_prefix", truncate(deviceToken, 8),
 		"payload_bytes", len(payload),
 	)
-	return ResultSent, nil
+	return ResultFailed, nil
 }
 
 func truncate(s string, n int) string {

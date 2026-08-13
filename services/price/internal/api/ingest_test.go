@@ -17,13 +17,17 @@ import (
 )
 
 type memorySnapshotWriter struct {
-	calls int
-	last  price.PriceSnapshot
+	calls     int
+	last      price.PriceSnapshot
+	deltaSkip bool
 }
 
 func (m *memorySnapshotWriter) InsertSnapshot(_ context.Context, snap price.PriceSnapshot) (bool, error) {
 	m.calls++
 	m.last = snap
+	if m.deltaSkip {
+		return false, nil
+	}
 	return true, nil
 }
 
@@ -66,6 +70,84 @@ func TestIngestAcceptsInternalServiceTokenAndUsesServerTime(t *testing.T) {
 	require.EqualValues(t, 100, store.last.ProductID)
 	require.EqualValues(t, 199000, store.last.Price)
 	require.True(t, store.last.TS.After(before))
+}
+
+type recordingNotifier struct {
+	calls int
+	last  struct {
+		productID int64
+		price     int64
+	}
+	err error
+}
+
+func (r *recordingNotifier) NotifyWritten(_ context.Context, productID, price int64, listPrice *int64) error {
+	r.calls++
+	r.last.productID = productID
+	r.last.price = price
+	return r.err
+}
+
+func TestIngestNotifiesWhenWritten(t *testing.T) {
+	store := &memorySnapshotWriter{}
+	n := &recordingNotifier{}
+	mux := http.NewServeMux()
+	NewIngestHandler(store, "private-test-token").WithNotifier(n).RegisterRoutes(mux)
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(`{"product_id":100,"price":199000}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", "private-test-token")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
+	require.Equal(t, 1, n.calls)
+	require.EqualValues(t, 100, n.last.productID)
+	require.EqualValues(t, 199000, n.last.price)
+}
+
+func TestIngestSkipsNotifyWhenDeltaOnly(t *testing.T) {
+	store := &memorySnapshotWriter{deltaSkip: true}
+	n := &recordingNotifier{}
+	mux := http.NewServeMux()
+	NewIngestHandler(store, "private-test-token").WithNotifier(n).RegisterRoutes(mux)
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(`{"product_id":100,"price":199000}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", "private-test-token")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	require.Zero(t, n.calls)
+}
+
+func TestIngestSucceedsWhenNotifyFails(t *testing.T) {
+	store := &memorySnapshotWriter{}
+	n := &recordingNotifier{err: context.DeadlineExceeded}
+	mux := http.NewServeMux()
+	NewIngestHandler(store, "private-test-token").WithNotifier(n).RegisterRoutes(mux)
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	req, err := http.NewRequest(http.MethodPost, srv.URL+"/v1/price/snapshots", bytes.NewBufferString(`{"product_id":100,"price":199000}`))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Service-Token", "private-test-token")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
+	require.Equal(t, 1, n.calls)
 }
 
 func setupIngest(t *testing.T) (*httptest.Server, *pgxpool.Pool) {

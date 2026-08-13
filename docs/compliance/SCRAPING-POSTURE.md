@@ -1,7 +1,7 @@
 # Tư thế pháp lý thu thập dữ liệu công khai (scraping posture)
 
 **Sản phẩm:** Shopass (thương hiệu công khai Shopass / CyberSkill)  
-**Miền:** `shopass.cyberskill.world`, `api.shopass.cyberskill.world`  
+**Miền:** `shopass.cyberskill.world` (API same-origin `/v1`)  
 **Phiên bản:** R37 draft — chờ rà soát nội bộ / tư vấn (nếu có)  
 **Chủ sở hữu tài liệu:** Stephen Cheng (Founder)  
 **Liên hệ pháp lý / takedown:** [info@cyberskill.world](mailto:info@cyberskill.world)

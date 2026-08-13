@@ -4,7 +4,7 @@
     "priority": 100,
     "action": { "type": "allow" },
     "condition": {
-      "requestDomains": ["api.shopass.cyberskill.world"],
+      "requestDomains": ["shopass.cyberskill.world"],
       "resourceTypes": ["xmlhttprequest", "websocket", "other"]
     }
   },

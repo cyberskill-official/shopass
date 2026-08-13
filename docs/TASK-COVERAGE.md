@@ -10,19 +10,19 @@ Headline: 84 of 91 tasks have code on disk; 7 have none. About 77% of the declar
 
 | Module | tasks | Files present | Status | Notes |
 |---|---:|---:|---|---|
-| INFRA | 5 | 100% | real | gateway, data model, secrets, observability, region config. Gateway user-auth injection is a placeholder (`track.go`: "giả lập logic gateway"). |
+| INFRA | 5 | 100% | real | gateway, data model, secrets, observability, region config. Gateway verifies JWKS JWTs and sets `X-User-*` after stripping client headers (TASK-INFRA-006 / R1). |
 | EXT (extension) | 8 | 100% | real | Strongest module. 87 jest tests, guardrails enforce affiliate/MV3/no-token-leak. |
 | DEAL | 6 | 100% | real logic, baseline ML | fake-sale, cold-start, chart, nightly batch all real and tested. The forecast it reads is a baseline. |
 | SCRAPE | 8 | 100% files | shopee + lazada + tiktok real | orchestrator/proxy/pacing real; the shopee adapter does real HTTP fetch + JSON parse (micro-VND to BIGINT VND) with a Playwright-farm fallback; lazada and tiktok extract on the farm (embedded-JSON first, DOM fallback, integer VND) and the Go orchestrator adapters now dispatch to the farm instead of returning a canned price; the farm TypeScript type-checks clean and its extraction logic is unit-verified; the CAPTCHA solver is simulated. |
-| TRACK | 4 | 95% | real | wishlist, alert_rule, firing engine. Reads user via the gateway placeholder. |
+| TRACK | 4 | 95% | real | wishlist, alert_rule, firing engine. Identity comes from gateway-verified `X-User-Id`. Price-drop/threshold rules evaluate after written ingest (`POST /internal/v1/price-changed`). `bottom_predicted` stays on dealsvc. |
 | BILL | 5 | 94% | real, gateway calls stubbed | subscription/reconcile/referral/gating real; the MoMo/ZaloPay/VNPay calls are placeholders. |
 | CART | 6 | 90% | real | voucher catalog, snapshot, optimizer, per-country stacking. |
-| AFFIL | 5 | 100% | real, VietQR stub | tracking/deeplink/network + cashback ledger (pending→available→paid, TRUST-005 hold, summary disclosure); VietQR payout is a noop stub. |
+| AFFIL | 5 | 100% | real, VietQR stub fail-closed | tracking/deeplink/network + cashback ledger (pending→available→paid, TRUST-005 hold, summary disclosure); VietQR stub refuses Pay and must not MarkPaid. |
 | WEB | 5 | 100% | real | scaffold, landing/SEO, chart, wishlist UI, and the GraphQL BFF (TASK-WEB-005: read-only, behind gateway, resolvers delegate to REST, DataLoader anti-N+1, depth/cost caps). |
 | AUTH | 5 | 100% | real | JWT issue/refresh, password, account model, and social login (TASK-AUTH-004: OAuth Authorization Code + PKCE, id_token verify via JWKS, social_identity, takeover-safe email merge). Only the live Google token exchange is gated on a real client secret. |
 | PRICE | 5 | 100% | real | tracked_product, snapshot hypertable, history, and cross-platform compare (TASK-PRICE-004: GET /v1/compare, latest-per-product, server-side cheapest flag). |
 | COMPLY | 8 | 100% | real | PDPL consent, DPIA, DSAR, breach, ecommerce-obligation, per-country gating, and SEA regime adapters (VN/ID/TH) present. |
-| NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike, email/APNs/SMS noop dispatchers present. |
+| NOTIF | 7 | 85% | partial | schema, FCM, fan-out, midnight-spike present. Email/APNs/SMS noop providers fail closed (never report sent). |
 | TRUST | 6 | 100% | real | open-source, data-minimization, security-audit, anti-fraud, payout delay/guard, and device fingerprint (hash-only + device edges) present. |
 | B2B | 4 | 100% | done | Trend, gated reports, seller position, premium API (#104–#107). HITL-accepted. |
 | MOBILE | 3 | 100% logic scaffold | done | RN TypeScript clients (#108): auth/keychain, push, track, checkout assist, deeplink/share. HITL-accepted. |
@@ -38,7 +38,7 @@ These files exist and compile, but do not do the real thing:
 - Marketplace scraping - the shopee adapter does real HTTP fetch and JSON parse with a Playwright-farm fallback; the lazada and tiktok adapters extract on the farm (embedded-JSON first, DOM fallback, integer VND) and the Go orchestrator dispatches to the farm rather than fabricating a price. What is still not exercised here is a live run: real Shopee behind a residential proxy, and the browser-backed farm adapter tests, which need Playwright Chromium and real proxy credentials.
 - CAPTCHA - `scrape/internal/captcha/solver.go` is simulated.
 - Payment gateways - `bill/internal/pay/gateway.go` order/callback logic is a placeholder; no real MoMo/ZaloPay/VNPay calls.
-- Gateway auth - the API gateway's user-identity injection is a placeholder; services read `X-User-Id` but the real authn path from JWT is not wired end to end.
+- Account lifecycle HTTP - TASK-AUTH-005 (verify/reset/delete) is not wired on authsvc HTTP; do not treat BACKLOG `done` as live routes.
 - Forecasting - the ml service ships a Prophet/LightGBM baseline, not a trained, evaluated model.
 
 ## Honest read

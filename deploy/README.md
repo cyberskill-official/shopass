@@ -19,16 +19,25 @@ tree into a feature-complete public product.
 [`Caddyfile`](Caddyfile) sends every `/v1/*` and `/graphql` request to the
 private gateway, which removes client-supplied `X-User-*` headers, verifies
 AUTH JWKS, applies its rate/WAF middleware, and routes only allowlisted
-upstreams. Caddy removes those headers and `X-Service-Token` before proxying
-as defense in depth. `X-Service-Token` is reserved for the private
-`tracksvc`-to-`pricesvc` hop and is never a browser credential.
+upstreams. Production API is **same-origin `/v1`** on `APP_DOMAIN` (for
+example `https://shopass.cyberskill.world/v1/track`). Do not point browsers or
+the extension at `api.shopass.cyberskill.world` unless that name is an
+intentional extra Caddy site with DNS. Caddy removes identity headers,
+`X-Service-Token`, and `X-Operator-Token` before proxying as defense in depth.
+`X-Service-Token` is reserved for private tracksvc↔pricesvc hops and is never
+a browser credential. Caddy probes `gateway /healthz` and `web /api/healthz`
+so a dead upstream is less likely to be selected during startup; this is not
+a substitute for `/readyz` (see [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md)).
 The unscoped legacy `price-history` and `compare` routes are deliberately not
 published by gateway for this beta; the owner-scoped chart endpoint is the
-supported price-read surface. Wishlist and alert APIs are also deliberately
-unpublished until their ownership and real-delivery contracts are complete.
-`tracksvc`, BFF, auth, price, deal, Redis, and the database have no public
-route or host port. WebSocket `/ws` is not wired by the current gateway and
-must remain unavailable until it has an authenticated upgrade implementation.
+supported price-read surface. Alert CRUD (`/v1/alerts`) and device registration
+(`/v1/devices`) **are** allowlisted. Wishlist, `/v1/ext/sync`, `/v1/ext/ws`,
+and `/v1/comply/breach*` are **not** published on the public gateway. Breach
+APIs require `X-Operator-Token` on the private complysvc network and fail
+closed without `COMPLY_OPERATOR_TOKEN`. `tracksvc`, BFF, auth, price, deal,
+Redis, and the database have no public route or host port. WebSocket `/ws` is
+not wired by the current gateway and must remain unavailable until it has an
+authenticated upgrade implementation.
 
 `/v1/auth/*` is intentionally a Caddy 404. Browser login, registration,
 refresh, and logout use same-origin Next.js `/api/auth/*` handlers, which call
@@ -116,6 +125,8 @@ DB_PASSWORD_FILE=/dev/null \
 AUTH_SIGNING_KEY_SECRET_FILE=/dev/null \
 AUTH_KEY_ID=test-key \
 PRICE_INTERNAL_SERVICE_TOKEN=not-a-real-secret \
+BILL_INTERNAL_SERVICE_TOKEN=not-a-real-secret \
+COMPLY_OPERATOR_TOKEN=not-a-real-secret \
 docker compose --env-file /dev/null -f deploy/docker-compose.production.yml config
 ```
 
@@ -157,12 +168,14 @@ show host port mappings. Verify from a separate network after DNS propagates:
 
 ```bash
 curl -fsSI https://your-domain.example/
-curl -i 'https://your-domain.example/v1/products/100/price-history?range=7d'
+curl -i 'https://your-domain.example/v1/tracked-products'
 ```
 
 The second request should return `401` without a valid access token, proving
-that Caddy did not bypass the gateway. Repeat it with a token from the login
-flow before treating the protected route as accepted.
+that Caddy did not bypass the gateway. `/v1/auth/login` on the public host
+must be `404` (browser auth is `/api/auth/*` only). Repeat the tracked-products
+request with a token from the login flow before treating the protected route
+as accepted.
 
 Do not seed demo data or run `make smoke` against a production database.
 `make seed` / `make smoke` refuse unless `APP_ENV=dev` (or `development`) or

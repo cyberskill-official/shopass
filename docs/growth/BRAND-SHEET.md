@@ -2,7 +2,7 @@
 
 **Public product name:** Shopass  
 **Parent:** CyberSkill Software Solutions Consultancy and Development JSC  
-**Primary domain:** `shopass.cyberskill.world` · API `api.shopass.cyberskill.world`  
+**Primary domain:** `shopass.cyberskill.world` · API same-origin `/v1` (do not use `api.shopass.cyberskill.world`)  
 **Internal repo name:** `shopass` (may differ from public product name — OK)
 
 ## Name usage

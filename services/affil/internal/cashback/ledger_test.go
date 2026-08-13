@@ -134,7 +134,7 @@ func TestPayout_BelowThreshold(t *testing.T) {
 
 func TestPayout_AtThreshold(t *testing.T) {
 	st := NewMemStore()
-	l := &Ledger{Cfg: DefaultConfig(), Store: st, Hold: holdStub{}, Payer: NewVietQRStub(nil)}
+	l := &Ledger{Cfg: DefaultConfig(), Store: st, Hold: holdStub{}, Payer: livePayer{}}
 	t0 := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
 	// premium 50% of 120_000 = 60_000 >= 50_000
 	_, err := l.OnConfirmed(context.Background(), Conversion{
@@ -148,8 +148,34 @@ func TestPayout_AtThreshold(t *testing.T) {
 	require.True(t, ok)
 	require.Len(t, st.Payouts(), 1)
 	require.Equal(t, int64(60_000), st.Payouts()[0].Amount)
+	require.Equal(t, "vietqr-live-test", st.Payouts()[0].GatewayRef)
 	e, _, _ := st.GetByConversion(context.Background(), 9)
 	require.Equal(t, StatusPaid, e.Status)
+}
+
+func TestPayout_StubDoesNotMarkPaid(t *testing.T) {
+	st := NewMemStore()
+	l := &Ledger{Cfg: DefaultConfig(), Store: st, Hold: holdStub{}, Payer: NewVietQRStub(nil)}
+	t0 := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	_, err := l.OnConfirmed(context.Background(), Conversion{
+		ID: 11, UserID: 9, Commission: 120_000, UserTier: TierPremium, ConfirmedAt: t0,
+	})
+	require.NoError(t, err)
+	_, err = NewReleaser(l).ReleaseDue(context.Background(), t0.Add(30*24*time.Hour))
+	require.NoError(t, err)
+	ok, err := l.MaybeRequestPayout(context.Background(), 9)
+	require.Error(t, err)
+	require.False(t, ok)
+	require.Len(t, st.Payouts(), 1)
+	require.Contains(t, st.Payouts()[0].GatewayRef, "failed:")
+	e, _, _ := st.GetByConversion(context.Background(), 11)
+	require.Equal(t, StatusAvailable, e.Status)
+}
+
+type livePayer struct{}
+
+func (livePayer) Pay(ctx context.Context, userID, amount int64, orderRef string) (string, error) {
+	return "vietqr-live-test", nil
 }
 
 func TestSummary_Disclosure(t *testing.T) {
