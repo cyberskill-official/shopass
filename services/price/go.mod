@@ -7,7 +7,7 @@ toolchain go1.25.12
 require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/text v0.40.0
+	golang.org/x/text v0.41.0
 )
 
 require (
