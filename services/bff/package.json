@@ -10,7 +10,7 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^10.0.38",
+    "@graphql-tools/schema": "^10.1.0",
     "dataloader": "^2.2.0",
     "graphql": "^17.0.2"
   },
