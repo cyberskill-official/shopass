@@ -7,6 +7,7 @@ import { logout } from "@/lib/auth";
 
 const links = [
   { label: "Bảng điều khiển", href: "/dashboard" },
+  { label: "Cảnh báo", href: "/alerts" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -31,21 +32,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               href="/dashboard"
               aria-label="Shopass — Bảng điều khiển"
-              className="flex items-center gap-2.5 transition hover:opacity-80"
+              className="flex cursor-pointer items-center gap-2.5 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-lg font-black text-white shadow-md shadow-blue-500/20">S</span>
-              <span className="text-xl font-extrabold tracking-tight">Shop<span className="text-blue-600">ass</span></span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-teal-600 text-lg font-black text-white shadow-md shadow-sky-500/20">
+                S
+              </span>
+              <span className="text-xl font-extrabold tracking-tight">
+                Shop<span className="text-sky-600">ass</span>
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden items-center gap-1 md:flex">
+            <nav className="hidden items-center gap-1 md:flex" aria-label="Chính">
               {links.map((link) => {
                 const isActive = pathname?.startsWith(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
+                    className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 ${
                       isActive
                         ? "bg-slate-900 text-white shadow-sm"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -58,42 +63,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 py-1.5 pl-2.5 pr-3 text-xs font-bold text-emerald-700 shadow-sm sm:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="hidden items-center gap-2 rounded-full border border-sky-100 bg-sky-50 py-1.5 pl-2.5 pr-3 text-xs font-bold text-sky-800 shadow-sm sm:flex">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-500" />
               </span>
-              Hệ thống ổn định
+              Closed beta
             </div>
 
-            {/* User Dropdown / Logout placeholder */}
-            <button onClick={handleLogout} className="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-red-600 md:block">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="hidden cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 md:block"
+            >
               Đăng xuất
             </button>
 
-            {/* Mobile menu button */}
             <button
               type="button"
-              className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 md:hidden"
+              className="cursor-pointer rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 md:hidden"
               aria-expanded={mobileMenuOpen}
               aria-controls="app-shell-mobile-nav"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="sr-only">Mở menu</span>
               {mobileMenuOpen ? (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               ) : (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div id="app-shell-mobile-nav" className="border-t border-slate-200 bg-white px-4 py-4 md:hidden shadow-lg">
-            <nav className="flex flex-col gap-2">
+          <div id="app-shell-mobile-nav" className="border-t border-slate-200 bg-white px-4 py-4 shadow-lg md:hidden">
+            <nav className="flex flex-col gap-2" aria-label="Di động">
               {links.map((link) => {
                 const isActive = pathname?.startsWith(link.href);
                 return (
@@ -101,7 +106,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`rounded-xl px-4 py-3 text-sm font-bold transition ${
+                    className={`cursor-pointer rounded-xl px-4 py-3 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -111,10 +116,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </Link>
                 );
               })}
+              <p className="px-4 pt-1 text-xs font-medium text-slate-400">
+                Danh sách quan tâm sẽ có sau closed beta — hiện mọi sản phẩm nằm trên Bảng điều khiển.
+              </p>
               <div className="mt-2 border-t border-slate-100 pt-2">
                 <button
+                  type="button"
                   onClick={handleLogout}
-                  className="w-full rounded-xl px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-500/20"
                 >
                   Đăng xuất
                 </button>

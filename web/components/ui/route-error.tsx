@@ -20,7 +20,7 @@ export function RouteError({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-6 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-800"
+          className="mt-6 cursor-pointer rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
         >
           Thử lại
         </button>

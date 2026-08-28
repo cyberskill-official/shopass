@@ -7,6 +7,9 @@
   --muted: #667085;
   --line: #e4e7ec;
   --brand: #2563eb;
+  --brand-deep: #0f172a;
+  --brand-teal: #0f766e;
+  --header-height: 4rem;
 
   /* Additional tokens for design system */
   --surface: #ffffff;
@@ -25,17 +28,35 @@ body {
   width: 100%;
   max-width: 100%;
   overflow-x: clip; /* Prevent horizontal scroll */
+  scroll-padding-top: calc(var(--header-height) + 0.75rem);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection { background: #bfdbfe; color: #172554; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse-slow,
+  .animate-spin,
+  .animate-ping {
+    animation: none !important;
+  }
+}
 
 .mesh-bg {
   background:

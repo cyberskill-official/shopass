@@ -115,22 +115,29 @@ export default function LoginPage() {
 
   return (
     <div className="mesh-bg flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="grid w-full max-w-5xl min-w-0 overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-2xl shadow-indigo-100/50 backdrop-blur-xl lg:grid-cols-[1fr_1.1fr]">
+      <div className="grid w-full max-w-5xl min-w-0 overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-2xl shadow-sky-100/40 backdrop-blur-xl lg:grid-cols-[1fr_1.1fr]">
 
         {/* Left Side: Brand Panel */}
         <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-950 p-10 text-white lg:flex xl:p-12">
-          <div className="absolute -left-10 -top-10 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
-          <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-violet-600/20 blur-3xl" />
+          <div className="absolute -left-10 -top-10 h-64 w-64 rounded-full bg-sky-500/25 blur-3xl" aria-hidden="true" />
+          <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-teal-600/20 blur-3xl" aria-hidden="true" />
 
           <div className="relative z-10">
-            <Link href="/" className="flex items-center gap-3 text-xl font-black transition-opacity hover:opacity-80">
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/20">S</span>
-              <span>Shop<span className="text-blue-400">ass</span></span>
+            <Link
+              href="/"
+              className="flex cursor-pointer items-center gap-3 text-xl font-black transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/30"
+            >
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-sky-500 to-teal-500 shadow-lg shadow-sky-500/20">
+                S
+              </span>
+              <span>
+                Shop<span className="text-sky-400">ass</span>
+              </span>
             </Link>
 
             <h1 className="mt-20 text-4xl font-black leading-[1.15] tracking-tight text-white xl:text-5xl">
               Đừng mua theo cảm tính.<br />
-              <span className="text-blue-400">Mua theo dữ liệu.</span>
+              <span className="text-sky-400">Mua theo dữ liệu.</span>
             </h1>
 
             <p className="mt-6 max-w-sm text-base leading-relaxed text-slate-400">
@@ -139,8 +146,8 @@ export default function LoginPage() {
           </div>
 
           <div className="relative z-10">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-blue-200">
-              <span className="h-2 w-2 rounded-full bg-blue-400" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide text-sky-200">
+              <span className="h-2 w-2 rounded-full bg-sky-400" aria-hidden="true" />
               CLOSED BETA · SHOPEE VN
             </p>
           </div>
@@ -149,7 +156,10 @@ export default function LoginPage() {
         {/* Right Side: Form */}
         <div className="flex flex-col justify-center px-6 py-10 sm:px-12 sm:py-14 lg:px-14 xl:px-16">
           <div className="w-full max-w-md lg:mx-auto">
-            <Link href="/" className="mb-8 inline-flex items-center gap-1 text-sm font-bold text-slate-400 transition hover:text-slate-900 lg:hidden">
+            <Link
+              href="/"
+              className="mb-8 inline-flex cursor-pointer items-center gap-1 text-sm font-bold text-slate-400 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 lg:hidden"
+            >
               ← Về trang chủ
             </Link>
 
@@ -158,18 +168,18 @@ export default function LoginPage() {
             </h2>
             <p className="mt-3 mb-8 text-sm leading-relaxed text-slate-500 sm:text-base">
               {isSignup
-                ? "Bắt đầu hành trình mua sắm thông minh ngay hôm nay."
+                ? "Tạo tài khoản email để bắt đầu theo dõi giá Shopee với dữ liệu thật."
                 : "Đăng nhập để tiếp tục theo dõi các sản phẩm của bạn."}
             </p>
 
             {error && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+              <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
                 <p className="text-sm font-medium text-red-800">{error}</p>
               </div>
             )}
 
             {message && (
-              <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+              <div role="status" className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <p className="text-sm font-medium text-emerald-800">{message}</p>
               </div>
             )}
@@ -182,10 +192,11 @@ export default function LoginPage() {
                 <input
                   id="login-email"
                   type="email"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="name@example.com"
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -196,10 +207,11 @@ export default function LoginPage() {
                 <input
                   id="login-password"
                   type="password"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-medium outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete={isSignup ? "new-password" : "current-password"}
                   required
                 />
               </div>
@@ -207,11 +219,11 @@ export default function LoginPage() {
               <button
                 disabled={submitting}
                 type="submit"
-                className="mt-2 flex w-full items-center justify-center rounded-xl bg-slate-950 py-4 text-sm font-extrabold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:translate-y-0"
+                className="mt-2 flex w-full cursor-pointer items-center justify-center rounded-xl bg-slate-950 py-4 text-sm font-extrabold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/25 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:translate-y-0"
               >
                 {submitting ? (
                   <span className="flex items-center gap-2">
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path></svg>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path></svg>
                     Đang xử lý...
                   </span>
                 ) : (
@@ -224,12 +236,12 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => { setIsSignup((current) => !current); setError(""); setMessage(""); }}
-                className="text-sm font-bold text-slate-500 transition hover:text-slate-900"
+                className="cursor-pointer text-sm font-bold text-slate-500 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
               >
                 {isSignup ? (
-                  <span>Đã có tài khoản? <span className="text-blue-600">Đăng nhập</span></span>
+                  <span>Đã có tài khoản? <span className="text-sky-700">Đăng nhập</span></span>
                 ) : (
-                  <span>Chưa có tài khoản? <span className="text-blue-600">Tạo tài khoản</span></span>
+                  <span>Chưa có tài khoản? <span className="text-sky-700">Tạo tài khoản</span></span>
                 )}
               </button>
             </div>
