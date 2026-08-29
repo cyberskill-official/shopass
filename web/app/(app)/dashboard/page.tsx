@@ -76,19 +76,19 @@ export default function DashboardPage() {
       <ReferralCard />
 
       {/* Tracker Form Section */}
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-2xl shadow-indigo-100/50 sm:px-10 sm:py-12 lg:px-12">
-        <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="absolute bottom-0 right-10 h-40 w-40 rounded-full bg-violet-500/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-2xl shadow-sky-100/40 sm:px-10 sm:py-12 lg:px-12">
+        <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-sky-500/20 blur-3xl" aria-hidden="true" />
+        <div className="absolute bottom-0 right-10 h-40 w-40 rounded-full bg-teal-500/20 blur-3xl" aria-hidden="true" />
 
         <div className="relative z-10 mx-auto max-w-4xl">
           <p className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
-            Bản thử nghiệm
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-400" aria-hidden="true" />
+            Closed beta
           </p>
 
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
             Theo dõi giá với dữ liệu thật.<br className="hidden sm:block" />
-            <span className="text-blue-400">Chỉ từ một liên kết.</span>
+            <span className="text-sky-400">Chỉ từ một liên kết.</span>
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
@@ -97,14 +97,14 @@ export default function DashboardPage() {
 
           <Link
             href="/capture-guide"
-            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-300 transition hover:text-white"
+            className="mt-5 inline-flex cursor-pointer items-center gap-2 text-sm font-bold text-sky-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/30"
           >
             Dùng nút lấy giá Shopee một chạm <span aria-hidden="true">→</span>
           </Link>
 
           <form className="mt-8 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
             <div className="relative flex-1">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400" aria-hidden="true">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
               </div>
               <input
@@ -114,18 +114,18 @@ export default function DashboardPage() {
                 value={itemURL}
                 onChange={(event) => setItemURL(event.target.value)}
                 placeholder="https://shopee.vn/..."
-                className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-12 pr-4 text-sm font-medium text-white outline-none ring-blue-500/50 transition focus:bg-white/10 focus:ring-4 placeholder:text-slate-500"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-12 pr-4 text-sm font-medium text-white outline-none ring-sky-500/40 transition focus:bg-white/10 focus:ring-4 placeholder:text-slate-500"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-sm font-extrabold text-white shadow-xl shadow-blue-900/40 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-sky-600 px-8 py-4 text-sm font-extrabold text-white shadow-xl shadow-sky-900/40 transition hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/40 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path></svg>
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75"></path></svg>
                   Đang thêm...
                 </>
               ) : "Theo dõi giá"}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             type="button"
             onClick={() => void loadTrackedProducts()}
             disabled={isLoadingProducts}
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-60"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <svg className={`h-4 w-4 ${isLoadingProducts ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
             Làm mới
@@ -192,7 +192,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/onboarding"
-              className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-700"
+              className="mt-6 inline-flex cursor-pointer rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/25"
             >
               Bắt đầu: link → biểu đồ → cảnh báo
             </Link>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
             {products.map((product) => (
               <div
                 key={product.product_id}
-                className="group flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md sm:flex-row sm:items-center"
+                className="group flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-200 hover:shadow-md sm:flex-row sm:items-center"
               >
                 <div className="min-w-0 flex-1">
                   <div className="mb-2 flex items-center gap-2">
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                     </span>
                     <span className="text-xs font-bold text-slate-400">Sản phẩm #{product.product_id}</span>
                   </div>
-                  <h3 className="truncate font-bold text-slate-900 transition group-hover:text-blue-600" title={product.platform_item_id}>
+                  <h3 className="truncate font-bold text-slate-900 transition group-hover:text-sky-700" title={product.platform_item_id}>
                     Mã gốc: {product.platform_item_id}
                   </h3>
                   <p className="mt-1 text-xs font-medium text-slate-500">
@@ -222,10 +222,10 @@ export default function DashboardPage() {
                 <Link
                   href={`/products/${product.product_id}/chart`}
                   aria-label="Xem biểu đồ"
-                  className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-700"
+                  className="inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/25"
                 >
                   Phân tích
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 </Link>
               </div>
             ))}

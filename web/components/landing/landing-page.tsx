@@ -7,7 +7,7 @@ export function LandingPage() {
   const jsonLd = landingJsonLd();
 
   return (
-    <main className="landing-root min-h-screen text-slate-900">
+    <div className="landing-root min-h-screen text-slate-900">
       {jsonLd.map((block, i) => (
         <script
           // eslint-disable-next-line react/no-danger
@@ -17,9 +17,23 @@ export function LandingPage() {
         />
       ))}
 
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-slate-900 focus:shadow-lg"
+      >
+        Bỏ qua điều hướng
+      </a>
+
       <nav className="sticky top-0 z-50 border-b border-slate-200/60 bg-[#f4f7fb]/80 backdrop-blur-xl">
         <div className="landing-container flex h-16 items-center justify-between lg:h-18">
-          <Link href="/" className="text-lg font-black tracking-tight lg:text-xl">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-lg font-black tracking-tight lg:text-xl"
+            aria-label="Shopass — Trang chủ"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-sky-500 to-teal-600 text-sm font-black text-white shadow-sm shadow-sky-500/20">
+              S
+            </span>
             Shop<span className="text-sky-700">ass</span>
           </Link>
           <div className="flex items-center gap-4">
@@ -39,11 +53,17 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero: brand-level name already in nav; headline + subline + CTAs + full-bleed chart */}
+      {/* Hero: brand mark + name as primary signal; one headline; CTAs; full-bleed chart */}
+      <main id="main" tabIndex={-1} className="outline-none">
       <section className="relative overflow-hidden">
         <div className="landing-atmosphere" aria-hidden />
         <div className="landing-container relative px-6 pb-8 pt-14 sm:pt-16 lg:pt-20">
-          <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-sky-800">Shopass</p>
+          <p className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.2em] text-sky-800">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-sky-500 to-teal-600 text-[11px] font-black tracking-normal text-white">
+              S
+            </span>
+            Shopass
+          </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-black leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
             Biết khi nào giá chạm đáy — trên Shopee, TikTok Shop, Lazada
           </h1>
@@ -144,6 +164,8 @@ export function LandingPage() {
         </div>
       </section>
 
+      </main>
+
       <footer className="border-t border-slate-200/70 px-6 py-10 text-sm text-slate-500">
         <div className="landing-container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="font-black text-slate-900">
@@ -192,6 +214,6 @@ export function LandingPage() {
           </p>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }

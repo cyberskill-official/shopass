@@ -49,8 +49,8 @@ Frontmatter YAML (id, title, module, priority, status, phase, slice, depends_on,
 
 ## Stack theo module
 
-- Backend service (auth, scrape, price, track, notif, cart, affil, bill, b2b, comply, trust): Go 1.25.12 + PostgreSQL 16; `price` thêm TimescaleDB; queue Redis / Kafka-Redis Streams.
-  Rationale (R10, 2026-07-26): keep the 1.25 line (code/CI/Dockerfile already there; do not pin back to 1.22). Pin patch `1.25.12` via `toolchain go1.25.12` in every `go.mod`, CI `setup-go`, and `deploy/Dockerfile.go` so govulncheck stays green on stdlib CVEs.
+- Backend service (auth, scrape, price, track, notif, cart, affil, bill, b2b, comply, trust): Go 1.25.13 + PostgreSQL 16; `price` thêm TimescaleDB; queue Redis / Kafka-Redis Streams.
+  Rationale (R10, 2026-07-26): keep the 1.25 line (code/CI/Dockerfile already there; do not pin back to 1.22). Pin patch `1.25.13` via `toolchain go1.25.13` in every `go.mod`, CI `setup-go`, and `deploy/Dockerfile.go` so govulncheck stays green on stdlib CVEs.
 - ML (deal: dự đoán đáy giá): Python (Prophet baseline -> LightGBM) + feature store.
 - Extension: TypeScript + Chrome Manifest V3.
 - Web: Next.js + TypeScript (App Router) + GraphQL BFF.

@@ -2,7 +2,7 @@ module shopass/services/comply
 
 go 1.25.0
 
-toolchain go1.25.12
+toolchain go1.25.13
 
 require (
 	github.com/jackc/pgx/v5 v5.10.0

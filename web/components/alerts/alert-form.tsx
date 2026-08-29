@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { type RuleType, type Channel, CHANNELS, needsThreshold, validateAlert } from "@/lib/alerts/validate";
 import { createAlert } from "@/lib/alerts/api";
 
+const CHANNEL_LABELS: Record<Channel, string> = {
+  push: "Đẩy (push)",
+  email: "Email",
+  sms: "SMS",
+};
+
 export function AlertForm({ onCreated }: { onCreated: () => void }) {
   const [productId, setProductId] = useState("");
   const [ruleType, setRuleType] = useState<RuleType>("price_below");
@@ -35,37 +41,50 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
       setRuleType("price_below");
       setChannels(["push"]);
       onCreated();
-    } catch (error) {
-      alert(error instanceof Error && error.message ? error.message : "Đã xảy ra lỗi");
+    } catch (err) {
+      alert(err instanceof Error && err.message ? err.message : "Đã xảy ra lỗi");
     } finally {
       setLoading(false);
     }
   };
 
+  const fieldClass =
+    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
+
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-      <h3 className="text-lg font-semibold mb-4">Tạo luật cảnh báo</h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/40">
+      <h2 className="text-lg font-black tracking-tight text-slate-900">Tạo luật cảnh báo</h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Dùng mã sản phẩm từ Bảng điều khiển (số trên URL biểu đồ).
+      </p>
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">ID Sản phẩm</label>
+          <label htmlFor="alert-product-id" className="mb-1.5 block text-sm font-bold text-slate-700">
+            Mã sản phẩm
+          </label>
           <input
+            id="alert-product-id"
             type="number"
             required
             value={productId}
             onChange={(e) => setProductId(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
+            placeholder="Ví dụ 12345"
+            className={fieldClass}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Loại cảnh báo</label>
+          <label htmlFor="alert-rule-type" className="mb-1.5 block text-sm font-bold text-slate-700">
+            Loại cảnh báo
+          </label>
           <select
+            id="alert-rule-type"
             value={ruleType}
             onChange={(e) => {
               setRuleType(e.target.value as RuleType);
-              setThreshold(""); // reset threshold when changing rule type
+              setThreshold("");
             }}
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
+            className={fieldClass}
           >
             <option value="price_below">Báo khi về giá</option>
             <option value="drop_pct">Báo khi giảm %</option>
@@ -76,44 +95,52 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
 
         {needsThreshold(ruleType) && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ngưỡng ({ruleType === "price_below" ? "VND" : "%"})
+            <label htmlFor="alert-threshold" className="mb-1.5 block text-sm font-bold text-slate-700">
+              Ngưỡng ({ruleType === "price_below" ? "VNĐ" : "%"})
             </label>
             <input
+              id="alert-threshold"
               type="number"
               step={1}
               value={threshold}
               onChange={(e) => setThreshold(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className={fieldClass}
             />
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Kênh nhận (chọn nhiều)</label>
-          <div className="flex space-x-4">
+        <fieldset>
+          <legend className="mb-2 text-sm font-bold text-slate-700">Kênh nhận (chọn nhiều)</legend>
+          <div className="flex flex-wrap gap-3">
             {CHANNELS.map((c) => (
-              <label key={c} className="flex items-center space-x-2">
+              <label
+                key={c}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white has-[:checked]:border-sky-300 has-[:checked]:bg-sky-50 has-[:checked]:text-sky-900"
+              >
                 <input
                   type="checkbox"
                   checked={channels.includes(c)}
                   onChange={() => toggleChannel(c)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
                 />
-                <span className="text-sm text-gray-700 uppercase">{c}</span>
+                {CHANNEL_LABELS[c] ?? c}
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && (
+          <p className="text-sm font-medium text-rose-600" role="alert">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={error != null || loading || !productId.trim()}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400"
+          className="w-full cursor-pointer rounded-xl bg-slate-950 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/25 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
-          {loading ? "Đang tạo..." : "Tạo cảnh báo"}
+          {loading ? "Đang tạo…" : "Tạo cảnh báo"}
         </button>
       </form>
     </div>

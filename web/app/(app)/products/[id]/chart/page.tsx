@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { fetchChart, submitBrowserPrice } from "@/lib/chart/fetch-chart";
 import { VerdictBadge } from "@/components/price-chart/verdict-badge";
 import { MaturityNotice } from "@/components/price-chart/maturity-notice";
+import { ChartEmptyState } from "@/components/price-chart/chart-empty-state";
 import { RangeSelector } from "@/components/price-chart/range-selector";
 import { BottomAlertCta } from "@/components/onboarding/bottom-alert-cta";
 import { RouteError } from "@/components/ui/route-error";
@@ -37,6 +38,12 @@ export default function ProductChartPage() {
   const [browserPrice, setBrowserPrice] = useState("");
   const [captureStatus, setCaptureStatus] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
+
+  function focusBrowserPriceInput() {
+    const input = document.getElementById("browser-price");
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (input instanceof HTMLInputElement) input.focus();
+  }
 
   useEffect(() => {
     let ignore = false;
@@ -107,8 +114,12 @@ export default function ProductChartPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-5xl">
-        <button onClick={() => router.back()} className="mb-6 inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-900">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mb-6 inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-slate-500 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Quay lại danh sách
         </button>
         <RouteError
@@ -137,8 +148,12 @@ export default function ProductChartPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <button onClick={() => router.back()} className="mb-4 inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 transition hover:text-slate-900">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mb-4 inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-slate-500 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Quay lại danh sách
         </button>
 
@@ -236,11 +251,14 @@ export default function ProductChartPage() {
           </div>
         )}
 
-        <section className="mt-6 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50/60">
+        <section
+          id="browser-price-capture"
+          className="mt-6 overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-teal-50/50"
+        >
           <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-700">
-                Browser-assisted beta
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-800">
+                Closed beta · xác nhận thủ công
               </p>
               <h3 className="mt-2 text-base font-black text-slate-900 sm:text-lg">
                 Ghi nhận giá bạn đang thấy trên Shopee
@@ -248,7 +266,10 @@ export default function ProductChartPage() {
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Mở sản phẩm ở tab Shopee, kiểm tra giá hiển thị rồi dán vào đây. Shopass chỉ lưu mức giá do bạn chủ động xác nhận — không truy cập tài khoản Shopee hoặc tự quét nền từ trình duyệt của bạn.
               </p>
-              <Link href="/capture-guide" className="mt-3 inline-flex text-sm font-bold text-blue-700 transition hover:text-blue-900">
+              <Link
+                href="/capture-guide"
+                className="mt-3 inline-flex cursor-pointer text-sm font-bold text-sky-800 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20"
+              >
                 Cài nút lấy giá một chạm →
               </Link>
             </div>
@@ -274,7 +295,7 @@ export default function ProductChartPage() {
                 <button
                   type="submit"
                   disabled={capturing || !browserPrice.trim()}
-                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/25 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
                   {capturing ? "Đang lưu..." : "Lưu giá"}
                 </button>
@@ -304,11 +325,7 @@ export default function ProductChartPage() {
           )}
 
           {data && data.daily.length === 0 && !loading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
-              <svg className="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
-              <p className="mt-3 font-bold text-slate-700">Chưa có dữ liệu</p>
-              <p className="mt-1 max-w-sm text-sm text-slate-500">Dùng mục “Ghi nhận giá bạn đang thấy trên Shopee” ở trên để thêm điểm giá đầu tiên do bạn xác nhận.</p>
-            </div>
+            <ChartEmptyState onFocusCapture={focusBrowserPriceInput} />
           )}
 
           {data && data.daily.length > 0 && <PriceChart data={data} />}
