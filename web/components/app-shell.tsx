@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/auth";
@@ -14,6 +14,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -25,6 +38,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="mesh-bg min-h-screen text-slate-900">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-slate-900 focus:shadow-lg"
+      >
+        Bỏ qua điều hướng
+      </a>
       <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
@@ -32,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               href="/dashboard"
               aria-label="Shopass — Bảng điều khiển"
-              className="flex cursor-pointer items-center gap-2.5 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20"
+              className="flex cursor-pointer items-center gap-2.5 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20"
             >
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-teal-600 text-lg font-black text-white shadow-md shadow-sky-500/20">
                 S
@@ -50,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 ${
+                    className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20 ${
                       isActive
                         ? "bg-slate-900 text-white shadow-sm"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -74,19 +93,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={handleLogout}
-              className="hidden cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 md:block"
+              className="hidden cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20 md:block"
             >
               Đăng xuất
             </button>
 
             <button
               type="button"
-              className="cursor-pointer rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 md:hidden"
+              className="cursor-pointer rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20 md:hidden"
               aria-expanded={mobileMenuOpen}
               aria-controls="app-shell-mobile-nav"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <span className="sr-only">Mở menu</span>
+              <span className="sr-only">{mobileMenuOpen ? "Đóng menu" : "Mở menu"}</span>
               {mobileMenuOpen ? (
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               ) : (
@@ -106,7 +125,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`cursor-pointer rounded-xl px-4 py-3 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/20 ${
+                    className={`cursor-pointer rounded-xl px-4 py-3 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20 ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -123,7 +142,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-500/20"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left text-sm font-bold text-rose-600 transition hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/20"
                 >
                   Đăng xuất
                 </button>
@@ -133,7 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-7xl px-4 py-6 outline-none sm:px-6 lg:px-8 lg:py-10">
         {children}
       </main>
     </div>
