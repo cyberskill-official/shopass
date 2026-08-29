@@ -2,7 +2,7 @@ module shopass/services/track
 
 go 1.25.0
 
-toolchain go1.25.12
+toolchain go1.25.13
 
 replace shopass/services/price => ../price
 
