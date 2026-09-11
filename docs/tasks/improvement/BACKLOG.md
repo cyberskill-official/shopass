@@ -19,13 +19,13 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R9 | Guard demo seed against prod | A | S | - | - | done (PR #60) |
 | R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | done (PR #61) |
 | R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | needs_stephen |
-| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen (local dump+drill done; off-host bucket pending) |
+| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen (local dump+drill+timer on main via #184; off-host bucket pending) |
 | R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | done (PR #62) |
 | R14 | Centralized logs (Loki) | B | M | - | - | done (PR #62) |
 | R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen |
 | R16 | Zero-downtime deploys + migration guards | B | M | R15 | - | blocked |
 | R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | done (PR #62) |
-| R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen |
+| R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen (SMTP+Zalo noop scaffolding shipped; live send blocked on creds) |
 | R34 | Public privacy policy + terms pages (VN + EN) | D | S | - | - | done (PR #62) |
 | R40 | Analytics + funnel events + UTM discipline | E | S | - | decision (GA4 vs Plausible) | needs_stephen |
 | R49 | Extension store kit (icons, locales, listing, screenshots) | F | M | R3, R34 | account (Chrome dev, Cốc Cốc), budget ($5) | done |
@@ -36,7 +36,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 |----|-------|------|--------|-----------|---------------|--------|
 | R18 | Wire BFF behind gateway or remove dead path | B | M | R1 | - | done (PR #63) |
 | R19 | Data retention + chunk policy decision | B | S | - | decision | done |
-| R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | todo |
+| R24 | Battle-test live scraping behind residential proxy | C | L | R17 | budget (proxy), creds | needs_stephen (UI honest «đang thu thập»; live scrape blocked on proxy budget) |
 | R25 | Pluggable CAPTCHA path (manual queue first) | C | M | R24 | budget (optional solver) | todo |
 | R26 | ML model versioning + evaluation gate | C | M | - | - | done (PR #65) |
 | R27 | Cold-start backfill + honest history-depth UI | C | M | R24 | - | todo |

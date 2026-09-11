@@ -8,12 +8,14 @@ Revenue-ordered: alerts reach (R23) and live data (R24) come before payments (R2
 
 Wave 1 | Effort M | Depends: - | Stephen input: account + creds (Zalo OA/ZNS, SMTP provider)
 
-Why: `services/notif/internal/` implements only `fcm/`; `routing.go` ranks an `email` channel with no sender behind it. In Vietnam, purchase alerts live on Zalo; FCM-only limits reach to web-push grantors. Alerts are the habit loop - this is retention infrastructure.
+Why: `services/notif/internal/` historically shipped FCM-first; `routing.go` ranks `email` with a fail-closed noop until SMTP creds exist. In Vietnam, purchase alerts live on Zalo; FCM-only limits reach to web-push grantors. Alerts are the habit loop - this is retention infrastructure.
+
+Status (2026-09-12): SMTP `Provider` + env wiring + Zalo noop package shipped; live send still **needs_stephen** (OA/ZNS + SMTP). Do not claim delivery without credentials.
 
 Steps:
 1. Define a `Sender` interface in notifsvc matching the existing fanout dispatch; adapt `fcm` to it.
-2. Add `email` sender (SES or Postmark, per Stephen's account choice) with templated VN messages (price-drop, bottom-predicted), List-Unsubscribe header, send-log rows mirroring FCM's.
-3. Add `zalo` sender: OA free-form message first (48h-window rules), ZNS template flow behind a feature flag (templates need Zalo approval - draft them, record in ledger for Stephen to submit).
+2. Add `email` sender (SES/Postmark/SMTP, per Stephen's account choice) with templated VN messages (price-drop, bottom-predicted), List-Unsubscribe header, send-log rows mirroring FCM's. **SMTP path scaffolded** (`email.NewSMTPFromEnv`); remains noop without env.
+3. Add `zalo` sender: OA free-form message first (48h-window rules), ZNS template flow behind a feature flag (templates need Zalo approval - draft them, record in ledger for Stephen to submit). **Noop + `Configured()` gate shipped**; live HTTP client not wired.
 4. Extend `routing.go`: zalo > fcm > email default for VN; add per-user channel preference column if missing (guarded migration per R16).
 5. Apply the existing midnight-spike flattening to all channels; per-channel rate budgets in config.
 6. Tests: routing matrix, template rendering, dedupe unaffected; fake transport in unit tests, sandbox send in staging.

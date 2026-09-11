@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { PremiumRequiredError } from "./errors";
 import { type RuleType, type Channel } from "./validate";
 
 export interface AlertRule {
@@ -34,6 +35,11 @@ export async function createAlert(data: {
       channel: data.channels,
     }),
   });
+  if (res.status === 402) {
+    throw new PremiumRequiredError(
+      "Cảnh báo dự đoán đáy và một số luật nâng cao dành cho Premium.",
+    );
+  }
   if (!res.ok) throw new Error("Không thể tạo cảnh báo");
   return (await res.json()) as AlertRule;
 }

@@ -17,6 +17,7 @@ import (
 	"shopass/services/notif/internal/notif"
 	"shopass/services/notif/internal/server"
 	"shopass/services/notif/internal/sms"
+	"shopass/services/notif/internal/zalo"
 )
 
 func env(k, def string) string {
@@ -63,6 +64,7 @@ func main() {
 
 	go startFCMLoop(ctx, log, repo)
 	go startEmailLoop(ctx, log, repo)
+	go startZaloLoop(ctx, log)
 	go startAPNsLoop(ctx, log, repo)
 	go startSMSLoop(ctx, log, repo)
 
@@ -115,9 +117,14 @@ func startFCMLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
 }
 
 func startEmailLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
-	provider := email.NewLogProvider(log, "noop")
+	var provider email.Provider = email.NewLogProvider(log, "noop")
+	mode := "noop"
+	if smtp := email.NewSMTPFromEnv(); smtp != nil {
+		provider = smtp
+		mode = "smtp"
+	}
 	dispatcher := email.NewDispatcher(provider, email.RepoAdapter{Repo: repo}, 50)
-	log.Info("email dispatcher started", "provider", "noop")
+	log.Info("email dispatcher started", "provider", mode)
 
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
@@ -129,6 +136,34 @@ func startEmailLoop(ctx context.Context, log *slog.Logger, repo *notif.Repo) {
 			if err := dispatcher.RunOnce(ctx); err != nil {
 				log.Error("email dispatch", "err", err)
 			}
+		}
+	}
+}
+
+// startZaloLoop is scaffolding for R23. Without OA/ZNS credentials the provider
+// stays fail-closed (noop). Live ZNS client wiring waits on Stephen secrets —
+// do not send real OA messages from CI or unset env.
+func startZaloLoop(ctx context.Context, log *slog.Logger) {
+	provider := zalo.NewLogProvider(log, "noop")
+	mode := "noop"
+	if zalo.Configured() {
+		// Credentials present but live HTTP client not wired yet — still refuse
+		// sends so a half-configured prod cannot look delivered.
+		mode = "creds_present_client_unwired"
+		log.Warn("zalo OA credentials detected; live ZNS client not wired — remaining on fail-closed noop (R23)")
+	} else {
+		log.Info("zalo dispatcher idle", "provider", mode, "hint", "set ZALO_OA_ID + ZALO_OA_SECRET|ZALO_OA_ACCESS_TOKEN when ready")
+	}
+	_ = provider
+
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// No queue consumer until OA client + notification.channel='zalo' ship.
 		}
 	}
 }

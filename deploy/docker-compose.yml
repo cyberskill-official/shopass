@@ -61,6 +61,15 @@ services:
       FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
       FCM_SERVICE_ACCOUNT_JSON: ${FCM_SERVICE_ACCOUNT_JSON:-}
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-}
+      ZALO_OA_ID: ${ZALO_OA_ID:-}
+      ZALO_OA_SECRET: ${ZALO_OA_SECRET:-}
+      ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
     depends_on:
       migrate: { condition: service_completed_successfully }
 
