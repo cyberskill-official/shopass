@@ -210,14 +210,30 @@ sudo docker compose --env-file /etc/shopass/runtime.env \
   psql -U shopass -d shopass
 ```
 
-Schedule encrypted, off-host backups and test restore regularly. A local export
-is useful only as a first step, not as a disaster-recovery strategy:
+### Backups + restore (R12)
+
+Nightly dumps: `deploy/scripts/backup-pg.sh` + `deploy/systemd/shopass-backup.timer`
+(03:15 host local). Full procedure, RTO/RPO, and Stephen object-storage ask:
+[`RESTORE-RUNBOOK.md`](RESTORE-RUNBOOK.md).
 
 ```bash
-sudo docker compose --env-file /etc/shopass/runtime.env \
-  -f deploy/docker-compose.production.yml exec -T db \
-  pg_dump -U shopass shopass | gzip > shopass_$(date +%F).sql.gz
+sudo install -d -m 0700 /var/backups/shopass
+sudo systemctl enable --now shopass-backup.timer
+sudo /srv/shopass/deploy/scripts/backup-pg.sh
+LATEST=$(ls -1t /var/backups/shopass/shopass_*.sql.gz | head -1)
+sudo /srv/shopass/deploy/scripts/restore-drill.sh "$LATEST"
 ```
+
+A local gzip under `/var/backups/shopass` is not disaster recovery until
+`BACKUP_S3_URI` uploads succeed. Monitor disk before image builds (VPS root
+often sits ~70% after web rebuilds); prune only dangling/unused images.
+
+### Shared CyberOS edge
+
+When CyberOS owns :80/:443, use `-f docker-compose.production.yml -f
+docker-compose.cyberos-shared.yml`, keep `shopass-edge` external, attach Caddy
+via [`cyberos/docker-compose.shopass-edge.yml`](cyberos/docker-compose.shopass-edge.yml)
+and/or `shopass-edge-attach.service` (`deploy/scripts/ensure-caddy-on-shopass-edge.sh`).
 
 See [`HEALTHCHECK-PLAN.md`](HEALTHCHECK-PLAN.md) for why application readiness
 checks are not yet declared in Compose and the exact source work needed before

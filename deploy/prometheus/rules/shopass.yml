@@ -78,6 +78,25 @@ groups:
         annotations:
           summary: "Forecast job heartbeat missing (>36h)"
 
+      # R12: nightly backup; alert if heartbeat older than 26h.
+      - alert: ShopassBackupStale
+        expr: (time() - shopass_job_last_success_unixtime{job_name="backup"}) > 93600
+        for: 30m
+        labels:
+          severity: critical
+          job_name: backup
+        annotations:
+          summary: "Postgres backup heartbeat missing (>26h)"
+
+      # Disk pressure (node_exporter if present; otherwise ops watch df before builds).
+      - alert: ShopassDiskAlmostFull
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Root filesystem <15% free — prune before large image builds"
+
       # R26: model evaluation gate tripped (Pushgateway counter).
       - alert: ShopassModelGateTripped
         expr: increase(shopass_ml_gate_trips_total[1h]) > 0

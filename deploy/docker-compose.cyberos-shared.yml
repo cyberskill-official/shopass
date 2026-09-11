@@ -3,9 +3,11 @@
 # Use this file in addition to docker-compose.production.yml.  It prevents the
 # standalone Shopass Caddy service from starting, and exposes only the web and
 # gateway containers to the dedicated `shopass-edge` Docker network.  The
-# CyberOS Caddy container joins that network separately and proxies the
-# shopass.cyberskill.world site block to the aliases below.  Database, Redis,
-# auth, tracking, price and job services remain private-only.
+# CyberOS Caddy container must join that network via
+# deploy/cyberos/docker-compose.shopass-edge.yml (preferred) and/or
+# deploy/systemd/shopass-edge-attach.service — do not rely on a one-off
+# `docker network connect`. Site block: deploy/Caddyfile.cyberos-shopass.
+# Database, Redis, auth, tracking, price and job services remain private-only.
 services:
   caddy:
     profiles: ["standalone-edge"]
