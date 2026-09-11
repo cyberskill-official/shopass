@@ -17,6 +17,7 @@ export function middleware(request: NextRequest) {
     "/wishlist",
     "/alerts",
     "/billing",
+    "/account",
     "/products",
     "/capture",
     "/capture-guide",

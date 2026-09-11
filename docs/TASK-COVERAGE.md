@@ -38,7 +38,7 @@ These files exist and compile, but do not do the real thing:
 - Marketplace scraping - the shopee adapter does real HTTP fetch and JSON parse with a Playwright-farm fallback; the lazada and tiktok adapters extract on the farm (embedded-JSON first, DOM fallback, integer VND) and the Go orchestrator dispatches to the farm rather than fabricating a price. What is still not exercised here is a live run: real Shopee behind a residential proxy, and the browser-backed farm adapter tests, which need Playwright Chromium and real proxy credentials.
 - CAPTCHA - `scrape/internal/captcha/solver.go` is simulated.
 - Payment gateways - `bill/internal/pay/gateway.go` order/callback logic is a placeholder; no real MoMo/ZaloPay/VNPay calls.
-- Account lifecycle HTTP - TASK-AUTH-005 (verify/reset/delete) is not wired on authsvc HTTP; do not treat BACKLOG `done` as live routes.
+- Account lifecycle HTTP - TASK-AUTH-005 verify/reset/delete: **reset + delete HTTP now wired** (`POST /v1/auth/password/reset-request`, `POST /v1/auth/password/reset-confirm`, `DELETE /v1/account`) behind gateway; browser uses Next `/api/auth/password/*` + `/account`. Email *verification* (post-register confirm link) is still deferred — register stays immediately `active` in closed beta. Reset *delivery* still needs R23 SMTP.
 - Forecasting - the ml service ships a Prophet/LightGBM baseline, not a trained, evaluated model.
 
 ## Honest read

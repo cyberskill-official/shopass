@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -10,11 +11,19 @@ import (
 	"shopass/services/auth/internal/auth"
 )
 
+// accountLifecycle is the AUTH-005 surface used by HTTP handlers.
+type accountLifecycle interface {
+	RequestReset(ctx context.Context, identifier string) error
+	ConfirmReset(ctx context.Context, token, newPassword string) error
+	DeleteAccount(ctx context.Context, userID int64) error
+}
+
 type handlers struct {
 	log           *slog.Logger
 	tokens        *auth.TokenService
 	reg           *auth.Service
 	oauth         *auth.OAuthService
+	lifecycle     accountLifecycle
 	socialEnabled bool
 }
 
@@ -26,6 +35,9 @@ func (h *handlers) routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/auth/login", h.login)
 	mux.HandleFunc("POST /v1/auth/refresh", h.refresh)
 	mux.HandleFunc("POST /v1/auth/logout", h.logout)
+	mux.HandleFunc("POST /v1/auth/password/reset-request", h.requestPasswordReset)
+	mux.HandleFunc("POST /v1/auth/password/reset-confirm", h.confirmPasswordReset)
+	mux.HandleFunc("DELETE /v1/account", h.deleteAccount)
 	mux.HandleFunc("GET /v1/auth/oauth/{provider}/start", h.oauthStart)
 	mux.HandleFunc("GET /v1/auth/oauth/{provider}/callback", h.oauthCallback)
 }

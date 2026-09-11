@@ -79,7 +79,22 @@ func main() {
 	}
 	oauthsvc := auth.NewOAuthService(providers, auth.NewMemTmpStore(), repo.(auth.SocialRepo), tokens)
 
-	h := &handlers{log: log, tokens: tokens, reg: regsvc, oauth: oauthsvc, socialEnabled: len(providers) > 0}
+	// Password-reset delivery needs SMTP/Zalo (R23). Until then the notifier
+	// logs only (never the raw token) so RequestReset stays no-enumeration and
+	// fail-closed on delivery — tokens are still issued for confirm when an
+	// operator extracts them from a controlled test path.
+	lifecycle := auth.NewLifecycleService(repo, &auditResetNotifier{log: log}, auth.Argon2Params{
+		Time: 3, Memory: 64 * 1024, Parallelism: 2, SaltLen: 16, KeyLen: 32,
+	})
+
+	h := &handlers{
+		log:           log,
+		tokens:        tokens,
+		reg:           regsvc,
+		oauth:         oauthsvc,
+		lifecycle:     lifecycle,
+		socialEnabled: len(providers) > 0,
+	}
 	mux := http.NewServeMux()
 	h.routes(mux)
 

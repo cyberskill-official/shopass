@@ -86,6 +86,9 @@ func TestRouter_RoutesToAllowlistedUpstream(t *testing.T) {
 		want   string
 	}{
 		{http.MethodPost, "/v1/auth/login", false, "auth"},
+		{http.MethodPost, "/v1/auth/password/reset-request", false, "auth"},
+		{http.MethodPost, "/v1/auth/password/reset-confirm", false, "auth"},
+		{http.MethodDelete, "/v1/account", true, "auth"},
 		{http.MethodGet, "/v1/track", true, "track"},
 		{http.MethodGet, "/v1/tracked-products", true, "track"},
 		{http.MethodPost, "/v1/products/1/browser-snapshot", true, "track"},

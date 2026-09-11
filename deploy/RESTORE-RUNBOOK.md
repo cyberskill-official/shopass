@@ -99,3 +99,17 @@ Until bucket + keys exist, R12 stays `needs_stephen`:
 - Access key + secret (or rclone config) installed on the VPS under
   `/etc/shopass/` (mode `0600`) or rclone remote for root
 - Confirm 30-day retention is acceptable
+
+**Exact env keys** (set in `/etc/shopass/runtime.env`, never commit):
+
+| Variable | Example |
+|----------|---------|
+| `BACKUP_S3_URI` | `s3:shopass-backups/pg` (rclone) or `s3://bucket/prefix` (aws) |
+| `BACKUP_UPLOAD_TOOL` | `rclone` \| `aws` \| `none` |
+| (rclone) remote in `~/.config/rclone/rclone.conf` | matching remote name in URI |
+| (aws) `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_ENDPOINT_URL` / `AWS_REGION` | provider-specific |
+
+Dry-run (list only, no upload): `sudo deploy/scripts/backup-upload-dry-run.sh`.
+
+Host ops checklist (disk, timers, edge): [`VPS-CHECKLIST.md`](VPS-CHECKLIST.md).
+GHCR/SSH deploy secrets (R15): [`R15-GITHUB-SECRETS.md`](R15-GITHUB-SECRETS.md).

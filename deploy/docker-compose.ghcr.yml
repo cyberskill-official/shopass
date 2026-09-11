@@ -1,0 +1,54 @@
+# GHCR image overlay for production (R15).
+#
+#   export SHOPASS_IMAGE_TAG=<git-sha-or-latest>
+#   docker compose --env-file /etc/shopass/runtime.env \
+#     -f deploy/docker-compose.production.yml \
+#     -f deploy/docker-compose.ghcr.yml \
+#     pull
+#   docker compose --env-file /etc/shopass/runtime.env \
+#     -f deploy/docker-compose.production.yml \
+#     -f deploy/docker-compose.ghcr.yml \
+#     up -d --no-build --remove-orphans
+#
+# Always pass --no-build so the host does not compile from the still-present
+# `build:` keys in docker-compose.production.yml. Secrets stay in runtime.env —
+# never in this file.
+name: shopass
+
+x-pull: &pull
+  pull_policy: ${SHOPASS_PULL_POLICY:-always}
+
+services:
+  notifsvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-notifsvc:${SHOPASS_IMAGE_TAG:-latest}
+  pricesvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-pricesvc:${SHOPASS_IMAGE_TAG:-latest}
+  dealsvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-dealsvc:${SHOPASS_IMAGE_TAG:-latest}
+  web:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-web:${SHOPASS_IMAGE_TAG:-latest}
+  authsvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-authsvc:${SHOPASS_IMAGE_TAG:-latest}
+  gateway:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-gateway:${SHOPASS_IMAGE_TAG:-latest}
+  tracksvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-tracksvc:${SHOPASS_IMAGE_TAG:-latest}
+  billsvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-billsvc:${SHOPASS_IMAGE_TAG:-latest}
+  complysvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-complysvc:${SHOPASS_IMAGE_TAG:-latest}
+  scrapesvc:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-scrapesvc:${SHOPASS_IMAGE_TAG:-latest}
+  mlforecast:
+    <<: *pull
+    image: ghcr.io/cyberskill-official/shopass-mlforecast:${SHOPASS_IMAGE_TAG:-latest}

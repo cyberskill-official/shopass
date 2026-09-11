@@ -8,6 +8,7 @@ import { logout } from "@/lib/auth";
 const links = [
   { label: "Bảng điều khiển", href: "/dashboard" },
   { label: "Cảnh báo", href: "/alerts" },
+  { label: "Tài khoản", href: "/account" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {

@@ -129,3 +129,27 @@ func TestJWT_FakeSaleCheck_Public(t *testing.T) {
 	require.Equal(t, http.StatusOK, rr.Code)
 	require.Equal(t, "deal", rr.Header().Get("X-Upstream"))
 }
+
+func TestJWT_PasswordReset_Public(t *testing.T) {
+	deps := testDeps(t)
+	h := NewHandler(deps)
+	for _, path := range []string{
+		"/v1/auth/password/reset-request",
+		"/v1/auth/password/reset-confirm",
+	} {
+		req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(`{}`))
+		rr := httptest.NewRecorder()
+		h.ServeHTTP(rr, req)
+		require.Equal(t, http.StatusOK, rr.Code, path)
+		require.Equal(t, "auth", rr.Header().Get("X-Upstream"), path)
+	}
+}
+
+func TestJWT_DeleteAccount_RequiresAuth(t *testing.T) {
+	deps := testDeps(t)
+	h := NewHandler(deps)
+	req := httptest.NewRequest(http.MethodDelete, "/v1/account", nil)
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	require.Equal(t, http.StatusUnauthorized, rr.Code)
+}

@@ -78,6 +78,8 @@ func upstreamREST(upstreams Upstreams) http.Handler {
 		switch {
 		case strings.HasPrefix(path, "/v1/auth/"):
 			auth.ServeHTTP(w, r)
+		case path == "/v1/account":
+			auth.ServeHTTP(w, r)
 		case path == "/v1/track", path == "/v1/tracked-products":
 			track.ServeHTTP(w, r)
 		case strings.HasPrefix(path, "/v1/products/") && strings.HasSuffix(path, "/browser-snapshot"):
