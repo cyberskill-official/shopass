@@ -466,3 +466,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: `shopass-edge-attach.service` enabled; `ensure-caddy-on-shopass-edge.sh`; CyberOS VPS `docker-compose.p0.images.yml` patched (`caddy` networks `[cyberos, shopass-edge]` + external net); overlay `deploy/cyberos/docker-compose.shopass-edge.yml`. Reconnect test: disconnect → 502 → attach → 200; `/v1/auth/login` 404; unauth `/v1/tracked-products` 401. Disk 69%→67% after removing unused `*:pre-4f97a77` images (~1GB). Note: check `df` before web image builds (3.3Gi RAM host).
 - stephen_ask: On next CyberOS `compose up`, include `-f docker-compose.shopass-edge.yml` or keep the patched `p0.images.yml` so Caddy stays on `shopass-edge` without relying only on systemd.
 - notes: No Shopass app redeploy; prod SHA remains `4f97a77`.
+
+## [2026-09-11] R55 - evidence (closed-beta walk; not done)
+- agent/human: Auto (ops week Phase B)
+- branch/commit: ops/r12-backups-caddy-edge @ deb32ad / PR #184; prod still `4f97a77`
+- evidence: Walked https://shopass.cyberskill.world — marketing 200; register+login+logout+reload session OK (`beta-walk-20260912a@shopass.test`); track Shopee URL → `/products/1/chart` with honest thin-history copy; free alert rule created; `POST /v1/alerts` bottom_predicted → **402**; wishlist closed-beta honesty page; unauth `/v1/tracked-products` 401; `/v1/auth/*` 404. R55 not marked done.
+- stephen_ask: See punch list in ops-week report (object storage for R12; Zalo/email R23; decide invite readiness).
+- notes: Product title on chart is generic `Sản phẩm #1` until scrape/title enrichment; referral banner still says Stephen must approve economics.
