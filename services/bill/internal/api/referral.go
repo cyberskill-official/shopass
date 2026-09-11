@@ -61,7 +61,7 @@ func (h *ReferralHandler) HandleMe(w http.ResponseWriter, r *http.Request) {
 		"code":         code,
 		"uses":         rc.Uses,
 		"has_referrer": hasReferrer,
-		"reward_note":  "Cả hai nhận 1 tháng Premium sau khi vượt kiểm tra chống gian lận (đề xuất mặc định — chờ Stephen duyệt kinh tế).",
+		"reward_note":  "Closed beta: mã giới thiệu đã hoạt động (ghi nhận người mời). Phần thưởng Premium chưa mở — đang chờ chốt kinh tế chương trình. Mời bạn dùng thử Shopass, không hứa thưởng lúc này.",
 	})
 }
 

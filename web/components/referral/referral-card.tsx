@@ -54,11 +54,14 @@ export function ReferralCard() {
     }
   };
 
-  const zaloHref = `https://zalo.me/?text=${encodeURIComponent(`Dùng Shopass săn deal thật — đăng ký với mã của mình: ${shareURL}`)}`;
+  const zaloHref = `https://zalo.me/?text=${encodeURIComponent(`Thử Shopass (closed beta) săn deal thật — đăng ký với mã của mình: ${shareURL}`)}`;
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 className="text-xl font-black text-slate-900">Mời bạn — cả hai nhận Premium</h2>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+        Closed beta · giới thiệu
+      </p>
+      <h2 className="mt-2 text-xl font-black text-slate-900">Mời bạn dùng thử Shopass</h2>
       <p className="mt-2 text-sm text-slate-600">{data.reward_note}</p>
       <p className="mt-4 font-mono text-2xl font-black tracking-widest text-sky-900">{data.code}</p>
       <p className="mt-1 text-xs font-bold text-slate-500">Đã giới thiệu thành công: {data.uses}</p>

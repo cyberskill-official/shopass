@@ -1,6 +1,10 @@
+"use client";
+
+import Link from "next/link";
 import React, { useState } from "react";
-import { type RuleType, type Channel, CHANNELS, needsThreshold, validateAlert } from "@/lib/alerts/validate";
 import { createAlert } from "@/lib/alerts/api";
+import { isPremiumRequiredError } from "@/lib/alerts/errors";
+import { type RuleType, type Channel, CHANNELS, needsThreshold, validateAlert } from "@/lib/alerts/validate";
 
 const CHANNEL_LABELS: Record<Channel, string> = {
   push: "Đẩy (push)",
@@ -14,6 +18,8 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
   const [threshold, setThreshold] = useState<string>("");
   const [channels, setChannels] = useState<Channel[]>(["push"]);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [premiumGate, setPremiumGate] = useState(false);
 
   const parsedThreshold = threshold.trim() === "" ? null : parseInt(threshold, 10);
   const error = validateAlert(ruleType, parsedThreshold, channels);
@@ -29,6 +35,8 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
     if (error || !productId.trim()) return;
 
     setLoading(true);
+    setSubmitError(null);
+    setPremiumGate(false);
     try {
       await createAlert({
         product_id: parseInt(productId, 10),
@@ -42,7 +50,12 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
       setChannels(["push"]);
       onCreated();
     } catch (err) {
-      alert(err instanceof Error && err.message ? err.message : "Đã xảy ra lỗi");
+      if (isPremiumRequiredError(err)) {
+        setPremiumGate(true);
+        setSubmitError(err.message);
+      } else {
+        setSubmitError(err instanceof Error && err.message ? err.message : "Đã xảy ra lỗi");
+      }
     } finally {
       setLoading(false);
     }
@@ -83,6 +96,8 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => {
               setRuleType(e.target.value as RuleType);
               setThreshold("");
+              setPremiumGate(false);
+              setSubmitError(null);
             }}
             className={fieldClass}
           >
@@ -132,6 +147,31 @@ export function AlertForm({ onCreated }: { onCreated: () => void }) {
         {error && (
           <p className="text-sm font-medium text-rose-600" role="alert">
             {error}
+          </p>
+        )}
+
+        {premiumGate && (
+          <div
+            role="status"
+            className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          >
+            <p className="font-bold text-amber-900">Cần Premium cho luật này</p>
+            <p className="mt-1 text-amber-800/90">
+              {submitError ?? "Dự đoán đáy và một số cảnh báo nâng cao dành cho Premium."} Trên Free
+              hãy chọn «Sale thật» hoặc «Về giá».
+            </p>
+            <Link
+              href="/bang-gia"
+              className="mt-3 inline-flex cursor-pointer rounded-xl bg-slate-950 px-4 py-2 text-sm font-extrabold text-white transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/25"
+            >
+              Xem Premium / danh sách chờ
+            </Link>
+          </div>
+        )}
+
+        {submitError && !premiumGate && (
+          <p className="text-sm font-medium text-rose-600" role="alert">
+            {submitError}
           </p>
         )}
 

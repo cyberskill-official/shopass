@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import type { AlertRule } from "@/lib/alerts/api";
 
@@ -24,6 +26,8 @@ export function AlertList({
   onToggleActive: (id: number, active: boolean) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }) {
+  const [actionError, setActionError] = useState<string | null>(null);
+
   if (alerts.length === 0) {
     return (
       <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-300/80 bg-gradient-to-b from-slate-50 to-white px-6 py-12 text-center">
@@ -57,100 +61,109 @@ export function AlertList({
   }
 
   return (
-    <ul className="space-y-3" aria-label="Danh sách cảnh báo">
-      {alerts.map((alert) => (
-        <li
-          key={alert.id}
-          className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/30 sm:flex-row sm:items-center sm:justify-between sm:p-5"
-        >
-          <div className="min-w-0">
-            <div className="font-bold text-slate-900">
-              <Link
-                href={`/products/${alert.product_id}/chart`}
-                className="cursor-pointer transition hover:text-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20"
-              >
-                Sản phẩm #{alert.product_id}
-              </Link>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-              <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
-                {RULE_TYPE_LABELS[alert.rule_type] ?? alert.rule_type}
-              </span>
-              {alert.threshold !== null && (
-                <span className="font-medium">
-                  {alert.rule_type === "price_below"
-                    ? `${new Intl.NumberFormat("vi-VN").format(alert.threshold)} ₫`
-                    : `${alert.threshold}%`}
+    <div className="space-y-3">
+      {actionError && (
+        <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700" role="alert">
+          {actionError}
+        </p>
+      )}
+      <ul className="space-y-3" aria-label="Danh sách cảnh báo">
+        {alerts.map((alert) => (
+          <li
+            key={alert.id}
+            className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/30 sm:flex-row sm:items-center sm:justify-between sm:p-5"
+          >
+            <div className="min-w-0">
+              <div className="font-bold text-slate-900">
+                <Link
+                  href={`/products/${alert.product_id}/chart`}
+                  className="cursor-pointer transition hover:text-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20"
+                >
+                  Sản phẩm #{alert.product_id}
+                </Link>
+              </div>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">Đang thu thập tiêu đề</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">
+                  {RULE_TYPE_LABELS[alert.rule_type] ?? alert.rule_type}
                 </span>
-              )}
-              <span className="text-slate-300" aria-hidden="true">
-                ·
-              </span>
-              <span className="text-xs font-medium text-slate-500">
-                {alert.channels.map((c) => CHANNEL_LABELS[c] ?? c).join(", ")}
-              </span>
+                {alert.threshold !== null && (
+                  <span className="font-medium">
+                    {alert.rule_type === "price_below"
+                      ? `${new Intl.NumberFormat("vi-VN").format(alert.threshold)} ₫`
+                      : `${alert.threshold}%`}
+                  </span>
+                )}
+                <span className="text-slate-300" aria-hidden="true">
+                  ·
+                </span>
+                <span className="text-xs font-medium text-slate-500">
+                  {alert.channels.map((c) => CHANNEL_LABELS[c] ?? c).join(", ")}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex shrink-0 items-center gap-4">
-            <label className="flex cursor-pointer items-center gap-2">
-              <span className="text-sm font-bold text-slate-600">
-                {alert.active ? "Bật" : "Tắt"}
-              </span>
-              <span className="relative inline-flex">
-                <input
-                  type="checkbox"
-                  className="peer sr-only"
-                  checked={alert.active}
-                  onChange={async () => {
-                    try {
-                      await onToggleActive(alert.id, !alert.active);
-                    } catch (error) {
-                      window.alert(
-                        error instanceof Error && error.message
-                          ? error.message
-                          : "Đã xảy ra lỗi",
-                      );
-                    }
-                  }}
-                />
-                <span
-                  className={`block h-6 w-10 rounded-full transition-colors ${
-                    alert.active ? "bg-sky-600" : "bg-slate-300"
-                  }`}
-                  aria-hidden="true"
-                />
-                <span
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                    alert.active ? "translate-x-4" : ""
-                  }`}
-                  aria-hidden="true"
-                />
-              </span>
-            </label>
+            <div className="flex shrink-0 items-center gap-4">
+              <label className="flex cursor-pointer items-center gap-2">
+                <span className="text-sm font-bold text-slate-600">
+                  {alert.active ? "Bật" : "Tắt"}
+                </span>
+                <span className="relative inline-flex">
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={alert.active}
+                    onChange={async () => {
+                      setActionError(null);
+                      try {
+                        await onToggleActive(alert.id, !alert.active);
+                      } catch (error) {
+                        setActionError(
+                          error instanceof Error && error.message
+                            ? error.message
+                            : "Đã xảy ra lỗi",
+                        );
+                      }
+                    }}
+                  />
+                  <span
+                    className={`block h-6 w-10 rounded-full transition-colors ${
+                      alert.active ? "bg-sky-600" : "bg-slate-300"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                      alert.active ? "translate-x-4" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                </span>
+              </label>
 
-            <button
-              type="button"
-              onClick={async () => {
-                if (confirm("Xóa cảnh báo này?")) {
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!confirm("Xóa cảnh báo này?")) return;
+                  setActionError(null);
                   try {
                     await onDelete(alert.id);
                   } catch (error) {
-                    window.alert(
+                    setActionError(
                       error instanceof Error && error.message
                         ? error.message
                         : "Đã xảy ra lỗi",
                     );
                   }
-                }
-              }}
-              className="cursor-pointer text-sm font-bold text-rose-600 transition hover:text-rose-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/20"
-            >
-              Xóa
-            </button>
-          </div>
-        </li>
-      ))}
-    </ul>
+                }}
+                className="cursor-pointer text-sm font-bold text-rose-600 transition hover:text-rose-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/20"
+              >
+                Xóa
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

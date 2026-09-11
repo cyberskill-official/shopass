@@ -107,6 +107,16 @@ services:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be injected by the production secret manager}
       FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
       FCM_SERVICE_ACCOUNT_JSON: ${FCM_SERVICE_ACCOUNT_JSON:-}
+      # R23 — empty = fail-closed noop (never pretend delivered)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-}
+      ZALO_OA_ID: ${ZALO_OA_ID:-}
+      ZALO_OA_SECRET: ${ZALO_OA_SECRET:-}
+      ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
     depends_on:
       migrate: { condition: service_completed_successfully }
     networks: [private]

@@ -163,9 +163,12 @@ export default function ProductChartPage() {
               Shopee VN
             </p>
             <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
-              Sản phẩm #{productId}
+              Đang thu thập tiêu đề…
             </h1>
-            <p className="mt-1.5 text-sm text-slate-500">Mã gốc từ nền tảng: {productId}</p>
+            <p className="mt-1.5 text-sm text-slate-500">
+              Mã theo dõi #{productId} · tiêu đề sản phẩm sẽ hiện khi scrape/proxy sẵn sàng — không
+              bịa tên giả.
+            </p>
           </div>
 
           <div className="shrink-0">
@@ -242,7 +245,9 @@ export default function ProductChartPage() {
         )}
 
         <div className="mt-8">
-          {data && <MaturityNotice maturity={data.maturity} />}
+          {data && (
+            <MaturityNotice maturity={data.maturity} pointCount={data.daily.length} />
+          )}
         </div>
 
         {productId > 0 && (

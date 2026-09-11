@@ -209,13 +209,13 @@ export default function DashboardPage() {
                     <span className="rounded bg-orange-100 px-2 py-0.5 text-[10px] font-black uppercase text-orange-700">
                       {formatPlatform(product.platform)}
                     </span>
-                    <span className="text-xs font-bold text-slate-400">Sản phẩm #{product.product_id}</span>
+                    <span className="text-xs font-bold text-slate-400">#{product.product_id}</span>
                   </div>
-                  <h3 className="truncate font-bold text-slate-900 transition group-hover:text-sky-700" title={product.platform_item_id}>
-                    Mã gốc: {product.platform_item_id}
+                  <h3 className="truncate font-bold text-slate-900 transition group-hover:text-sky-700">
+                    Đang thu thập tiêu đề…
                   </h3>
-                  <p className="mt-1 text-xs font-medium text-slate-500">
-                    Thêm vào lúc {dateFormatter.format(new Date(product.tracked_at))}
+                  <p className="mt-1 truncate text-xs font-medium text-slate-500" title={product.platform_item_id}>
+                    Mã gốc: {product.platform_item_id} · thêm {dateFormatter.format(new Date(product.tracked_at))}
                   </p>
                 </div>
 

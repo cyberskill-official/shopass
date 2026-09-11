@@ -473,3 +473,11 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - evidence: Walked https://shopass.cyberskill.world — marketing 200; register+login+logout+reload session OK (`beta-walk-20260912a@shopass.test`); track Shopee URL → `/products/1/chart` with honest thin-history copy; free alert rule created; `POST /v1/alerts` bottom_predicted → **402**; wishlist closed-beta honesty page; unauth `/v1/tracked-products` 401; `/v1/auth/*` 404. R55 not marked done.
 - stephen_ask: See punch list in ops-week report (object storage for R12; Zalo/email R23; decide invite readiness).
 - notes: Product title on chart is generic `Sản phẩm #1` until scrape/title enrichment; referral banner still says Stephen must approve economics.
+
+## [2026-09-12] closed-beta remainings - evidence (agent PR; not R55 done)
+- agent/human: Auto
+- branch/commit: cursor/closed-beta-remainings (this PR)
+- evidence: Merged #184 → main `06d15d7`. Agent follow-ups: CI `govulncheck@v1.7.0` pin (Go 1.25); AlertForm 402 → Premium CTA (no `alert()`); referral `reward_note` + card = closed-beta honesty (no Premium promise); chart/dashboard «Đang thu thập tiêu đề…» + thin-history MaturityNotice point count; R23 SMTP provider + Zalo noop scaffolding (fail-closed, no real send without creds); env example keys for SMTP/Zalo + BACKUP_S3 already on main from #184.
+- stephen_ask: (1) Object storage keys → `BACKUP_S3_URI` + upload tool, re-run backup + HITL restore drill (R12). (2) Zalo OA/ZNS + SMTP creds + SPF/DKIM (R23 live). (3) Residential proxy budget/creds (R24 title scrape). Do not mark R55 done.
+- notes: Remainings PR open for HITL merge; no prod deploy from this workstream.
+

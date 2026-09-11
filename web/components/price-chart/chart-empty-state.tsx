@@ -29,7 +29,8 @@ export function ChartEmptyState({ onFocusCapture }: ChartEmptyStateProps) {
       </p>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
         Sản phẩm đã được theo dõi, nhưng chưa có điểm giá ngày nào trong khoảng bạn chọn. Shopass
-        không hiển thị biểu đồ giả — hãy ghi nhận giá bạn đang thấy trên Shopee ở mục phía trên.
+        không hiển thị biểu đồ giả hay nội suy — hãy ghi nhận giá bạn đang thấy trên Shopee ở mục
+        phía trên (closed beta · dữ liệu thật).
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <button

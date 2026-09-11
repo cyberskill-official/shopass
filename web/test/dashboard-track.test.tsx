@@ -74,7 +74,8 @@ describe("Dashboard tracking flow", () => {
     }]);
     render(<DashboardPage />);
 
-    expect(await screen.findByText(/Sản phẩm #88/i)).toBeInTheDocument();
+    expect(await screen.findByText(/#88/i)).toBeInTheDocument();
+    expect(screen.getByText(/Đang thu thập tiêu đề/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Xem biểu đồ" })).toHaveAttribute("href", "/products/88/chart");
   });
 });

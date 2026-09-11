@@ -67,7 +67,8 @@ jobs:
       - name: govulncheck (all Go modules)
         run: |
           set -e
-          go install golang.org/x/vuln/cmd/govulncheck@latest
+          # Pin: @latest (v1.8+) requires go >= 1.26; CI stays on 1.25.13 (R10 / SHIP-GUIDE).
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
           for mod in db obs region secrets \
                      services/gateway services/auth services/price services/scrape \
                      services/deal services/notif services/track services/cart \
