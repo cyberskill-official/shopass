@@ -1,0 +1,113 @@
+# R15 — SSH roll to VPS using GHCR images. Fail-closed without secrets.
+# Exact secret names: deploy/R15-GITHUB-SECRETS.md
+# Never merge secrets into the repo. Never run make smoke on prod.
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "GHCR tag (full git SHA, hex only)"
+        required: true
+        type: string
+  workflow_run:
+    workflows: ["Publish GHCR"]
+    types: [completed]
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shopass-deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: SSH compose pull + up
+    runs-on: ubuntu-latest
+    environment: production
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    steps:
+      - name: Resolve image tag
+        id: tag
+        env:
+          DISPATCH_TAG: ${{ inputs.image_tag }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+            TAG="${DISPATCH_TAG}"
+          else
+            TAG="${RUN_SHA}"
+          fi
+          if ! printf '%s' "${TAG}" | grep -Eq '^[0-9a-f]{7,64}$'; then
+            echo "refusing non-hex image tag" >&2
+            exit 1
+          fi
+          echo "value=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Check deploy secrets
+        id: secrets
+        env:
+          HOST: ${{ secrets.SHOPASS_DEPLOY_HOST }}
+          USER: ${{ secrets.SHOPASS_DEPLOY_USER }}
+          KEY: ${{ secrets.SHOPASS_DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HOST}" ] || [ -z "${USER}" ] || [ -z "${KEY}" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::R15 deploy secrets missing (SHOPASS_DEPLOY_HOST/USER/SSH_KEY). Scaffolding only — see deploy/R15-GITHUB-SECRETS.md. Exiting without SSH."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip when secrets absent
+        if: steps.secrets.outputs.present != 'true'
+        run: echo "No-op deploy (needs_stephen). PR/docs may land without enabling production environment secrets."
+
+      - name: SSH deploy
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          HOST: ${{ secrets.SHOPASS_DEPLOY_HOST }}
+          USER: ${{ secrets.SHOPASS_DEPLOY_USER }}
+          KEY: ${{ secrets.SHOPASS_DEPLOY_SSH_KEY }}
+          PORT: ${{ secrets.SHOPASS_DEPLOY_SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.SHOPASS_DEPLOY_PATH }}
+          IMAGE_TAG: ${{ steps.tag.outputs.value }}
+          KNOWN_HOSTS: ${{ secrets.SHOPASS_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          PORT="${PORT:-22}"
+          DEPLOY_PATH="${DEPLOY_PATH:-/srv/shopass}"
+          mkdir -p "${HOME}/.ssh"
+          chmod 700 "${HOME}/.ssh"
+          install -m 600 /dev/null "${HOME}/.ssh/deploy_key"
+          printf '%s\n' "$KEY" > "${HOME}/.ssh/deploy_key"
+          if [ -n "${KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "$KNOWN_HOSTS" > "${HOME}/.ssh/known_hosts"
+          else
+            ssh-keyscan -p "${PORT}" -H "${HOST}" >> "${HOME}/.ssh/known_hosts" 2>/dev/null || true
+          fi
+          # Remote script via stdin avoids shell-metachar injection from host path.
+          ssh -i "${HOME}/.ssh/deploy_key" -p "${PORT}" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            "${USER}@${HOST}" \
+            env "SHOPASS_IMAGE_TAG=${IMAGE_TAG}" "SHOPASS_DEPLOY_PATH=${DEPLOY_PATH}" \
+            bash -s <<'REMOTE'
+          set -euo pipefail
+          cd "${SHOPASS_DEPLOY_PATH}"
+          sudo docker compose --env-file /etc/shopass/runtime.env \
+            -f deploy/docker-compose.production.yml \
+            -f deploy/docker-compose.ghcr.yml \
+            pull
+          sudo docker compose --env-file /etc/shopass/runtime.env \
+            -f deploy/docker-compose.production.yml \
+            -f deploy/docker-compose.ghcr.yml \
+            up -d --no-build --remove-orphans
+          echo "deployed tag=${SHOPASS_IMAGE_TAG}"
+          REMOTE

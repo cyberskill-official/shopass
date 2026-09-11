@@ -29,9 +29,11 @@ systemctl list-timers 'shopass-*'
 ```
 
 `shopass-backup.timer` runs `deploy/scripts/backup-pg.sh` at 03:15 (see
-[`../RESTORE-RUNBOOK.md`](../RESTORE-RUNBOOK.md)). `shopass-edge-attach.service`
-reconnects CyberOS Caddy to `shopass-edge` after reboot if the CyberOS compose
-overlay is not yet installed.
+[`../RESTORE-RUNBOOK.md`](../RESTORE-RUNBOOK.md)). Before expecting off-host
+DR, run [`../scripts/backup-upload-dry-run.sh`](../scripts/backup-upload-dry-run.sh)
+and complete the VPS steps in [`../VPS-CHECKLIST.md`](../VPS-CHECKLIST.md).
+`shopass-edge-attach.service` reconnects CyberOS Caddy to `shopass-edge` after
+reboot if the CyberOS compose overlay is not yet installed.
 
 `shopass-scrape.timer` runs every five minutes. `shopass-forecast.timer` runs
 at 01:30 Asia/Ho_Chi_Minh, leaving a buffer before the 02:00 nightly scoring

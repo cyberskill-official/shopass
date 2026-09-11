@@ -148,7 +148,12 @@ export function OnboardingFlow() {
             {busy ? "Đang bật…" : "Báo tôi khi chạm đáy"}
           </button>
           <p className="text-xs text-slate-500">
-            Free: nếu dự đoán đáy cần Premium, Shopass tự bật cảnh báo “sale thật” để bạn vẫn có tín hiệu.
+            Free: nếu dự đoán đáy cần Premium, Shopass tự bật cảnh báo “sale thật” để bạn vẫn có tín
+            hiệu. Nâng Premium (khi mở thanh toán) để dùng p_bottom và luật nâng cao — xem{" "}
+            <Link href="/bang-gia" className="font-bold text-sky-800 underline">
+              bảng giá
+            </Link>
+            .
           </p>
         </section>
       )}

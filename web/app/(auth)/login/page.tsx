@@ -214,6 +214,13 @@ export default function LoginPage() {
                   autoComplete={isSignup ? "new-password" : "current-password"}
                   required
                 />
+                {!isSignup && (
+                  <p className="mt-2 text-right">
+                    <Link href="/forgot-password" className="text-xs font-bold text-sky-700 hover:underline">
+                      Quên mật khẩu?
+                    </Link>
+                  </p>
+                )}
               </div>
 
               <button

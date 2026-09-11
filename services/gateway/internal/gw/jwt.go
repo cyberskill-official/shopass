@@ -85,7 +85,8 @@ func isPublic(r *http.Request) bool {
 	}
 	if r.Method == http.MethodPost {
 		switch r.URL.Path {
-		case "/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh", "/v1/auth/logout":
+		case "/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh", "/v1/auth/logout",
+			"/v1/auth/password/reset-request", "/v1/auth/password/reset-confirm":
 			return true
 		}
 	}

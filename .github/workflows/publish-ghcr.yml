@@ -1,0 +1,96 @@
+# R15 — build & push Shopass images to GHCR (no deploy).
+# Secrets: uses GITHUB_TOKEN only. Do not put VPS keys here.
+name: Publish GHCR
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-ghcr-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: cyberskill-official
+
+jobs:
+  publish:
+    name: Build + push images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gateway
+            dockerfile: deploy/Dockerfile.go
+            service: services/gateway
+            cmd: ./cmd/gateway
+          - name: authsvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/auth
+            cmd: ./cmd/authsvc
+          - name: pricesvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/price
+            cmd: ./cmd/pricesvc
+          - name: dealsvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/deal
+            cmd: ./cmd/dealsvc
+          - name: notifsvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/notif
+            cmd: ./cmd/notifsvc
+          - name: tracksvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/track
+            cmd: ./cmd/tracksvc
+          - name: billsvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/bill
+            cmd: ./cmd/billsvc
+          - name: complysvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/comply
+            cmd: ./cmd/complysvc
+          - name: scrapesvc
+            dockerfile: deploy/Dockerfile.go
+            service: services/scrape
+            cmd: ./cmd/scrapesvc
+          - name: web
+            dockerfile: deploy/Dockerfile.web
+            service: ""
+            cmd: ""
+          - name: mlforecast
+            dockerfile: deploy/Dockerfile.ml
+            service: ""
+            cmd: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push shopass-${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/shopass-${{ matrix.name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/shopass-${{ matrix.name }}:latest
+          build-args: |
+            SERVICE=${{ matrix.service }}
+            CMD=${{ matrix.cmd }}
+          cache-from: type=gha,scope=shopass-${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=shopass-${{ matrix.name }}

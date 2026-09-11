@@ -481,3 +481,10 @@ Follow-ups discovered mid-task get their own line here and a new row in `BACKLOG
 - stephen_ask: (1) Object storage keys → `BACKUP_S3_URI` + upload tool, re-run backup + HITL restore drill (R12). (2) Zalo OA/ZNS + SMTP creds + SPF/DKIM (R23 live). (3) Residential proxy budget/creds (R24 title scrape). Do not mark R55 done.
 - notes: Remainings PR open for HITL merge; no prod deploy from this workstream.
 
+
+## [2026-09-12] closed-beta remainings-2 - evidence (AUTH-005 HTTP + R15 scaffold)
+- agent/human: Auto
+- branch/commit: cursor/closed-beta-remainings-2 (this PR)
+- evidence: Prod base `71ce70c` (#185). AUTH-005 HTTP: `POST /v1/auth/password/reset-request|reset-confirm`, `DELETE /v1/account` on authsvc + gateway public/auth routing + rate limit; web BFF `/api/auth/password/*`, `/forgot-password`, `/reset-password`, `/account` (DSAR delete). R15: `publish-ghcr.yml`, fail-closed `deploy.yml`, `docker-compose.ghcr.yml`, `deploy/R15-GITHUB-SECRETS.md`. Ops: `VPS-CHECKLIST.md`, `backup-upload-dry-run.sh`, systemd/README cross-links. Reset notifier audit-only until R23 SMTP.
+- stephen_ask: **Exact variables (do not invent values):** (1) **R12** `/etc/shopass/runtime.env`: `BACKUP_S3_URI`, `BACKUP_UPLOAD_TOOL=rclone|aws`, plus rclone remote or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_ENDPOINT_URL`; then dry-run → backup-pg → HITL restore. (2) **R23** `SMTP_HOST` `SMTP_PORT` `SMTP_FROM` `SMTP_USERNAME` `SMTP_PASSWORD` `SMTP_AUTH`; `ZALO_OA_ID` `ZALO_OA_SECRET` `ZALO_OA_ACCESS_TOKEN`; SPF/DKIM. (3) **R24** proxy budget + `HTTPS_PROXY` on scrapesvc. (4) **R15** GitHub Environment `production`: `SHOPASS_DEPLOY_HOST` `SHOPASS_DEPLOY_USER` `SHOPASS_DEPLOY_SSH_KEY` optional `SHOPASS_DEPLOY_SSH_PORT` `SHOPASS_DEPLOY_PATH` `SHOPASS_DEPLOY_KNOWN_HOSTS` — see `deploy/R15-GITHUB-SECRETS.md`.
+- notes: Do not mark R12/R15/R23/R24/R55 done. No OAuth enable, no make smoke on prod, no agent merge/deploy.

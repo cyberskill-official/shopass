@@ -227,6 +227,9 @@ sudo /srv/shopass/deploy/scripts/restore-drill.sh "$LATEST"
 A local gzip under `/var/backups/shopass` is not disaster recovery until
 `BACKUP_S3_URI` uploads succeed. Monitor disk before image builds (VPS root
 often sits ~70% after web rebuilds); prune only dangling/unused images.
+See [`VPS-CHECKLIST.md`](VPS-CHECKLIST.md). Prefer GHCR pulls
+([`R15-GITHUB-SECRETS.md`](R15-GITHUB-SECRETS.md) +
+`docker-compose.ghcr.yml`) over building web on the VPS.
 
 ### Shared CyberOS edge
 

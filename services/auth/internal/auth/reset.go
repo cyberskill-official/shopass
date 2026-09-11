@@ -57,9 +57,8 @@ func (s *LifecycleService) ConfirmReset(ctx context.Context, token, newPassword 
 		return ErrInvalidResetToken
 	}
 
-	// Assuming simple password check for this test
-	if len(newPassword) < 8 {
-		return errors.New("password too short")
+	if err := checkPasswordStrength(newPassword); err != nil {
+		return err
 	}
 
 	hashedPwd, err := Hash(newPassword, s.params)

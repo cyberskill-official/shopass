@@ -10,7 +10,7 @@ Wave 1 | Effort M | Depends: - | Stephen input: account + creds (Zalo OA/ZNS, SM
 
 Why: `services/notif/internal/` historically shipped FCM-first; `routing.go` ranks `email` with a fail-closed noop until SMTP creds exist. In Vietnam, purchase alerts live on Zalo; FCM-only limits reach to web-push grantors. Alerts are the habit loop - this is retention infrastructure.
 
-Status (2026-09-12): SMTP `Provider` + env wiring + Zalo noop package shipped; live send still **needs_stephen** (OA/ZNS + SMTP). Do not claim delivery without credentials.
+Status (2026-09-12): SMTP `Provider` + env wiring + Zalo noop package shipped; AUTH-005 reset HTTP uses audit-only notifier until SMTP live; live send still **needs_stephen** (OA/ZNS + SMTP + SPF/DKIM). Exact vars in LEDGER remainings-2. Do not claim delivery without credentials.
 
 Steps:
 1. Define a `Sender` interface in notifsvc matching the existing fanout dispatch; adapt `fcm` to it.

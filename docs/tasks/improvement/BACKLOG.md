@@ -22,7 +22,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen (local dump+drill+timer on main via #184; off-host bucket pending) |
 | R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | done (PR #62) |
 | R14 | Centralized logs (Loki) | B | M | - | - | done (PR #62) |
-| R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen |
+| R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen (workflows + ghcr overlay + secrets doc in remainings-2; live roll blocked on Stephen secrets) |
 | R16 | Zero-downtime deploys + migration guards | B | M | R15 | - | blocked |
 | R17 | Production scheduling for scrape + forecast jobs | B | S | - | - | done (PR #62) |
 | R23 | Zalo ZNS + email senders beside FCM | C | M | - | account, creds (Zalo OA, SMTP) | needs_stephen (SMTP+Zalo noop scaffolding shipped; live send blocked on creds) |

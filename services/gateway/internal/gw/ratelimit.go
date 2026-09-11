@@ -80,6 +80,8 @@ func bucketKeyAndLimit(r *http.Request) (string, int) {
 		limit = 5 // stricter for credential guessing
 	case "/v1/auth/refresh":
 		limit = 10 // session restore / refresh storms
+	case "/v1/auth/password/reset-request":
+		limit = 5 // same bucket class as login (enumeration / inbox flood)
 	}
 
 	if claims, ok := r.Context().Value(claimsKey{}).(*Claims); ok {
