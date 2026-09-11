@@ -19,10 +19,19 @@ sudo install -m 0644 deploy/systemd/shopass-scrape.service /etc/systemd/system/
 sudo install -m 0644 deploy/systemd/shopass-scrape.timer /etc/systemd/system/
 sudo install -m 0644 deploy/systemd/shopass-forecast.service /etc/systemd/system/
 sudo install -m 0644 deploy/systemd/shopass-forecast.timer /etc/systemd/system/
+sudo install -m 0644 deploy/systemd/shopass-backup.service /etc/systemd/system/
+sudo install -m 0644 deploy/systemd/shopass-backup.timer /etc/systemd/system/
+sudo install -m 0644 deploy/systemd/shopass-edge-attach.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now shopass-scrape.timer shopass-forecast.timer
+sudo systemctl enable --now shopass-scrape.timer shopass-forecast.timer shopass-backup.timer
+sudo systemctl enable --now shopass-edge-attach.service
 systemctl list-timers 'shopass-*'
 ```
+
+`shopass-backup.timer` runs `deploy/scripts/backup-pg.sh` at 03:15 (see
+[`../RESTORE-RUNBOOK.md`](../RESTORE-RUNBOOK.md)). `shopass-edge-attach.service`
+reconnects CyberOS Caddy to `shopass-edge` after reboot if the CyberOS compose
+overlay is not yet installed.
 
 `shopass-scrape.timer` runs every five minutes. `shopass-forecast.timer` runs
 at 01:30 Asia/Ho_Chi_Minh, leaving a buffer before the 02:00 nightly scoring

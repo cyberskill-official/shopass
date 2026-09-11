@@ -1,0 +1,29 @@
+# CyberOS compose overlay: keep Caddy on shopass-edge across restarts.
+#
+# On the shared VPS, copy/merge into cyberos/deploy/vps/ (or include via
+# `docker compose -f docker-compose.p0.yml -f docker-compose.shopass-edge.yml`):
+#
+#   networks:
+#     shopass-edge:
+#       external: true
+#       name: shopass-edge
+#   services:
+#     caddy:
+#       networks:
+#         - cyberos
+#         - shopass-edge
+#
+# Prefer this over one-off `docker network connect`. Also install
+# deploy/systemd/shopass-edge-attach.service as a belt-and-suspenders reconnect
+# after Docker daemon restarts when CyberOS compose was not updated yet.
+
+networks:
+  shopass-edge:
+    external: true
+    name: shopass-edge
+
+services:
+  caddy:
+    networks:
+      - cyberos
+      - shopass-edge

@@ -19,7 +19,7 @@ Stephen-input legend: `-` none, `decision` (choice/approval), `account` (externa
 | R9 | Guard demo seed against prod | A | S | - | - | done (PR #60) |
 | R10 | Go toolchain alignment + govulncheck in CI | A | S | - | - | done (PR #61) |
 | R11 | TLS + reverse proxy (Caddy) | B | M | R1 | creds (domain DNS) | needs_stephen |
-| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen |
+| R12 | Automated backups + restore drill | B | M | - | account, creds (object storage) | needs_stephen (local dump+drill done; off-host bucket pending) |
 | R13 | Prometheus + alert rules for declared NFRs | B | M | - | - | done (PR #62) |
 | R14 | Centralized logs (Loki) | B | M | - | - | done (PR #62) |
 | R15 | CI/CD: GHCR image publish + SSH deploy | B | M | R2 | creds (VPS, GHCR secrets) | needs_stephen |

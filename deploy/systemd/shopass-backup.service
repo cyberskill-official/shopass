@@ -1,0 +1,15 @@
+[Unit]
+Description=Shopass nightly Postgres backup (R12)
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+ConditionPathExists=/srv/shopass/deploy/scripts/backup-pg.sh
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/shopass
+EnvironmentFile=-/etc/shopass/runtime.env
+TimeoutStartSec=2h
+Nice=10
+IOSchedulingClass=best-effort
+ExecStart=/usr/bin/flock -n /run/lock/shopass-backup.lock /srv/shopass/deploy/scripts/backup-pg.sh

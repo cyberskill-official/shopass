@@ -1,0 +1,13 @@
+[Unit]
+Description=Attach CyberOS Caddy to shopass-edge network
+After=docker.service
+Wants=docker.service
+ConditionPathExists=/srv/shopass/deploy/scripts/ensure-caddy-on-shopass-edge.sh
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/srv/shopass/deploy/scripts/ensure-caddy-on-shopass-edge.sh
+
+[Install]
+WantedBy=multi-user.target

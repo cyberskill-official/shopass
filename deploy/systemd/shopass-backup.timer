@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly Shopass Postgres backup timer (R12)
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+Unit=shopass-backup.service
+
+[Install]
+WantedBy=timers.target
