@@ -5,7 +5,7 @@ go 1.25.0
 toolchain go1.25.13
 
 require (
-	github.com/jackc/pgx/v5 v5.10.0
+	github.com/jackc/pgx/v5 v5.11.0
 	github.com/playwright-community/playwright-go v0.2000.1
 	github.com/stretchr/testify v1.11.1
 )
